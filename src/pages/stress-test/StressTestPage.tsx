@@ -46,7 +46,17 @@ const generateItems = () => {
   }));
 };
 
-const store: StoreConfig = {
+const store: StoreConfig<{
+  items: Array<{
+    id: number;
+    value: number;
+    status: string;
+    lastUpdate: number;
+  }>;
+  isRunning: boolean;
+  updateCount: number;
+  intervalId: number | null;
+}> = {
   state: {
     items: generateItems(),
     isRunning: false,
@@ -100,7 +110,7 @@ const store: StoreConfig = {
 
 // JSON configuration with store
 export const stressTestPageConfig: AppConfig = {
-  store: store,
+  store: store as unknown as StoreConfig,
   ui: {
     type: "div",
     props: {
