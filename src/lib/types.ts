@@ -1,4 +1,4 @@
-import { ReactElement, ComponentType } from 'react';
+import type { ReactElement, ComponentType } from "react";
 
 export interface ComponentConfig {
   type: string;
@@ -15,9 +15,37 @@ export interface PluginContext {
 
 export interface Plugin {
   name: string;
-  beforeRender?: (config: ComponentConfig, context: PluginContext) => ComponentConfig;
-  afterRender?: (element: ReactElement, config: ComponentConfig, context: PluginContext) => ReactElement;
+  beforeRender?: (
+    config: ComponentConfig,
+    context: PluginContext,
+  ) => ComponentConfig;
+  afterRender?: (
+    element: ReactElement,
+    config: ComponentConfig,
+    context: PluginContext,
+  ) => ReactElement;
 }
 
 export type ComponentRegistry = Map<string, ComponentType<unknown>>;
 export type PluginRegistry = Map<string, Plugin>;
+
+// Store types
+export interface StoreConfig {
+  state: Record<string, unknown>;
+  actions?: Record<
+    string,
+    (state: Record<string, unknown>, ...args: unknown[]) => void
+  >;
+  computed?: Record<string, (state: Record<string, unknown>) => unknown>;
+}
+
+export interface AppConfig {
+  store?: StoreConfig;
+  ui: ComponentConfig;
+}
+
+export interface StoreInstance {
+  state: Record<string, unknown>;
+  actions: Record<string, (...args: unknown[]) => void>;
+  computed: Record<string, unknown>;
+}

@@ -1,28 +1,64 @@
 import { createElement, Fragment, type ReactElement } from "react";
-import type { ComponentConfig, PluginContext } from "./types";
+import type { ComponentConfig, PluginContext, AppConfig } from "./types";
 import { componentRegistry } from "./registry";
 import { pluginRegistry } from "./plugins";
+import { createStore } from "./store";
+import { StoreProvider, useStore } from "./StoreProvider";
+import { useResolvedConfig } from "./resolver";
 
 interface JsonRendererProps {
+  config: ComponentConfig | AppConfig;
+  context?: Partial<PluginContext>;
+}
+
+export function JsonRenderer({ config, context = {} }: JsonRendererProps): ReactElement | null {
+  // Check if config has store (AppConfig) or is just ComponentConfig
+  const isAppConfig = 'ui' in config || 'store' in config;
+
+  if (isAppConfig) {
+    const appConfig = config as AppConfig;
+
+    // Create store if provided
+    if (appConfig.store) {
+      const store = createStore(appConfig.store);
+
+      return (
+        <StoreProvider store={store}>
+          <JsonRendererInternal config={appConfig.ui} context={context} />
+        </StoreProvider>
+      );
+    }
+
+    // No store, just render UI
+    return <JsonRendererInternal config={appConfig.ui} context={context} />;
+  }
+
+  // Legacy: direct ComponentConfig
+  return <JsonRendererInternal config={config as ComponentConfig} context={context} />;
+}
+
+interface JsonRendererInternalProps {
   config: ComponentConfig;
   context?: Partial<PluginContext>;
 }
 
-export function JsonRenderer({
-  config,
-  context = {},
-}: JsonRendererProps): ReactElement | null {
+function JsonRendererInternal({ config, context = {} }: JsonRendererInternalProps): ReactElement | null {
+  const store = useStore();
+
   const pluginContext: PluginContext = {
     depth: 0,
     ...context,
   };
 
-  return renderComponent(config, pluginContext);
+  // Resolve store references if store exists
+  const resolvedConfig = useResolvedConfig(config, store);
+
+  return renderComponent(resolvedConfig, pluginContext);
 }
 
 function renderComponent(
   config: ComponentConfig,
-  context: PluginContext,
+  context: PluginContext
 ): ReactElement | null {
   if (!config || !config.type) {
     return null;
@@ -46,11 +82,14 @@ function renderComponent(
   }
 
   // Render children
-  const renderedChildren = renderChildren(modifiedConfig.children, {
-    ...context,
-    depth: context.depth + 1,
-    parentType: modifiedConfig.type,
-  });
+  const renderedChildren = renderChildren(
+    modifiedConfig.children,
+    {
+      ...context,
+      depth: context.depth + 1,
+      parentType: modifiedConfig.type,
+    }
+  );
 
   // Create element
   let element = createElement(
@@ -74,7 +113,7 @@ function renderComponent(
 
 function renderChildren(
   children: ComponentConfig["children"],
-  context: PluginContext,
+  context: PluginContext
 ): React.ReactNode {
   if (!children) {
     return null;
@@ -94,7 +133,7 @@ function renderChildren(
         if (typeof child === "string" || typeof child === "number") {
           return child;
         }
-        return createElement(JsonRenderer, {
+        return createElement(JsonRendererInternal, {
           key: index,
           config: child,
           context,
@@ -104,5 +143,5 @@ function renderChildren(
   }
 
   // Handle single component child
-  return createElement(JsonRenderer, { config: children, context });
+  return createElement(JsonRendererInternal, { config: children, context });
 }

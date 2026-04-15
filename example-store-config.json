@@ -1,0 +1,83 @@
+{
+  "store": {
+    "state": {
+      "count": 0,
+      "user": {
+        "name": "Guest",
+        "role": "visitor"
+      },
+      "theme": "light"
+    },
+    "actions": {
+      "increment": "Function: state.count++",
+      "decrement": "Function: state.count--",
+      "reset": "Function: state.count = 0",
+      "setUserName": "Function: (state, name) => state.user.name = name",
+      "toggleTheme": "Function: state.theme = state.theme === 'light' ? 'dark' : 'light'"
+    },
+    "computed": {
+      "doubleCount": "Function: state => state.count * 2",
+      "userName": "Function: state => state.user?.name || 'Guest'",
+      "userGreeting": "Function: state => `Hello, ${state.user?.name || 'Guest'}!`"
+    }
+  },
+  "ui": {
+    "type": "div",
+    "props": {
+      "style": {
+        "padding": "40px",
+        "maxWidth": "800px",
+        "margin": "0 auto"
+      }
+    },
+    "children": [
+      {
+        "type": "h1",
+        "children": "@store.computed.userGreeting"
+      },
+      {
+        "type": "p",
+        "children": "Count: @store.state.count"
+      },
+      {
+        "type": "p",
+        "children": "Double: @store.computed.doubleCount"
+      },
+      {
+        "type": "div",
+        "props": {
+          "style": {
+            "display": "flex",
+            "gap": "10px"
+          }
+        },
+        "children": [
+          {
+            "type": "Button",
+            "props": {
+              "variant": "default",
+              "onClick": "@store.actions.increment"
+            },
+            "children": "Increment"
+          },
+          {
+            "type": "Button",
+            "props": {
+              "variant": "outline",
+              "onClick": "@store.actions.decrement"
+            },
+            "children": "Decrement"
+          },
+          {
+            "type": "Button",
+            "props": {
+              "variant": "secondary",
+              "onClick": "@store.actions.reset"
+            },
+            "children": "Reset"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -85,27 +85,26 @@ function App() {
 }
 ```
 
-## JSON Configuration Format
+## Store Configuration Format
 
 ### Full Configuration Structure
 
 ```typescript
 interface AppConfig {
   store?: {
-    state?: Record<string, unknown>;
-    actions?: Record<string, string | Function>;
-    computed?: Record<string, string | Function>;
+    state: Record<string, unknown>;
+    actions?: Record<string, (state: any, ...args: any[]) => void>;
+    computed?: Record<string, (state: any) => unknown>;
   };
   ui: ComponentConfig;
 }
-
-interface ComponentConfig {
-  type: string;                    // Component name from registry
-  props?: Record<string, unknown>; // Component props
-  children?: ComponentConfig[] | ComponentConfig | string | number;
-  plugins?: string[];              // Plugin names to apply
-}
 ```
+
+**Important Notes:**
+- Actions and computed properties are **functions**, not JSON strings
+- The library uses **Valtio** for reactive state management
+- Computed properties use **derive-valtio** (not the deprecated valtio/utils derive)
+- State updates are automatically tracked and trigger re-renders
 
 ### UI Configuration Example
 
@@ -123,27 +122,44 @@ interface ComponentConfig {
 
 ### Store Configuration Example
 
-```json
-{
-  "store": {
-    "state": {
-      "count": 0,
-      "user": null,
-      "isLoading": false
+```typescript
+const config = {
+  store: {
+    state: {
+      count: 0,
+      user: { name: "Guest", email: "guest@example.com" },
+      isLoading: false
     },
-    "actions": {
-      "increment": "count++",
-      "decrement": "count--",
-      "setUser": "user = payload",
-      "toggleLoading": "isLoading = !isLoading"
+    actions: {
+      increment: (state) => {
+        state.count++;
+      },
+      decrement: (state) => {
+        state.count--;
+      },
+      setUser: (state, user) => {
+        state.user = user;
+      },
+      toggleLoading: (state) => {
+        state.isLoading = !state.isLoading;
+      }
     },
-    "computed": {
-      "doubleCount": "count * 2",
-      "userName": "user?.name || 'Guest'"
+    computed: {
+      doubleCount: (state) => state.count * 2,
+      userName: (state) => state.user?.name || 'Guest',
+      userEmail: (state) => state.user?.email || 'No email',
+      isEven: (state) => state.count % 2 === 0
     }
   }
-}
+};
 ```
+
+**Key Points:**
+- State is a plain object with initial values
+- Actions are functions that receive state as first parameter
+- Actions can mutate state directly (Valtio handles immutability)
+- Computed properties are functions that derive values from state
+- Computed values are automatically memoized and reactive
 
 ## Component Registry
 
@@ -232,24 +248,76 @@ pluginRegistry.register(wrapperPlugin);
 
 ### Connecting UI to Store
 
-Use `@store.*` syntax to reference store values in UI configuration:
+Use `@store.*` syntax to reference store values in UI configuration. The library supports two modes:
+
+#### 1. Direct Reference (returns value)
+When the entire string is a store reference, it returns the actual value:
+
+```json
+{
+  "type": "p",
+  "children": "@store.state.count"
+}
+```
+
+#### 2. String Interpolation (embeds value in text)
+When store references are part of a larger string, they are interpolated:
+
+```json
+{
+  "type": "p",
+  "children": "Count: @store.state.count"
+}
+```
+
+#### 3. Multiple References
+You can use multiple store references in one string:
+
+```json
+{
+  "type": "p",
+  "children": "User: @store.state.user.name, Count: @store.state.count, Double: @store.computed.doubleCount"
+}
+```
+
+#### 4. Nested Paths
+Access nested properties using dot notation:
+
+```json
+{
+  "type": "p",
+  "children": "Welcome, @store.state.user.name!"
+}
+```
+
+### Full Example with Store
 
 ```json
 {
   "store": {
     "state": {
-      "count": 0
+      "count": 0,
+      "user": { "name": "Guest" }
     },
     "actions": {
-      "increment": "count++"
+      "increment": "Function: (state) => { state.count++; }",
+      "setUser": "Function: (state, name) => { state.user.name = name; }"
+    },
+    "computed": {
+      "doubleCount": "Function: (state) => state.count * 2",
+      "greeting": "Function: (state) => `Hello, ${state.user.name}!`"
     }
   },
   "ui": {
     "type": "div",
     "children": [
       {
+        "type": "h1",
+        "children": "@store.computed.greeting"
+      },
+      {
         "type": "p",
-        "children": "@store.state.count"
+        "children": "Count: @store.state.count (Double: @store.computed.doubleCount)"
       },
       {
         "type": "Button",

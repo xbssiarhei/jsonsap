@@ -1,4 +1,16 @@
 export { JsonRenderer } from './renderer';
 export { componentRegistry } from './registry';
 export { pluginRegistry } from './plugins';
-export type { ComponentConfig, Plugin, PluginContext, ComponentRegistry, PluginRegistry } from './types';
+export { createStore, subscribeToStore } from './store';
+export { StoreProvider, useStore } from './StoreProvider';
+export { useStoreState, useStoreActions, useStoreComputed } from './storeHooks';
+export type {
+  ComponentConfig,
+  Plugin,
+  PluginContext,
+  ComponentRegistry,
+  PluginRegistry,
+  StoreConfig,
+  AppConfig,
+  StoreInstance
+} from './types';

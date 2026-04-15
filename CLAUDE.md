@@ -107,12 +107,22 @@ The library uses a two-part configuration model:
 - Component types, props, and children
 - References to store state and actions using `@store.*` syntax
 - Plugin assignments
+- Supports both direct references and string interpolation
 
 **Store Section:**
 - Application state definitions
-- Action/mutation handlers
-- Computed properties
-- Async operations and side effects
+- Action/mutation handlers (as functions, not JSON strings)
+- Computed properties (derived values)
+- Uses Valtio for reactive state management
+- Uses derive-valtio for computed properties
+
+**@store.* Syntax:**
+- `@store.state.*` - Access reactive state values
+- `@store.actions.*` - Reference action functions
+- `@store.computed.*` - Access computed properties
+- Direct reference: `"children": "@store.state.count"` returns the value
+- String interpolation: `"children": "Count: @store.state.count"` embeds value in text
+- Multiple references: `"Count: @store.state.count, User: @store.state.user.name"`
 
 ### Component Styling
 
