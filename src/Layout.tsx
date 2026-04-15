@@ -1,46 +1,48 @@
 import { Link, Outlet } from "react-router";
+import { Button } from "./components/ui/button";
 
 const Layout = () => {
   return (
     <div>
-      <div
-        style={{
-          padding: "20px",
-          borderBottom: "1px solid #ddd",
-          marginBottom: "20px",
-        }}
-      >
-        <nav
-          style={{
-            display: "flex",
-            gap: "20px",
-            maxWidth: "800px",
-            margin: "0 auto",
-          }}
-        >
-          <Link
-            to="/"
-            style={{
-              textDecoration: "none",
-              color: "#3b82f6",
-              fontWeight: "500",
-            }}
-          >
-            Home
-          </Link>
-          <Link
-            to="/demo"
-            style={{
-              textDecoration: "none",
-              color: "#3b82f6",
-              fontWeight: "500",
-            }}
-          >
-            Demo
-          </Link>
+      <header className="px-6 py-4 border-b bg-background">
+        <nav className="flex items-center justify-between mx-auto max-w-[1200px]">
+          <div style={{ display: "flex", alignItems: "center", gap: "32px" }}>
+            <Link
+              to="/"
+              style={{
+                fontSize: "20px",
+                fontWeight: "bold",
+                textDecoration: "none",
+                color: "#000",
+              }}
+            >
+              jsonsap
+            </Link>
+            <div className="flex gap-4">
+              <Link to="/">
+                <Button variant="ghost">Home</Button>
+              </Link>
+              <Link to="/demo">
+                <Button variant="ghost">Demo</Button>
+              </Link>
+            </div>
+          </div>
+          <div className="flex gap-4">
+            <a
+              href="https://github.com/anthropics/claude-code"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button variant="outline" size="sm">
+                GitHub
+              </Button>
+            </a>
+          </div>
         </nav>
-      </div>
-      <Outlet />
+      </header>
+      <main>
+        <Outlet />
+      </main>
     </div>
   );
 };

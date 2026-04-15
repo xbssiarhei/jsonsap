@@ -5,17 +5,31 @@ import {
   type StoreConfig,
 } from "../../lib";
 import { Button } from "../../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
+import { Input } from "../../components/ui/input";
 import { loggerPlugin } from "../../lib/plugins/logger";
 import { wrapperPlugin } from "../../lib/plugins/wrapper";
 import { TodoItem, TodoList } from "../../components/TodoComponents";
 
 // Register components
 componentRegistry.register("Button", Button);
+componentRegistry.register("Card", Card);
+componentRegistry.register("CardHeader", CardHeader);
+componentRegistry.register("CardTitle", CardTitle);
+componentRegistry.register("CardDescription", CardDescription);
+componentRegistry.register("CardContent", CardContent);
+componentRegistry.register("Input", Input);
 componentRegistry.register("div", "div");
 componentRegistry.register("h1", "h1");
+componentRegistry.register("h2", "h2");
 componentRegistry.register("p", "p");
 componentRegistry.register("span", "span");
-componentRegistry.register("input", "input");
 componentRegistry.register("TodoItem", TodoItem);
 componentRegistry.register("TodoList", TodoList);
 
@@ -83,7 +97,7 @@ export const demoPageConfig: AppConfig = {
     props: {
       style: {
         padding: "40px",
-        maxWidth: "800px",
+        maxWidth: "1200px",
         margin: "0 auto",
       },
     },
@@ -91,225 +105,218 @@ export const demoPageConfig: AppConfig = {
       {
         type: "h1",
         props: {
-          style: { marginBottom: "20px" },
+          style: { fontSize: "36px", fontWeight: "bold", marginBottom: "16px" },
         },
-        plugins: ["wrapper"],
-        children: "JSON-Driven Web App with Store",
+        children: "JSON-Driven Web App Demo",
       },
       {
         type: "p",
         props: {
-          style: { marginBottom: "30px", color: "#666" },
+          style: { fontSize: "18px", color: "#666", marginBottom: "40px" },
         },
-        children: "UI rendered from JSON with Valtio state management",
+        children:
+          "Interactive examples of reactive state management with Valtio",
       },
       {
         type: "div",
         props: {
           style: {
-            padding: "20px",
-            backgroundColor: "#f0f9ff",
-            borderRadius: "8px",
-            marginBottom: "30px",
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
+            gap: "24px",
           },
         },
         children: [
           {
-            type: "h1",
-            props: {
-              style: { fontSize: "18px", marginBottom: "15px" },
-            },
-            children: "@store.computed.userGreeting",
-          },
-          {
-            type: "p",
-            props: {
-              style: { marginBottom: "10px" },
-            },
-            children: "Count: @store.state.count",
-          },
-          {
-            type: "p",
-            props: {
-              style: { marginBottom: "20px", color: "#666" },
-            },
-            children: "Double Count: @store.computed.doubleCount",
-          },
-          {
-            type: "div",
-            props: {
-              style: {
-                display: "flex",
-                gap: "10px",
-                flexWrap: "wrap",
-              },
-            },
+            type: "Card",
             children: [
               {
-                type: "Button",
-                props: {
-                  variant: "default",
-                  onClick: "@store.actions.increment",
-                },
-                plugins: ["logger"],
-                children: "Increment",
+                type: "CardHeader",
+                children: [
+                  {
+                    type: "CardTitle",
+                    children: "@store.computed.userGreeting",
+                  },
+                  {
+                    type: "CardDescription",
+                    children: "Counter with reactive state",
+                  },
+                ],
               },
               {
-                type: "Button",
-                props: {
-                  variant: "outline",
-                  onClick: "@store.actions.decrement",
-                },
-                plugins: ["logger"],
-                children: "Decrement",
+                type: "CardContent",
+                children: [
+                  {
+                    type: "div",
+                    props: {
+                      style: { marginBottom: "16px" },
+                    },
+                    children: [
+                      {
+                        type: "p",
+                        props: {
+                          style: {
+                            fontSize: "32px",
+                            fontWeight: "bold",
+                            marginBottom: "8px",
+                          },
+                        },
+                        children: "@store.state.count",
+                      },
+                      {
+                        type: "p",
+                        props: {
+                          style: { color: "#666", fontSize: "14px" },
+                        },
+                        children: "Double: @store.computed.doubleCount",
+                      },
+                    ],
+                  },
+                  {
+                    type: "div",
+                    props: {
+                      style: {
+                        display: "flex",
+                        gap: "8px",
+                        flexWrap: "wrap",
+                      },
+                    },
+                    children: [
+                      {
+                        type: "Button",
+                        props: {
+                          variant: "default",
+                          onClick: "@store.actions.increment",
+                        },
+                        plugins: ["logger"],
+                        children: "Increment",
+                      },
+                      {
+                        type: "Button",
+                        props: {
+                          variant: "outline",
+                          onClick: "@store.actions.decrement",
+                        },
+                        plugins: ["logger"],
+                        children: "Decrement",
+                      },
+                      {
+                        type: "Button",
+                        props: {
+                          variant: "secondary",
+                          onClick: "@store.actions.reset",
+                        },
+                        children: "Reset",
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: "Card",
+            children: [
+              {
+                type: "CardHeader",
+                children: [
+                  {
+                    type: "CardTitle",
+                    children: "User Information",
+                  },
+                  {
+                    type: "CardDescription",
+                    children: "Nested state access",
+                  },
+                ],
               },
               {
-                type: "Button",
-                props: {
-                  variant: "secondary",
-                  onClick: "@store.actions.reset",
-                },
-                children: "Reset",
+                type: "CardContent",
+                children: [
+                  {
+                    type: "div",
+                    props: {
+                      style: { marginBottom: "16px" },
+                    },
+                    children: [
+                      {
+                        type: "p",
+                        props: {
+                          style: { marginBottom: "8px" },
+                        },
+                        children: "Name: @store.state.user.name",
+                      },
+                      {
+                        type: "p",
+                        props: {
+                          style: { color: "#666" },
+                        },
+                        children: "Role: @store.state.user.role",
+                      },
+                    ],
+                  },
+                  {
+                    type: "Button",
+                    props: {
+                      variant: "outline",
+                      onClick: "@store.actions.setUserName",
+                    },
+                    children: "Change Name",
+                  },
+                ],
               },
             ],
           },
         ],
       },
       {
-        type: "div",
+        type: "Card",
         props: {
-          style: {
-            padding: "20px",
-            backgroundColor: "#f5f5f5",
-            borderRadius: "8px",
-            marginTop: "20px",
-          },
+          style: { marginTop: "24px" },
         },
         children: [
           {
-            type: "h1",
-            props: {
-              style: { fontSize: "18px", marginBottom: "10px" },
-            },
-            children: "Features:",
-          },
-          {
-            type: "p",
-            children: "✓ Valtio-powered reactive state management",
-          },
-          {
-            type: "p",
-            children:
-              "✓ @store.* syntax for accessing state, actions, and computed",
-          },
-          {
-            type: "p",
-            children: "✓ Automatic re-rendering on state changes",
-          },
-          {
-            type: "p",
-            children: "✓ Computed properties with memoization",
-          },
-          {
-            type: "p",
-            children: "✓ Clean separation of UI and store configuration",
-          },
-        ],
-      },
-      {
-        type: "div",
-        props: {
-          style: {
-            marginTop: "30px",
-            padding: "20px",
-            border: "2px solid #ddd",
-            borderRadius: "8px",
-          },
-        },
-        children: [
-          {
-            type: "h1",
-            props: {
-              style: { fontSize: "18px", marginBottom: "10px" },
-            },
-            children: "User Info",
-          },
-          {
-            type: "p",
-            props: {
-              style: { marginBottom: "10px" },
-            },
-            children: "Name: @store.state.user.name",
-          },
-          {
-            type: "p",
-            props: {
-              style: { marginBottom: "15px" },
-            },
-            children: "Role: @store.state.user.role",
-          },
-          {
-            type: "Button",
-            props: {
-              variant: "outline",
-              onClick: "@store.actions.setUserName",
-            },
-            children: "Change Name (Demo)",
-          },
-        ],
-      },
-      {
-        type: "div",
-        props: {
-          style: {
-            marginTop: "30px",
-            padding: "20px",
-            backgroundColor: "#f0f9ff",
-            border: "2px solid #3b82f6",
-            borderRadius: "8px",
-          },
-        },
-        children: [
-          {
-            type: "h1",
-            props: {
-              style: { fontSize: "18px", marginBottom: "15px" },
-            },
-            children: "Todo List Example (Array Operations)",
-          },
-          {
-            type: "p",
-            props: {
-              style: { marginBottom: "10px", color: "#666" },
-            },
-            children:
-              "Total: @store.computed.todoCount | Active: @store.computed.activeCount | Completed: @store.computed.completedCount",
-          },
-          {
-            type: "div",
-            props: {
-              style: {
-                marginBottom: "15px",
-              },
-            },
+            type: "CardHeader",
             children: [
               {
-                type: "Button",
-                props: {
-                  variant: "default",
-                  onClick: "@store.actions.addTodo",
-                },
-                children: "Add Todo",
+                type: "CardTitle",
+                children: "Todo List (Array Operations)",
+              },
+              {
+                type: "CardDescription",
+                children:
+                  "Total: @store.computed.todoCount | Active: @store.computed.activeCount | Completed: @store.computed.completedCount",
               },
             ],
           },
           {
-            type: "TodoList",
-            props: {
-              todos: "@store.state.todos",
-              onToggle: "@store.actions.toggleTodo",
-              onRemove: "@store.actions.removeTodo",
-            },
+            type: "CardContent",
+            children: [
+              {
+                type: "div",
+                props: {
+                  style: { marginBottom: "16px" },
+                },
+                children: [
+                  {
+                    type: "Button",
+                    props: {
+                      variant: "default",
+                      onClick: "@store.actions.addTodo",
+                    },
+                    children: "Add Todo",
+                  },
+                ],
+              },
+              {
+                type: "TodoList",
+                props: {
+                  todos: "@store.state.todos",
+                  onToggle: "@store.actions.toggleTodo",
+                  onRemove: "@store.actions.removeTodo",
+                },
+              },
+            ],
           },
         ],
       },

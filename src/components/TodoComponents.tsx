@@ -1,4 +1,6 @@
-import { Button } from "../components/ui/button";
+import { Button } from "./ui/button";
+import { Checkbox } from "./ui/checkbox";
+import { Card } from "./ui/card";
 
 export interface Todo {
   id: number;
@@ -14,36 +16,37 @@ interface TodoItemProps {
 
 export function TodoItem({ todo, onToggle, onRemove }: TodoItemProps) {
   return (
-    <div
+    <Card
       style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "10px",
-        padding: "8px",
-        backgroundColor: todo.done ? "#f0fdf4" : "#fff",
-        border: "1px solid #e5e7eb",
-        borderRadius: "6px",
+        padding: "12px 16px",
+        backgroundColor: todo.done ? "#f0fdf4" : "white",
       }}
     >
-      <input
-        type="checkbox"
-        checked={todo.done}
-        onChange={() => onToggle(todo.id)}
-        style={{ cursor: "pointer" }}
-      />
-      <span
+      <div
         style={{
-          flex: 1,
-          textDecoration: todo.done ? "line-through" : "none",
-          color: todo.done ? "#6b7280" : "#000",
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
         }}
       >
-        {todo.text}
-      </span>
-      <Button variant="outline" size="sm" onClick={() => onRemove(todo.id)}>
-        Remove
-      </Button>
-    </div>
+        <Checkbox
+          checked={todo.done}
+          onCheckedChange={() => onToggle(todo.id)}
+        />
+        <span
+          style={{
+            flex: 1,
+            textDecoration: todo.done ? "line-through" : "none",
+            color: todo.done ? "#6b7280" : "#000",
+          }}
+        >
+          {todo.text}
+        </span>
+        <Button variant="outline" size="sm" onClick={() => onRemove(todo.id)}>
+          Remove
+        </Button>
+      </div>
+    </Card>
   );
 }
 
