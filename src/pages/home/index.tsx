@@ -85,6 +85,45 @@ export default function HomePage() {
 
         <Card>
           <CardHeader>
+            <CardTitle>Modifiers System</CardTitle>
+            <CardDescription>Conditional styling with thresholds</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p style={{ color: "#666" }}>
+              Apply styles and props conditionally based on data values.
+              Supports operators like equals, greaterThan, contains.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Repeater Component</CardTitle>
+            <CardDescription>Universal array rendering</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p style={{ color: "#666" }}>
+              Render arrays from JSON without hardcoded components.
+              Use @item.* syntax to reference array item properties.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Live Config Editor</CardTitle>
+            <CardDescription>Edit JSON on the fly</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p style={{ color: "#666" }}>
+              Built-in dialog editor for modifying UI configuration at runtime.
+              Real-time validation and instant preview of changes.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
             <CardTitle>TypeScript Support</CardTitle>
             <CardDescription>Fully typed for better DX</CardDescription>
           </CardHeader>
