@@ -1,10 +1,23 @@
 import type { ReactElement, ComponentType } from "react";
 
+export interface ModifierCondition {
+  path: string; // e.g., "status", "item.status", "@store.state.theme"
+  operator: "equals" | "notEquals" | "greaterThan" | "lessThan" | "contains";
+  value: unknown;
+}
+
+export interface Modifier {
+  conditions: ModifierCondition[];
+  props: Record<string, unknown>; // Props to merge when conditions match
+  matchAll?: boolean; // true = AND logic, false = OR logic (default: true)
+}
+
 export interface ComponentConfig {
   type: string;
   props?: Record<string, unknown>;
   children?: ComponentConfig[] | ComponentConfig | string | number;
   plugins?: string[];
+  modifiers?: Modifier[]; // Conditional prop modifications
 }
 
 export interface PluginContext {

@@ -5,6 +5,7 @@ import { pluginRegistry } from "./plugins";
 import { createStore } from "./store";
 import { StoreProvider, useStore } from "./StoreProvider";
 import { useResolvedConfig } from "./resolver";
+import { applyModifiers } from "./modifiers";
 
 interface JsonRendererProps {
   config: ComponentConfig | AppConfig;
@@ -47,6 +48,7 @@ function JsonRendererInternal({ config, context = {} }: JsonRendererInternalProp
 
   const pluginContext: PluginContext = {
     depth: 0,
+    store,
     ...context,
   };
 
@@ -91,10 +93,14 @@ function renderComponent(
     }
   );
 
+  // Apply modifiers to get final props
+  const store = context.store as ReturnType<typeof createStore> | null;
+  const finalProps = applyModifiers(modifiedConfig, store);
+
   // Create element
   let element = createElement(
     Component,
-    modifiedConfig.props || {},
+    finalProps,
     renderedChildren,
   );
 

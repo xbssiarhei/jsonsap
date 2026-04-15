@@ -218,6 +218,38 @@ export const stressTestPageConfig: AppConfig = {
                 props: {
                   item: "@item",
                 },
+                modifiers: [
+                  {
+                    conditions: [
+                      {
+                        path: "item.status",
+                        operator: "equals",
+                        value: "active",
+                      },
+                    ],
+                    props: {
+                      style: {
+                        backgroundColor: "#dcfce7",
+                        borderColor: "#22c55e",
+                      },
+                    },
+                  },
+                  {
+                    conditions: [
+                      {
+                        path: "item.value",
+                        operator: "greaterThan",
+                        value: 75,
+                      },
+                    ],
+                    props: {
+                      style: {
+                        borderWidth: "2px",
+                        borderColor: "#ef4444",
+                      },
+                    },
+                  },
+                ],
               },
             },
           },

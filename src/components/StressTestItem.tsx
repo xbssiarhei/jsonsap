@@ -1,3 +1,4 @@
+import type { ComponentProps } from "react";
 import { Card } from "./ui/card";
 
 interface StressTestItemProps {
@@ -7,9 +8,10 @@ interface StressTestItemProps {
     status: string;
     lastUpdate: number;
   };
+  style?: ComponentProps<"div">["style"];
 }
 
-export function StressTestItem({ item }: StressTestItemProps) {
+export function StressTestItem({ item, style }: StressTestItemProps) {
   // Use item.lastUpdate directly for styling without Date.now()
   const isRecent = item.lastUpdate > 0;
 
@@ -19,6 +21,7 @@ export function StressTestItem({ item }: StressTestItemProps) {
         padding: "12px 16px",
         backgroundColor: isRecent ? "#f0fdf4" : "white",
         transition: "background-color 0.3s ease",
+        ...style,
       }}
     >
       <div

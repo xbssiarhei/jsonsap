@@ -4,6 +4,7 @@ export { pluginRegistry } from './plugins';
 export { createStore, subscribeToStore } from './store';
 export { StoreProvider, useStore } from './StoreProvider';
 export { useStoreState, useStoreActions, useStoreComputed } from './storeHooks';
+export { applyModifiers } from './modifiers';
 export type {
   ComponentConfig,
   Plugin,
@@ -12,5 +13,7 @@ export type {
   PluginRegistry,
   StoreConfig,
   AppConfig,
-  StoreInstance
+  StoreInstance,
+  Modifier,
+  ModifierCondition
 } from './types';

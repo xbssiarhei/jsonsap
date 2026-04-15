@@ -1,13 +1,16 @@
 # JSON-Driven Web App Builder (jsonsap)
 
-A React library that renders applications from JSON configuration with extensible component mapping and plugin system.
+A React library that renders applications from JSON configuration with extensible component mapping, plugin system, and conditional modifiers.
 
 ## Features
 
 - **JSON Configuration**: Define your entire UI structure using JSON with separated UI and Store sections
 - **Component Registry**: Extensible mapping of component names to React components
 - **Plugin System**: Hook into the rendering lifecycle with `beforeRender` and `afterRender` plugins
-- **State Management**: Built-in store configuration for application state and actions
+- **State Management**: Built-in store configuration with Valtio for reactive state
+- **Modifiers System**: Conditional prop modifications based on data thresholds
+- **Repeater Component**: Universal array rendering with `@item.*` syntax
+- **Live Config Editor**: Built-in UI for editing JSON configuration on the fly
 - **Type-Safe**: Full TypeScript support
 
 ## Installation
@@ -444,13 +447,183 @@ See `example-config.json` for a sample JSON configuration file.
 
 ## Future Development
 
-The library is designed to support:
-- Full store implementation with state management
-- `@store.*` syntax resolver for connecting UI to state
-- Computed properties and reactive updates
-- Async action handlers
-- State persistence and hydration
+The library supports:
+- Reactive state management with Valtio
+- `@store.*` syntax for connecting UI to state with string interpolation
+- Computed properties with derive-valtio
+- Conditional modifiers for dynamic styling
+- Array rendering with Repeater component
+- Live configuration editing
 - Developer tools for debugging
+
+## Modifiers System
+
+Modifiers allow conditional prop modifications based on data values (thresholds).
+
+### Modifier Configuration
+
+```typescript
+interface Modifier {
+  conditions: ModifierCondition[];
+  props: Record<string, unknown>;
+  matchAll?: boolean; // true = AND, false = OR (default: true)
+}
+
+interface ModifierCondition {
+  path: string; // "status", "item.value", "@store.state.theme"
+  operator: "equals" | "notEquals" | "greaterThan" | "lessThan" | "contains";
+  value: unknown;
+}
+```
+
+### Example Usage
+
+```json
+{
+  "type": "Card",
+  "props": {
+    "item": "@item"
+  },
+  "modifiers": [
+    {
+      "conditions": [
+        {
+          "path": "item.status",
+          "operator": "equals",
+          "value": "active"
+        }
+      ],
+      "props": {
+        "style": {
+          "backgroundColor": "#dcfce7",
+          "borderColor": "#22c55e"
+        }
+      }
+    },
+    {
+      "conditions": [
+        {
+          "path": "item.value",
+          "operator": "greaterThan",
+          "value": 75
+        }
+      ],
+      "props": {
+        "style": {
+          "borderWidth": "2px",
+          "borderColor": "#ef4444"
+        }
+      }
+    }
+  ]
+}
+```
+
+### Supported Operators
+
+- `equals`: Exact match (`===`)
+- `notEquals`: Not equal (`!==`)
+- `greaterThan`: Numeric comparison (`>`)
+- `lessThan`: Numeric comparison (`<`)
+- `contains`: String includes or array contains
+
+### Path Resolution
+
+- Direct props: `"status"` → `props.status`
+- Nested paths: `"item.user.name"` → `props.item.user.name`
+- Store references: `"@store.state.theme"` → `store.state.theme`
+
+### Prop Merging
+
+- **style**: Deep merged with base styles
+- **className**: Concatenated with base classes
+- **other props**: Direct override
+
+## Repeater Component
+
+Universal component for rendering arrays from JSON configuration.
+
+### Basic Usage
+
+```json
+{
+  "type": "Repeater",
+  "props": {
+    "items": "@store.state.items",
+    "itemConfig": {
+      "type": "Card",
+      "props": {
+        "title": "@item.name",
+        "description": "@item.description"
+      }
+    }
+  }
+}
+```
+
+### @item.* Syntax
+
+- Direct reference: `"@item"` → entire item object
+- Property access: `"@item.name"` → `item.name`
+- Nested paths: `"@item.user.email"` → `item.user.email`
+- String interpolation: `"Item #@item.id: @item.name"`
+
+### With Modifiers
+
+```json
+{
+  "type": "Repeater",
+  "props": {
+    "items": "@store.state.todos",
+    "itemConfig": {
+      "type": "TodoItem",
+      "props": {
+        "item": "@item"
+      },
+      "modifiers": [
+        {
+          "conditions": [
+            { "path": "item.completed", "operator": "equals", "value": true }
+          ],
+          "props": {
+            "className": "opacity-50 line-through"
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+## Live Config Editor
+
+Built-in component for editing JSON configuration at runtime.
+
+### Usage
+
+```typescript
+import { ConfigEditor } from './components/ConfigEditor';
+import { useState } from 'react';
+
+function App() {
+  const [config, setConfig] = useState(initialConfig);
+
+  return (
+    <div>
+      <ConfigEditor config={config} onConfigChange={setConfig} />
+      <JsonRenderer config={config} />
+    </div>
+  );
+}
+```
+
+### Features
+
+- Dialog-based editor with syntax highlighting
+- Real-time JSON validation
+- Error messages for invalid JSON
+- Preserves store configuration (only edits UI section)
+- Immediate preview of changes
 
 ## License
 

@@ -16,6 +16,14 @@ The application is a JSON-driven web app builder that renders UI from configurat
   - Plugins can intercept and modify components before rendering
   - Specified in configuration to execute at specific lifecycle points
   - Enable runtime modifications and transformations
+- **Modifiers System**: Conditional prop modifications based on data thresholds
+  - Apply styles, classes, or props when conditions are met
+  - Supports multiple operators and data sources
+  - Enables dynamic styling without custom components
+- **Live Config Editor**: Built-in UI for editing JSON configuration on the fly
+  - Dialog-based editor with syntax validation
+  - Real-time preview of changes
+  - Available on demo and stress test pages
 
 ### Configuration Architecture
 
@@ -108,6 +116,7 @@ The library uses a two-part configuration model:
 - References to store state and actions using `@store.*` syntax
 - Plugin assignments
 - Supports both direct references and string interpolation
+- Modifiers for conditional prop modifications based on thresholds
 
 **Store Section:**
 - Application state definitions
@@ -123,6 +132,37 @@ The library uses a two-part configuration model:
 - Direct reference: `"children": "@store.state.count"` returns the value
 - String interpolation: `"children": "Count: @store.state.count"` embeds value in text
 - Multiple references: `"Count: @store.state.count, User: @store.state.user.name"`
+
+**Modifiers System:**
+- Conditional prop modifications based on data values
+- Supports operators: `equals`, `notEquals`, `greaterThan`, `lessThan`, `contains`
+- Can reference props (`item.status`), nested paths, or store values (`@store.state.theme`)
+- Multiple conditions with AND/OR logic via `matchAll` parameter
+- Automatically merges styles and concatenates classNames
+- Example:
+```json
+{
+  "type": "Card",
+  "props": { "item": "@item" },
+  "modifiers": [
+    {
+      "conditions": [
+        { "path": "item.status", "operator": "equals", "value": "active" }
+      ],
+      "props": {
+        "style": { "backgroundColor": "#dcfce7" }
+      }
+    }
+  ]
+}
+```
+
+**Repeater Component:**
+- Universal component for rendering arrays from JSON config
+- Uses `@item.*` syntax to reference array item properties
+- Supports nested paths: `@item.user.name`
+- String interpolation: `"Item #@item.id: @item.name"`
+- Special handling for `item: "@item"` to pass entire item object
 
 ### Component Styling
 
