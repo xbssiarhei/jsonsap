@@ -2,6 +2,7 @@ import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router";
 import { DemoPageView } from "./pages/demo/DemoPageView";
 import { StressTestPageView } from "./pages/stress-test/StressTestPageView";
+import { MapPageView } from "./pages/map/MapPageView";
 import HomePage from "./pages/home/";
 import Layout from "./Layout";
 
@@ -13,6 +14,7 @@ function App() {
           <Route index element={<HomePage />} />
           <Route path="demo" element={<DemoPageView />} />
           <Route path="stress-test" element={<StressTestPageView />} />
+          <Route path="map" element={<MapPageView />} />
         </Route>
       </Routes>
     </BrowserRouter>
