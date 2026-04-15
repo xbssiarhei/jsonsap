@@ -15,6 +15,7 @@ import {
 import { loggerPlugin } from "../../lib/plugins/logger";
 import { wrapperPlugin } from "../../lib/plugins/wrapper";
 import { StressTestItem } from "../../components/StressTestItem";
+import { Repeater } from "../../components/Repeater";
 
 // Register components
 componentRegistry.register("Button", Button);
@@ -24,6 +25,7 @@ componentRegistry.register("CardTitle", CardTitle);
 componentRegistry.register("CardDescription", CardDescription);
 componentRegistry.register("CardContent", CardContent);
 componentRegistry.register("StressTestItem", StressTestItem);
+componentRegistry.register("Repeater", Repeater);
 componentRegistry.register("div", "div");
 componentRegistry.register("h1", "h1");
 componentRegistry.register("h2", "h2");
@@ -62,9 +64,10 @@ const store: StoreConfig = {
         const randomIndex = Math.floor(Math.random() * state.items.length);
         state.items[randomIndex].value = Math.floor(Math.random() * 100);
         state.items[randomIndex].lastUpdate = Date.now();
-        state.items[randomIndex].status = Math.random() > 0.5 ? "active" : "inactive";
+        state.items[randomIndex].status =
+          Math.random() > 0.5 ? "active" : "inactive";
         state.updateCount++;
-      }, 1000);
+      }, 500);
 
       state.intervalId = id as unknown as number;
     },
@@ -84,8 +87,10 @@ const store: StoreConfig = {
     },
   },
   computed: {
-    activeCount: (state) => state.items.filter((item) => item.status === "active").length,
-    inactiveCount: (state) => state.items.filter((item) => item.status === "inactive").length,
+    activeCount: (state) =>
+      state.items.filter((item) => item.status === "active").length,
+    inactiveCount: (state) =>
+      state.items.filter((item) => item.status === "inactive").length,
     averageValue: (state) => {
       const sum = state.items.reduce((acc, item) => acc + item.value, 0);
       return Math.round(sum / state.items.length);
@@ -118,7 +123,8 @@ export const stressTestPageConfig: AppConfig = {
         props: {
           style: { fontSize: "18px", color: "#666", marginBottom: "40px" },
         },
-        children: "Testing reactive updates with 30 items updating every second",
+        children:
+          "Testing reactive updates with 30 items updating every second",
       },
       {
         type: "Card",
@@ -135,7 +141,8 @@ export const stressTestPageConfig: AppConfig = {
               },
               {
                 type: "CardDescription",
-                children: "Updates: @store.state.updateCount | Active: @store.computed.activeCount | Inactive: @store.computed.inactiveCount | Average: @store.computed.averageValue",
+                children:
+                  "Updates: @store.state.updateCount | Active: @store.computed.activeCount | Inactive: @store.computed.inactiveCount | Average: @store.computed.averageValue",
               },
             ],
           },
@@ -201,7 +208,20 @@ export const stressTestPageConfig: AppConfig = {
             gap: "12px",
           },
         },
-        children: "@store.state.items",
+        children: [
+          {
+            type: "Repeater",
+            props: {
+              items: "@store.state.items",
+              itemConfig: {
+                type: "StressTestItem",
+                props: {
+                  item: "@item",
+                },
+              },
+            },
+          },
+        ],
       },
     ],
   },
