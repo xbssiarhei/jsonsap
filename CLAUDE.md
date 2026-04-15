@@ -17,6 +17,61 @@ The application is a JSON-driven web app builder that renders UI from configurat
   - Specified in configuration to execute at specific lifecycle points
   - Enable runtime modifications and transformations
 
+### Configuration Architecture
+
+The JSON configuration is separated into two main sections:
+
+#### 1. UI Configuration (`ui`)
+Defines the visual structure and component tree:
+- Component hierarchy and nesting
+- Component types and props
+- Layout and styling
+- Event handlers (references to store actions)
+- Plugin assignments per component
+
+#### 2. Store Configuration (`store`)
+Defines application state and logic:
+- State variables and initial values
+- Actions/handlers for state mutations
+- Computed values/getters
+- Side effects and async operations
+- State persistence rules
+
+This separation enables:
+- Clear separation of concerns (presentation vs logic)
+- Reusable UI components with different state
+- Easier testing of UI and logic independently
+- State management flexibility (can swap store implementations)
+- Better code organization for large applications
+
+**Example Structure:**
+```json
+{
+  "store": {
+    "state": {
+      "count": 0,
+      "user": null
+    },
+    "actions": {
+      "increment": "count++",
+      "setUser": "user = payload"
+    }
+  },
+  "ui": {
+    "type": "div",
+    "children": [
+      {
+        "type": "Button",
+        "props": {
+          "onClick": "@store.actions.increment"
+        },
+        "children": "@store.state.count"
+      }
+    ]
+  }
+}
+```
+
 ## Development Commands
 
 - `npm run dev` - Start development server with HMR
@@ -42,6 +97,22 @@ The application is a JSON-driven web app builder that renders UI from configurat
 - Path alias `@/*` maps to `./src/*`
 
 ## Code Patterns
+
+### Configuration Structure
+
+The library uses a two-part configuration model:
+
+**UI Section:**
+- Defines component tree structure
+- Component types, props, and children
+- References to store state and actions using `@store.*` syntax
+- Plugin assignments
+
+**Store Section:**
+- Application state definitions
+- Action/mutation handlers
+- Computed properties
+- Async operations and side effects
 
 ### Component Styling
 
