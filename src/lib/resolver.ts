@@ -31,7 +31,14 @@ function resolveChildren(
   store: StoreInstance,
 ): ComponentConfig["children"] {
   if (typeof children === "string") {
-    return resolveValue(children, store);
+    const resolved = resolveValue(children, store);
+
+    // If resolved value is an array, map it to components
+    if (Array.isArray(resolved)) {
+      return resolved;
+    }
+
+    return resolved;
   }
 
   if (typeof children === "number") {
@@ -41,7 +48,14 @@ function resolveChildren(
   if (Array.isArray(children)) {
     return children.map((child) => {
       if (typeof child === "string") {
-        return resolveValue(child, store);
+        const resolved = resolveValue(child, store);
+
+        // If resolved value is an array, return it as-is
+        if (Array.isArray(resolved)) {
+          return resolved;
+        }
+
+        return resolved;
       }
       if (typeof child === "number") {
         return child;
