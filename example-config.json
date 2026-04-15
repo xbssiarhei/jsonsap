@@ -1,0 +1,66 @@
+{
+  "type": "div",
+  "props": {
+    "style": {
+      "padding": "20px",
+      "maxWidth": "600px",
+      "margin": "0 auto"
+    }
+  },
+  "children": [
+    {
+      "type": "h1",
+      "props": {
+        "style": {
+          "marginBottom": "20px"
+        }
+      },
+      "children": "Example JSON Configuration"
+    },
+    {
+      "type": "p",
+      "props": {
+        "style": {
+          "marginBottom": "20px",
+          "color": "#666"
+        }
+      },
+      "children": "This UI is rendered from a JSON file"
+    },
+    {
+      "type": "div",
+      "props": {
+        "style": {
+          "display": "flex",
+          "gap": "10px"
+        }
+      },
+      "children": [
+        {
+          "type": "Button",
+          "props": {
+            "variant": "default"
+          },
+          "plugins": ["logger"],
+          "children": "Primary"
+        },
+        {
+          "type": "Button",
+          "props": {
+            "variant": "outline"
+          },
+          "plugins": ["logger"],
+          "children": "Secondary"
+        },
+        {
+          "type": "Button",
+          "props": {
+            "variant": "destructive"
+          },
+          "plugins": ["logger", "wrapper"],
+          "children": "With Plugins"
+        }
+      ]
+    }
+  ]
+}

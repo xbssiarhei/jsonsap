@@ -1,121 +1,178 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState } from "react";
+import "./App.css";
+import {
+  JsonRenderer,
+  componentRegistry,
+  pluginRegistry,
+  type ComponentConfig,
+} from "./lib";
+import { Button } from "./components/ui/button";
+import { loggerPlugin } from "./lib/plugins/logger";
+import { wrapperPlugin } from "./lib/plugins/wrapper";
+
+// Register components
+componentRegistry.register("Button", Button);
+componentRegistry.register("div", "div");
+componentRegistry.register("h1", "h1");
+componentRegistry.register("p", "p");
+componentRegistry.register("span", "span");
+
+// Register plugins
+pluginRegistry.register(loggerPlugin);
+pluginRegistry.register(wrapperPlugin);
+
+// JSON configuration for the app
+const appConfig: ComponentConfig = {
+  type: "div",
+  props: {
+    style: {
+      padding: "40px",
+      maxWidth: "800px",
+      margin: "0 auto",
+    },
+  },
+  children: [
+    {
+      type: "h1",
+      props: {
+        style: { marginBottom: "20px" },
+      },
+      children: "JSON-Driven Web App Builder",
+    },
+    {
+      type: "p",
+      props: {
+        style: { marginBottom: "30px", color: "#666" },
+      },
+      children:
+        "This entire UI is rendered from JSON configuration with plugin support",
+    },
+    {
+      type: "div",
+      props: {
+        style: {
+          display: "flex",
+          gap: "10px",
+          marginBottom: "30px",
+          flexWrap: "wrap",
+        },
+      },
+      children: [
+        {
+          type: "Button",
+          props: {
+            variant: "default",
+            onClick: () => alert("Default button clicked!"),
+          },
+          plugins: ["logger"],
+          children: "Default Button",
+        },
+        {
+          type: "Button",
+          props: {
+            variant: "outline",
+            onClick: () => alert("Outline button clicked!"),
+          },
+          plugins: ["logger"],
+          children: "Outline Button",
+        },
+        {
+          type: "Button",
+          props: {
+            variant: "secondary",
+            onClick: () => alert("Secondary button clicked!"),
+          },
+          plugins: ["logger", "wrapper"],
+          children: "With Wrapper Plugin",
+        },
+      ],
+    },
+    {
+      type: "div",
+      props: {
+        style: {
+          padding: "20px",
+          backgroundColor: "#f5f5f5",
+          borderRadius: "8px",
+          marginTop: "20px",
+        },
+      },
+      children: [
+        {
+          type: "h1",
+          props: {
+            style: { fontSize: "18px", marginBottom: "10px" },
+          },
+          children: "Features:",
+        },
+        {
+          type: "p",
+          children: "✓ JSON-based component configuration",
+        },
+        {
+          type: "p",
+          children: "✓ Extensible component registry",
+        },
+        {
+          type: "p",
+          children: "✓ Plugin system with beforeRender and afterRender hooks",
+        },
+        {
+          type: "p",
+          children: "✓ Nested component support",
+        },
+      ],
+    },
+  ],
+};
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
+
+  // Dynamic config with state
+  const dynamicConfig: ComponentConfig = {
+    type: "div",
+    props: {
+      style: {
+        marginTop: "30px",
+        padding: "20px",
+        border: "2px solid #ddd",
+        borderRadius: "8px",
+      },
+    },
+    children: [
+      {
+        type: "h1",
+        props: {
+          style: { fontSize: "18px", marginBottom: "10px" },
+        },
+        children: "Dynamic State Example",
+      },
+      {
+        type: "p",
+        props: {
+          style: { marginBottom: "10px" },
+        },
+        children: `Count: ${count}`,
+      },
+      {
+        type: "Button",
+        props: {
+          variant: "default",
+          onClick: () => setCount(count + 1),
+        },
+        plugins: ["logger"],
+        children: "Increment",
+      },
+    ],
+  };
 
   return (
     <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
+      <JsonRenderer config={appConfig} />
+      <JsonRenderer config={dynamicConfig} />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
