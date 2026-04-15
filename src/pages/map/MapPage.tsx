@@ -14,7 +14,7 @@ import {
 } from "../../components/ui/card";
 import { loggerPlugin } from "../../lib/plugins/logger";
 import { wrapperPlugin } from "../../lib/plugins/wrapper";
-import { Repeater } from "../../components/Repeater";
+import { Repeater } from "../../lib/components/Repeater";
 
 // Register components
 componentRegistry.register("Button", Button);
@@ -66,13 +66,14 @@ const store: StoreConfig = {
     selectedUserId: null as number | null,
   },
   actions: {
-    selectUser: (state, userId: number) => {
+    selectUser: (state, _e: unknown, userId: number) => {
       state.selectedUserId = userId;
     },
   },
   computed: {
     selectedUser: (state) =>
-      state.users.find((u: { id: number }) => u.id === state.selectedUserId) || null,
+      state.users.find((u: { id: number }) => u.id === state.selectedUserId) ||
+      null,
   },
 };
 

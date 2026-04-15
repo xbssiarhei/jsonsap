@@ -15,7 +15,7 @@ import {
 import { loggerPlugin } from "../../lib/plugins/logger";
 import { wrapperPlugin } from "../../lib/plugins/wrapper";
 import { StressTestItem } from "../../components/StressTestItem";
-import { Repeater } from "../../components/Repeater";
+import { Repeater } from "../../lib/components/Repeater";
 
 // Register components
 componentRegistry.register("Button", Button);

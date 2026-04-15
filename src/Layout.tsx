@@ -31,6 +31,9 @@ const Layout = () => {
               <Link to="/map">
                 <Button variant="ghost">Map</Button>
               </Link>
+              <Link to="/api">
+                <Button variant="ghost">API</Button>
+              </Link>
             </div>
           </div>
           <div className="flex gap-4">

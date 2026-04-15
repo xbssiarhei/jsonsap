@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router";
 import { DemoPageView } from "./pages/demo/DemoPageView";
 import { StressTestPageView } from "./pages/stress-test/StressTestPageView";
 import { MapPageView } from "./pages/map/MapPageView";
+import { ApiPageView } from "./pages/api/ApiPageView";
 import HomePage from "./pages/home/";
 import Layout from "./Layout";
 
@@ -15,6 +16,7 @@ function App() {
           <Route path="demo" element={<DemoPageView />} />
           <Route path="stress-test" element={<StressTestPageView />} />
           <Route path="map" element={<MapPageView />} />
+          <Route path="api" element={<ApiPageView />} />
         </Route>
       </Routes>
     </BrowserRouter>

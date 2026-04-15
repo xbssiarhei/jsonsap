@@ -75,7 +75,23 @@ function resolveObject(
 
   for (const [key, value] of Object.entries(obj)) {
     if (typeof value === "string" && value.startsWith("@store.")) {
-      resolved[key] = resolveValue(value, store);
+      const resolvedValue = resolveValue(value, store);
+
+      // Special handling for onClick with actions - wrap to pass item data
+      if (key === "onClick" && typeof resolvedValue === "function") {
+        // Check if there's an item prop to pass
+        const itemValue = obj["item"];
+        if (itemValue !== undefined) {
+          resolved[key] = (e: unknown) => {
+            // Call action with event and item
+            (resolvedValue as (...args: unknown[]) => void)(e, itemValue);
+          };
+        } else {
+          resolved[key] = resolvedValue;
+        }
+      } else {
+        resolved[key] = resolvedValue;
+      }
     } else if (
       typeof value === "object" &&
       value !== null &&
@@ -128,15 +144,24 @@ function resolveValue(value: string, store: StoreInstance): unknown {
   return value;
 }
 
-function interpolateStoreReferences(template: string, store: StoreInstance): string {
+function interpolateStoreReferences(
+  template: string,
+  store: StoreInstance,
+): string {
   // Replace all @store.* references in the string
-  return template.replace(/@store\.(state|actions|computed)\.[\w.]+/g, (match) => {
-    const value = resolveStoreReference(match, store);
-    return String(value ?? '');
-  });
+  return template.replace(
+    /@store\.(state|actions|computed)\.[\w.]+/g,
+    (match) => {
+      const value = resolveStoreReference(match, store);
+      return String(value ?? "");
+    },
+  );
 }
 
-function resolveStoreReference(reference: string, store: StoreInstance): unknown {
+function resolveStoreReference(
+  reference: string,
+  store: StoreInstance,
+): unknown {
   const path = reference.substring(7); // Remove '@store.'
   const parts = path.split(".");
 
@@ -163,7 +188,7 @@ function resolveStoreReference(reference: string, store: StoreInstance): unknown
 
 function getNestedValue(obj: unknown, path: string[]): unknown {
   return path.reduce((current, key) => {
-    if (current && typeof current === 'object' && key in current) {
+    if (current && typeof current === "object" && key in current) {
       return (current as Record<string, unknown>)[key];
     }
     return undefined;

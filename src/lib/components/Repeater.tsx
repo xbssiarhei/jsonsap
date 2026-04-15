@@ -1,4 +1,4 @@
-import { JsonRenderer } from "../lib";
+import { JsonRenderer } from "..";
 
 interface RepeaterProps {
   items: unknown[];
@@ -22,7 +22,11 @@ export function Repeater({ items, itemConfig }: RepeaterProps) {
 
         return (
           <JsonRenderer
-            key={typeof item === "object" && item !== null && "id" in item ? (item as { id: unknown }).id : index}
+            key={
+              typeof item === "object" && item !== null && "id" in item
+                ? (item as { id: unknown }).id
+                : index
+            }
             config={resolvedConfig}
           />
         );
@@ -30,6 +34,8 @@ export function Repeater({ items, itemConfig }: RepeaterProps) {
     </>
   );
 }
+
+const patternHandler = /on[A-Z].*/;
 
 function resolveItemReferences(config: unknown, item: unknown): unknown {
   if (typeof config === "string") {
@@ -54,6 +60,13 @@ function resolveItemReferences(config: unknown, item: unknown): unknown {
 
   if (typeof config === "object" && config !== null) {
     const resolved: Record<string, unknown> = {};
+    // const keys = Object.keys(config).sort((a, b) => {
+    //   if (patternHandler.test(a)) return 1;
+    //   if (patternHandler.test(b)) return -1;
+    //   return 0;
+    // });
+    // for (const key of keys) {
+    // const value = config[key];
     for (const [key, value] of Object.entries(config)) {
       // Special handling for props that should receive the whole item
       if (key === "item" && value === "@item") {
