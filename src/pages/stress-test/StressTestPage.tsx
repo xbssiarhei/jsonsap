@@ -46,7 +46,7 @@ const generateItems = () => {
   }));
 };
 
-const store: StoreConfig<{
+type StressState = {
   items: Array<{
     id: number;
     value: number;
@@ -56,7 +56,9 @@ const store: StoreConfig<{
   isRunning: boolean;
   updateCount: number;
   intervalId: number | null;
-}> = {
+};
+
+const store: StoreConfig<StressState> = {
   state: {
     items: generateItems(),
     isRunning: false,
@@ -175,6 +177,20 @@ export const stressTestPageConfig: AppConfig = {
                       variant: "default",
                       onClick: "@store.actions.startStressTest",
                     },
+                    modifiers: [
+                      {
+                        conditions: [
+                          {
+                            path: "@store.state.isRunning",
+                            operator: "equals",
+                            value: true,
+                          },
+                        ],
+                        props: {
+                          disabled: true,
+                        },
+                      },
+                    ],
                     children: "Start Test",
                   },
                   {
@@ -183,6 +199,20 @@ export const stressTestPageConfig: AppConfig = {
                       variant: "outline",
                       onClick: "@store.actions.stopStressTest",
                     },
+                    modifiers: [
+                      {
+                        conditions: [
+                          {
+                            path: "@store.state.isRunning",
+                            operator: "equals",
+                            value: false,
+                          },
+                        ],
+                        props: {
+                          disabled: true,
+                        },
+                      },
+                    ],
                     children: "Stop Test",
                   },
                   {
