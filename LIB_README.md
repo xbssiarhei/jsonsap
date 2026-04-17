@@ -1,6 +1,6 @@
 # JSON-Driven Web App Builder (jsonsap)
 
-A React library that renders applications from JSON configuration with extensible component mapping, plugin system, and conditional modifiers.
+A React library that renders applications from JSON configuration with extensible component mapping, plugin system, conditional modifiers, and automatic form binding.
 
 ## Features
 
@@ -8,8 +8,9 @@ A React library that renders applications from JSON configuration with extensibl
 - **Component Registry**: Extensible mapping of component names to React components
 - **Plugin System**: Hook into the rendering lifecycle with `beforeRender` and `afterRender` plugins
 - **State Management**: Built-in store configuration with Valtio for reactive state
-- **Modifiers System**: Conditional prop modifications based on data thresholds
-- **Repeater Component**: Universal array rendering with `@item.*` syntax
+- **Modifiers System**: Conditional prop modifications based on data thresholds with store references
+- **Repeater Component**: Universal array rendering with `@item.*` syntax and full event handler support
+- **AutoBind Plugin**: Automatic form input binding to store state
 - **Live Config Editor**: Built-in UI for editing JSON configuration on the fly
 - **Type-Safe**: Full TypeScript support
 
@@ -533,6 +534,31 @@ interface ModifierCondition {
 - Nested paths: `"item.user.name"` → `props.item.user.name`
 - Store references: `"@store.state.theme"` → `store.state.theme`
 
+### Store References in Condition Values
+
+Modifiers support `@store.*` references in condition values for dynamic thresholds:
+
+```json
+{
+  "modifiers": [
+    {
+      "conditions": [
+        {
+          "path": "item.value",
+          "operator": "greaterThan",
+          "value": "@store.state.threshold"
+        }
+      ],
+      "props": {
+        "style": { "backgroundColor": "#fee" }
+      }
+    }
+  ]
+}
+```
+
+This allows users to change thresholds dynamically through the UI, and all modifiers will update automatically.
+
 ### Prop Merging
 
 - **style**: Deep merged with base styles
@@ -595,7 +621,133 @@ Universal component for rendering arrays from JSON configuration.
 }
 ```
 
-## Live Config Editor
+### With Event Handlers
+
+The Repeater component fully supports event handlers with automatic item data passing:
+
+**onClick Example:**
+```json
+{
+  "type": "Repeater",
+  "props": {
+    "items": "@store.state.users",
+    "itemConfig": {
+      "type": "Card",
+      "props": {
+        "onClick": "@store.actions.selectUser",
+        "item": "@item.id"
+      }
+    }
+  }
+}
+```
+
+**onChange Example:**
+```json
+{
+  "type": "Repeater",
+  "props": {
+    "items": "@store.state.items",
+    "itemConfig": {
+      "type": "Input",
+      "props": {
+        "value": "@item.value",
+        "onChange": "@store.actions.updateItem",
+        "item": "@item.id"
+      }
+    }
+  }
+}
+```
+
+The resolver automatically wraps event handlers to pass:
+- For onClick: `(event, itemId)`
+- For onChange: `(event, itemId, event.target.value)`
+
+Your action receives:
+```typescript
+updateItem: (state, _event, itemId, newValue) => {
+  const item = state.items.find(i => i.id === itemId);
+  if (item) item.value = newValue;
+}
+```
+
+## AutoBind Plugin
+
+Automatically creates onChange handlers for form inputs, eliminating the need for manual event handler setup.
+
+### Usage
+
+```typescript
+import { autoBindPlugin } from './lib';
+
+// Register the plugin
+pluginRegistry.register(autoBindPlugin);
+```
+
+### Configuration
+
+```json
+{
+  "type": "Input",
+  "props": {
+    "value": "@store.state.username",
+    "autoBind": "username"
+  },
+  "plugins": ["autoBind"]
+}
+```
+
+### Features
+
+- **Automatic onChange creation**: No need to write onChange handlers
+- **Nested path support**: `autoBind: "user.email"` works with nested state
+- **Checkbox support**: Automatically uses `checked` for checkbox inputs
+- **Type detection**: Handles different input types appropriately
+
+### Example
+
+```typescript
+const store = {
+  state: {
+    username: "",
+    email: "",
+    settings: {
+      notifications: false
+    }
+  }
+};
+
+const config = {
+  ui: {
+    type: "div",
+    children: [
+      {
+        type: "Input",
+        props: {
+          type: "text",
+          value: "@store.state.username",
+          autoBind: "username"
+        },
+        plugins: ["autoBind"]
+      },
+      {
+        type: "Checkbox",
+        props: {
+          checked: "@store.state.settings.notifications",
+          autoBind: "settings.notifications"
+        },
+        plugins: ["autoBind"]
+      }
+    ]
+  }
+};
+```
+
+The plugin automatically:
+1. Creates an onChange (or onCheckedChange for checkboxes) handler
+2. Updates the store state at the specified path
+3. Removes the `autoBind` prop from final component props
 
 Built-in component for editing JSON configuration at runtime.
 

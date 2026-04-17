@@ -16,21 +16,28 @@ The application is a JSON-driven web app builder that renders UI from configurat
   - Plugins can intercept and modify components before rendering
   - Specified in configuration to execute at specific lifecycle points
   - Enable runtime modifications and transformations
+  - AutoBind plugin for automatic form input binding
 - **Modifiers System**: Conditional prop modifications based on data thresholds
   - Apply styles, classes, or props when conditions are met
   - Supports multiple operators and data sources
   - Enables dynamic styling without custom components
+  - Supports @store.\* references in condition values for dynamic thresholds
 - **Live Config Editor**: Built-in UI for editing JSON configuration on the fly
   - Dialog-based editor with syntax validation
   - Real-time preview of changes
   - Available on demo and stress test pages
+- **Event Handlers**: Full support for onClick, onChange in Repeater
+  - Automatically passes item data to actions
+  - Works with both onClick and onChange handlers
 
 ### Configuration Architecture
 
 The JSON configuration is separated into two main sections:
 
 #### 1. UI Configuration (`ui`)
+
 Defines the visual structure and component tree:
+
 - Component hierarchy and nesting
 - Component types and props
 - Layout and styling
@@ -38,7 +45,9 @@ Defines the visual structure and component tree:
 - Plugin assignments per component
 
 #### 2. Store Configuration (`store`)
+
 Defines application state and logic:
+
 - State variables and initial values
 - Actions/handlers for state mutations
 - Computed values/getters
@@ -46,6 +55,7 @@ Defines application state and logic:
 - State persistence rules
 
 This separation enables:
+
 - Clear separation of concerns (presentation vs logic)
 - Reusable UI components with different state
 - Easier testing of UI and logic independently
@@ -53,6 +63,7 @@ This separation enables:
 - Better code organization for large applications
 
 **Example Structure:**
+
 ```json
 {
   "store": {
@@ -111,6 +122,7 @@ This separation enables:
 The library uses a two-part configuration model:
 
 **UI Section:**
+
 - Defines component tree structure
 - Component types, props, and children
 - References to store state and actions using `@store.*` syntax
@@ -119,13 +131,15 @@ The library uses a two-part configuration model:
 - Modifiers for conditional prop modifications based on thresholds
 
 **Store Section:**
+
 - Application state definitions
 - Action/mutation handlers (as functions, not JSON strings)
 - Computed properties (derived values)
 - Uses Valtio for reactive state management
 - Uses derive-valtio for computed properties
 
-**@store.* Syntax:**
+**@store.\* Syntax:**
+
 - `@store.state.*` - Access reactive state values
 - `@store.actions.*` - Reference action functions
 - `@store.computed.*` - Access computed properties
@@ -134,12 +148,15 @@ The library uses a two-part configuration model:
 - Multiple references: `"Count: @store.state.count, User: @store.state.user.name"`
 
 **Modifiers System:**
+
 - Conditional prop modifications based on data values
 - Supports operators: `equals`, `notEquals`, `greaterThan`, `lessThan`, `contains`
 - Can reference props (`item.status`), nested paths, or store values (`@store.state.theme`)
+- **Store references in condition values**: Use `@store.state.*` for dynamic thresholds
 - Multiple conditions with AND/OR logic via `matchAll` parameter
 - Automatically merges styles and concatenates classNames
 - Example:
+
 ```json
 {
   "type": "Card",
@@ -147,10 +164,15 @@ The library uses a two-part configuration model:
   "modifiers": [
     {
       "conditions": [
-        { "path": "item.status", "operator": "equals", "value": "active" }
+        { "path": "item.status", "operator": "equals", "value": "active" },
+        {
+          "path": "item.value",
+          "operator": "greaterThan",
+          "value": "@store.state.threshold"
+        }
       ],
       "props": {
-        "style": { "backgroundColor": "#dcfce7" }
+        "style": { "backgroundColor": "#fee" }
       }
     }
   ]
@@ -158,11 +180,56 @@ The library uses a two-part configuration model:
 ```
 
 **Repeater Component:**
+
 - Universal component for rendering arrays from JSON config
 - Uses `@item.*` syntax to reference array item properties
 - Supports nested paths: `@item.user.name`
 - String interpolation: `"Item #@item.id: @item.name"`
 - Special handling for `item: "@item"` to pass entire item object
+- **Full event handler support**: onClick and onChange with automatic item data passing
+- Example with onClick:
+
+```json
+{
+  "type": "Card",
+  "props": {
+    "onClick": "@store.actions.selectItem",
+    "item": "@item.id"
+  }
+}
+```
+
+- Example with onChange:
+
+```json
+{
+  "type": "Input",
+  "props": {
+    "value": "@item.value",
+    "onChange": "@store.actions.updateItem",
+    "item": "@item.id"
+  }
+}
+```
+
+**AutoBind Plugin:**
+
+- Automatically creates onChange handlers for form inputs
+- Use `autoBind: "path.to.state"` prop to specify store state path
+- Supports nested paths: `autoBind: "user.email"`
+- Handles checkbox inputs automatically (uses `checked` instead of `value`)
+- Example:
+
+```json
+{
+  "type": "Input",
+  "props": {
+    "value": "@store.state.username",
+    "autoBind": "username"
+  },
+  "plugins": ["autoBind"]
+}
+```
 
 ### Component Styling
 
