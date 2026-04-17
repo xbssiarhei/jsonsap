@@ -29,6 +29,11 @@ The application is a JSON-driven web app builder that renders UI from configurat
 - **Event Handlers**: Full support for onClick, onChange in Repeater
   - Automatically passes item data to actions
   - Works with both onClick and onChange handlers
+  - SetAction syntax for declarative state updates
+- **Component Registration**: Centralized registration system
+  - Global registration in `/src/lib/registerComponents.ts`
+  - Page-specific components registered locally
+  - Automatic loading via `/src/lib/index.ts`
 
 ### Configuration Architecture
 
@@ -230,6 +235,153 @@ The library uses a two-part configuration model:
   "plugins": ["autoBind"]
 }
 ```
+
+**SetAction Syntax:**
+
+- Declarative state updates for onClick and onChange handlers
+- Supports explicit value parameter for passing data (including `@item.*` references)
+- Optional `then` parameter to chain actions after state update
+- Syntax: `{ "$action": "set", "path": "statePath", "value": "optionalValue", "then": "optionalAction" }`
+- Example with onClick:
+
+```json
+{
+  "type": "Button",
+  "props": {
+    "onClick": {
+      "$action": "set",
+      "path": "query",
+      "value": "@item.query",
+      "then": "applyFilter"
+    }
+  }
+}
+```
+
+- Example with onChange:
+
+```json
+{
+  "type": "Input",
+  "props": {
+    "value": "@store.state.firstName",
+    "onChange": {
+      "$action": "set",
+      "path": "firstName"
+    }
+  }
+}
+```
+
+**ControlledInput Component:**
+
+- Solves cursor jumping issue in text inputs
+- Uses internal state to maintain cursor position during typing
+- Automatically syncs with store state
+- Use for inputs where cursor position matters
+- Example:
+
+```json
+{
+  "type": "ControlledInput",
+  "props": {
+    "value": "@store.state.query",
+    "onChange": {
+      "$action": "set",
+      "path": "query"
+    }
+  }
+}
+```
+
+**Popover Component:**
+
+- shadcn/ui Popover for displaying additional information
+- Supports `PopoverTrigger` and `PopoverContent`
+- Works seamlessly with Repeater and modifiers
+- Example:
+
+```json
+{
+  "type": "Popover",
+  "children": [
+    {
+      "type": "PopoverTrigger",
+      "props": { "asChild": true },
+      "children": [{ "type": "Button", "children": "Open" }]
+    },
+    {
+      "type": "PopoverContent",
+      "children": [{ "type": "div", "children": "Content here" }]
+    }
+  ]
+}
+```
+
+**JSONata Integration:**
+
+- Use JSONata library for advanced data filtering and transformation
+- Supports complex queries, sorting, and aggregation
+- Example usage in actions:
+
+```typescript
+actions: {
+  applyFilter: async (state) => {
+    const expression = jsonata(state.query);
+    const result = await expression.evaluate(state.products);
+    state.filteredProducts = Array.isArray(result) ? result : [result];
+  }
+}
+```
+
+**Chart Components:**
+
+- Full support for Recharts components (PieChart, BarChart, LineChart)
+- Registered globally and available in JSON config
+- Works with dynamic data from store
+- Example PieChart:
+
+```json
+{
+  "type": "ChartContainer",
+  "props": { "config": {}, "style": { "height": "300px" } },
+  "children": [
+    {
+      "type": "PieChart",
+      "children": [
+        {
+          "type": "Pie",
+          "props": {
+            "data": "@store.state.categoryData",
+            "dataKey": "value",
+            "nameKey": "name"
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Component Registration Pattern:**
+
+- All common components registered globally in `/src/lib/registerComponents.ts`
+- Includes: UI components (Button, Card, Input, Popover), Chart components (PieChart, BarChart), Library components (Repeater, ControlledInput), HTML elements
+- Pages register only page-specific components
+- Example page setup:
+
+```typescript
+import { componentRegistry, pluginRegistry } from "../../lib";
+import { PageSpecificComponent } from "./components/PageSpecificComponent";
+
+// Register ONLY page-specific components
+componentRegistry.register("PageSpecificComponent", PageSpecificComponent);
+
+// Register plugins
+pluginRegistry.register(somePlugin);
+```
+
+- Do NOT register common components on pages - they're already global
 
 ### Component Styling
 

@@ -11,6 +11,34 @@ When adding new features to the jsonsap library, the following documentation fil
 3. **README.md** - Project overview (if exists)
 4. **src/pages/home/index.tsx** - Feature cards on home page
 
+## Component Registration
+
+### Global Component Registration
+
+All common components are registered globally in `/src/lib/registerComponents.ts` and automatically loaded via `/src/lib/index.ts`. This includes:
+
+- UI Components: Button, Card, Popover, Input, Checkbox, etc.
+- Chart Components: PieChart, BarChart, LineChart, etc.
+- Library Components: Repeater, ControlledInput
+- HTML Elements: div, h1, h2, p, span, label, etc.
+
+### Page-Specific Components
+
+Pages should only register components that are specific to that page:
+
+```typescript
+import { componentRegistry, pluginRegistry } from "../../lib";
+import { PageSpecificComponent } from "./components/PageSpecificComponent";
+
+// Register ONLY page-specific components
+componentRegistry.register("PageSpecificComponent", PageSpecificComponent);
+
+// Register plugins
+pluginRegistry.register(somePlugin);
+```
+
+**Do NOT** register common components (Button, Card, Input, etc.) on individual pages - they are already registered globally.
+
 ## Update Checklist
 
 ### 1. Identify the Feature Type
@@ -18,11 +46,11 @@ When adding new features to the jsonsap library, the following documentation fil
 Determine which category the new feature falls into:
 
 - **Core Functionality**: JSON configuration, component registry, renderer
-- **State Management**: Store, actions, computed properties, @store.* syntax
-- **UI Features**: Modifiers, Repeater, event handlers
+- **State Management**: Store, actions, computed properties, @store.* syntax, SetAction
+- **UI Features**: Modifiers, Repeater, event handlers, Popover
 - **Plugins**: New plugins (AutoBind, Logger, Wrapper, etc.)
-- **Developer Tools**: Config editor, debugging tools
-- **Integration**: API support, async actions
+- **Developer Tools**: Config editor, debugging tools, ControlledInput
+- **Integration**: API support, async actions, JSONata filtering
 
 ### 2. Update CLAUDE.md
 
@@ -182,6 +210,7 @@ Before committing documentation updates:
 - [ ] Formatting is consistent
 - [ ] Examples use current API
 - [ ] TypeScript types are correct
+- [ ] Component registration follows global/page-specific pattern
 
 ## Example: Adding a New Feature
 
@@ -198,15 +227,20 @@ Before committing documentation updates:
    - Document usage, configuration, and API
 
 3. **Home Page**:
-   - Add new Card in feature grid
+   - Add new object to features array
    - Title: "Validation Plugin"
    - Description: "Automatic form validation"
    - Content: Explain validation rules and error handling
 
-4. **Verify**:
+4. **Component Registration** (if adding new components):
+   - If component is used across multiple pages: add to `/src/lib/registerComponents.ts`
+   - If component is page-specific: register only on that page
+
+5. **Verify**:
    - Test examples work
    - Check all cross-references
    - Ensure consistent terminology
+   - Verify component registration pattern
 
 ## Notes
 
@@ -215,3 +249,4 @@ Before committing documentation updates:
 - Deprecated features should be marked clearly
 - Keep examples minimal but complete
 - Focus on common use cases first
+- Follow component registration best practices (global vs page-specific)

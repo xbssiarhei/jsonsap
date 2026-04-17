@@ -76,6 +76,36 @@ const features = [
       "Full support for event handlers in Repeater. Automatically passes item data to actions.",
   },
   {
+    title: "SetAction Syntax",
+    description: "Declarative state updates",
+    content:
+      "Update store state declaratively with SetAction objects. Supports action chaining and works seamlessly with Repeater items.",
+  },
+  {
+    title: "ControlledInput",
+    description: "Cursor-stable text inputs",
+    content:
+      "Specialized input component that prevents cursor jumping when editing. Essential for inputs bound to reactive state.",
+  },
+  {
+    title: "Popover Component",
+    description: "Contextual overlays",
+    content:
+      "Display additional information in floating panels. Works with Repeater for item-specific popovers.",
+  },
+  {
+    title: "JSONata Integration",
+    description: "Powerful data filtering",
+    content:
+      "Query and transform data using JSONata expressions. Filter, sort, and aggregate arrays with simple query syntax.",
+  },
+  {
+    title: "Chart Components",
+    description: "Data visualization",
+    content:
+      "Built-in support for PieChart, BarChart, and LineChart. Bind chart data directly to store state for dynamic visualizations.",
+  },
+  {
     title: "TypeScript Support",
     description: "Fully typed for better DX",
     content:

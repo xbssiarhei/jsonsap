@@ -781,6 +781,507 @@ The plugin automatically:
 
 Built-in component for editing JSON configuration at runtime.
 
+## SetAction Syntax
+
+Declarative state updates for onClick and onChange handlers without writing action functions.
+
+### Usage
+
+```json
+{
+  "type": "Button",
+  "props": {
+    "onClick": {
+      "$action": "set",
+      "path": "selectedItem",
+      "value": "@item.id"
+    }
+  }
+}
+```
+
+### Configuration
+
+```typescript
+interface SetAction {
+  $action: "set";
+  store?: string; // Optional store name (for future multi-store support)
+  path: string; // Path in store state, e.g., "firstName" or "user.name"
+  value?: unknown; // Optional explicit value (can be @item.* reference)
+  then?: string; // Optional action to call after setting value
+}
+```
+
+### Features
+
+- **Declarative updates**: No need to write action functions for simple state updates
+- **Explicit values**: Pass specific values including `@item.*` references from Repeater
+- **Action chaining**: Use `then` parameter to call an action after state update
+- **Works with onClick and onChange**: Supports both event types
+- **Automatic value extraction**: For onChange without explicit value, extracts from event.target.value
+
+### Examples
+
+**Simple onChange:**
+
+```json
+{
+  "type": "Input",
+  "props": {
+    "value": "@store.state.firstName",
+    "onChange": {
+      "$action": "set",
+      "path": "firstName"
+    }
+  }
+}
+```
+
+**onClick with explicit value from Repeater:**
+
+```json
+{
+  "type": "Repeater",
+  "props": {
+    "items": "@store.state.queries",
+    "template": {
+      "type": "Button",
+      "props": {
+        "onClick": {
+          "$action": "set",
+          "path": "query",
+          "value": "@item.query",
+          "then": "applyFilter"
+        }
+      },
+      "children": "@item.label"
+    }
+  }
+}
+```
+
+**With action chaining:**
+
+```json
+{
+  "type": "Input",
+  "props": {
+    "value": "@store.state.searchTerm",
+    "onChange": {
+      "$action": "set",
+      "path": "searchTerm",
+      "then": "performSearch"
+    }
+  }
+}
+```
+
+The `then` parameter calls the specified action after updating state, enabling workflows like "set value then filter" or "set value then validate".
+
+## ControlledInput Component
+
+Solves cursor jumping issue in text inputs caused by React re-renders during typing.
+
+### Problem
+
+Standard controlled inputs in JSON configuration can cause cursor to jump to end when typing, because the entire component tree re-renders on every state change.
+
+### Solution
+
+`ControlledInput` uses internal state to maintain cursor position while syncing with store state.
+
+### Usage
+
+```json
+{
+  "type": "ControlledInput",
+  "props": {
+    "value": "@store.state.query",
+    "onChange": {
+      "$action": "set",
+      "path": "query"
+    },
+    "placeholder": "Enter query..."
+  }
+}
+```
+
+### How It Works
+
+1. Maintains internal state for the input value
+2. Sets `isTyping` flag when user types
+3. Updates store immediately via onChange
+4. Only syncs from store when NOT typing
+5. Preserves cursor position during typing
+
+### When to Use
+
+- Text inputs where cursor position matters (search boxes, query editors)
+- Inputs that update frequently
+- Any input where users report cursor jumping
+
+### When NOT to Use
+
+- Simple forms with infrequent updates
+- Inputs with autoBind plugin (already handles cursor correctly)
+- Non-text inputs (checkboxes, selects)
+
+## Popover Component
+
+shadcn/ui Popover component for displaying additional information on click.
+
+### Usage
+
+```json
+{
+  "type": "Popover",
+  "children": [
+    {
+      "type": "PopoverTrigger",
+      "props": {
+        "asChild": true
+      },
+      "children": [
+        {
+          "type": "Button",
+          "children": "Open Details"
+        }
+      ]
+    },
+    {
+      "type": "PopoverContent",
+      "props": {
+        "className": "w-80"
+      },
+      "children": [
+        {
+          "type": "div",
+          "children": "Popover content here"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Features
+
+- **Accessible**: Built on Radix UI primitives
+- **Customizable**: Full control over trigger and content
+- **Works with Repeater**: Use `@item.*` syntax in popover content
+- **Supports modifiers**: Apply conditional styling to PopoverContent
+
+### Example with Repeater
+
+```json
+{
+  "type": "Repeater",
+  "props": {
+    "items": "@store.state.items",
+    "template": {
+      "type": "Popover",
+      "children": [
+        {
+          "type": "PopoverTrigger",
+          "children": [
+            {
+              "type": "Card",
+              "children": "Item #@item.id"
+            }
+          ]
+        },
+        {
+          "type": "PopoverContent",
+          "children": [
+            {
+              "type": "div",
+              "children": [
+                {
+                  "type": "p",
+                  "children": "ID: @item.id"
+                },
+                {
+                  "type": "p",
+                  "children": "Value: @item.value"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
+```
+
+## JSONata Integration
+
+Use JSONata library for advanced data filtering, transformation, and querying.
+
+### Installation
+
+```bash
+npm install jsonata
+```
+
+### Usage in Actions
+
+```typescript
+import jsonata from "jsonata";
+
+const store = {
+  state: {
+    products: [...],
+    filteredProducts: [],
+    query: "$[price < 100]"
+  },
+  actions: {
+    applyFilter: async (state) => {
+      try {
+        const expression = jsonata(state.query);
+        const result = await expression.evaluate(state.products);
+        state.filteredProducts = Array.isArray(result) ? result : [result];
+      } catch (err) {
+        state.error = err.message;
+      }
+    }
+  }
+};
+```
+
+### Common JSONata Queries
+
+```javascript
+// Filter by condition
+"$[price < 100]"
+
+// Filter by category
+"$[category = 'Electronics']"
+
+// Multiple conditions
+"$[category = 'Furniture' and price < 300]"
+
+// Sort ascending
+"$ ^(price)"
+
+// Sort descending
+"$ ^(>price)"
+
+// Top N items
+"$ ^(>rating)[[0..2]]"
+
+// Group by category
+"$ { category: $ }"
+```
+
+### Example Configuration
+
+```json
+{
+  "type": "div",
+  "children": [
+    {
+      "type": "ControlledInput",
+      "props": {
+        "value": "@store.state.query",
+        "onChange": {
+          "$action": "set",
+          "path": "query"
+        },
+        "placeholder": "Enter JSONata query"
+      }
+    },
+    {
+      "type": "Button",
+      "props": {
+        "onClick": "@store.actions.applyFilter"
+      },
+      "children": "Apply Filter"
+    },
+    {
+      "type": "Repeater",
+      "props": {
+        "items": "@store.state.filteredProducts",
+        "template": {
+          "type": "Card",
+          "children": "@item.name"
+        }
+      }
+    }
+  ]
+}
+```
+
+## Chart Components
+
+Full support for Recharts library components for data visualization.
+
+### Available Components
+
+- **PieChart, Pie, Cell**: Pie and donut charts
+- **BarChart, Bar**: Bar charts
+- **LineChart, Line**: Line charts
+- **XAxis, YAxis**: Chart axes
+- **CartesianGrid**: Grid lines
+- **ChartTooltip, ChartTooltipContent**: Tooltips
+
+### Usage
+
+```json
+{
+  "type": "ChartContainer",
+  "props": {
+    "config": {},
+    "style": { "height": "300px" }
+  },
+  "children": [
+    {
+      "type": "PieChart",
+      "children": [
+        {
+          "type": "Pie",
+          "props": {
+            "data": "@store.state.categoryData",
+            "dataKey": "value",
+            "nameKey": "name",
+            "cx": "50%",
+            "cy": "50%",
+            "outerRadius": 100,
+            "label": true
+          }
+        },
+        {
+          "type": "ChartTooltip",
+          "props": {
+            "content": "ChartTooltipContent"
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Example with Dynamic Data
+
+```typescript
+const store = {
+  state: {
+    salesData: [
+      { month: "Jan", sales: 186, revenue: 4200 },
+      { month: "Feb", sales: 305, revenue: 6800 }
+    ],
+    categoryData: [
+      { name: "Electronics", value: 35, fill: "#3b82f6" },
+      { name: "Furniture", value: 25, fill: "#10b981" }
+    ]
+  }
+};
+```
+
+### BarChart Example
+
+```json
+{
+  "type": "BarChart",
+  "props": {
+    "data": "@store.state.salesData"
+  },
+  "children": [
+    {
+      "type": "CartesianGrid",
+      "props": { "strokeDasharray": "3 3" }
+    },
+    {
+      "type": "XAxis",
+      "props": { "dataKey": "month" }
+    },
+    {
+      "type": "YAxis"
+    },
+    {
+      "type": "Bar",
+      "props": {
+        "dataKey": "sales",
+        "fill": "#3b82f6"
+      }
+    }
+  ]
+}
+```
+
+### Using Repeater for Dynamic Colors
+
+```json
+{
+  "type": "Pie",
+  "props": {
+    "data": "@store.state.categoryData",
+    "dataKey": "value"
+  },
+  "children": [
+    {
+      "type": "Repeater",
+      "props": {
+        "items": "@store.state.categoryData",
+        "template": {
+          "type": "Cell",
+          "props": {
+            "fill": "@item.fill"
+          }
+        }
+      }
+    }
+  ]
+}
+```
+
+## Component Registration
+
+Centralized system for registering components globally and per-page.
+
+### Global Registration
+
+All common components are registered automatically in `/src/lib/registerComponents.ts`:
+
+```typescript
+import { registerCommonComponents } from "./lib";
+
+// Called automatically when importing from lib
+// Registers: Button, Card, Input, Popover, Chart components, Repeater, ControlledInput, HTML elements
+```
+
+### Page-Specific Registration
+
+Pages should only register components unique to that page:
+
+```typescript
+import { componentRegistry, pluginRegistry } from "../../lib";
+import { PageSpecificComponent } from "./components/PageSpecificComponent";
+
+// Register ONLY page-specific components
+componentRegistry.register("PageSpecificComponent", PageSpecificComponent);
+
+// Register plugins
+pluginRegistry.register(somePlugin);
+```
+
+### What's Registered Globally
+
+- **UI Components**: Button, Card, CardHeader, CardTitle, CardDescription, CardContent, Popover, PopoverTrigger, PopoverContent, Input, ControlledInput, Checkbox
+- **Chart Components**: ChartContainer, ChartTooltip, ChartTooltipContent, PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line
+- **Library Components**: Repeater, ControlledInput
+- **HTML Elements**: div, h1, h2, h3, p, span, label, pre
+
+### Best Practices
+
+- **DO**: Register page-specific components locally
+- **DO**: Import and use `registerCommonComponents()` if creating a new entry point
+- **DON'T**: Re-register common components on individual pages
+- **DON'T**: Import UI components directly on pages (use componentRegistry instead)
+
+Built-in component for editing JSON configuration at runtime.
+
 ### Usage
 
 ```typescript
