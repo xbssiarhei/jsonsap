@@ -13,12 +13,18 @@ import {
   CardTitle,
 } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "../../components/ui/chart";
 import { loggerPlugin } from "../../lib/plugins/logger";
 import { wrapperPlugin } from "../../lib/plugins/wrapper";
 import { autoBindPlugin } from "../../lib/plugins/autoBind";
 import { Repeater } from "../../lib/components/Repeater";
 import jsonata from "jsonata";
 import mockData from "./mock";
+import { PieChart, Pie, Cell } from "recharts";
 
 // Register components
 componentRegistry.register("Button", Button);
@@ -29,6 +35,12 @@ componentRegistry.register("CardDescription", CardDescription);
 componentRegistry.register("CardContent", CardContent);
 componentRegistry.register("Input", Input);
 componentRegistry.register("Repeater", Repeater);
+componentRegistry.register("ChartContainer", ChartContainer);
+componentRegistry.register("ChartTooltip", ChartTooltip);
+componentRegistry.register("ChartTooltipContent", ChartTooltipContent);
+componentRegistry.register("PieChart", PieChart);
+componentRegistry.register("Pie", Pie);
+componentRegistry.register("Cell", Cell);
 componentRegistry.register("div", "div");
 componentRegistry.register("h1", "h1");
 componentRegistry.register("h2", "h2");
@@ -54,9 +66,19 @@ type JsonataState = {
   filteredProducts: Product[];
   query: string;
   error: string;
+  categoryData: Array<{ name: string; value: number; fill: string }>;
 };
 
 const sampleProducts: Product[] = mockData;
+
+const CATEGORY_COLORS: Record<string, string> = {
+  Electronics: "#3b82f6",
+  Furniture: "#10b981",
+  Stationery: "#f59e0b",
+  Appliances: "#8b5cf6",
+  Sports: "#ef4444",
+  Accessories: "#ec4899",
+};
 
 const store: StoreConfig<JsonataState> = {
   state: {
@@ -64,11 +86,13 @@ const store: StoreConfig<JsonataState> = {
     filteredProducts: sampleProducts,
     query: "$[price < 100]",
     error: "",
+    categoryData: [],
   },
   actions: {
     applyFilter: async (state) => {
       if (!state.query) {
         state.filteredProducts = state.products;
+        updateCategoryData(state);
         return;
       }
       try {
@@ -80,16 +104,19 @@ const store: StoreConfig<JsonataState> = {
             ? [result]
             : [];
         state.error = "";
+        updateCategoryData(state);
       } catch (err) {
         state.error =
           err instanceof Error ? err.message : "Invalid JSONata query";
         state.filteredProducts = [];
+        state.categoryData = [];
       }
     },
     resetFilter: (state) => {
       state.query = "";
       state.filteredProducts = state.products;
       state.error = "";
+      updateCategoryData(state);
     },
     setPresetQuery: async (
       state,
@@ -110,10 +137,12 @@ const store: StoreConfig<JsonataState> = {
             ? [result]
             : [];
         state.error = "";
+        updateCategoryData(state);
       } catch (err) {
         state.error =
           err instanceof Error ? err.message : "Invalid JSONata query";
         state.filteredProducts = [];
+        state.categoryData = [];
       }
     },
   },
@@ -122,6 +151,23 @@ const store: StoreConfig<JsonataState> = {
     hasError: (state) => state.error.length > 0,
   },
 };
+
+updateCategoryData(store.state);
+
+function updateCategoryData(state: JsonataState) {
+  const categoryCount: Record<string, number> = {};
+
+  state.filteredProducts.forEach((product) => {
+    const category = product.category;
+    categoryCount[category] = (categoryCount[category] || 0) + 1;
+  });
+
+  state.categoryData = Object.entries(categoryCount).map(([name, value]) => ({
+    name,
+    value,
+    fill: CATEGORY_COLORS[name] || "#6b7280",
+  }));
+}
 
 const presetQueries = [
   { label: "Price < $100", query: "$[price < 100]" },
@@ -133,6 +179,7 @@ const presetQueries = [
     query: "$[category = 'Furniture' and price < 300]",
   },
   { label: "Sort by price (asc)", query: "$ ^(price)" },
+  { label: "Sort by price (desc)", query: "$ ^(>price)" },
   { label: "Top 3 by rating", query: "$ ^(>rating)[[0..2]]" },
 ];
 
@@ -326,134 +373,217 @@ export const jsonataPageConfig: AppConfig<JsonataState> = {
         type: "div",
         props: {
           style: {
-            marginBottom: "16px",
-            fontSize: "18px",
-            fontWeight: "500",
-          },
-        },
-        children: "Results: @store.computed.resultCount products",
-      },
-      {
-        type: "div",
-        props: {
-          style: {
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-            gap: "16px",
+            // gridTemplateColumns: "1fr 400px",
+            gridTemplateColumns: "1fr",
+            // gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
+            gap: "24px",
+            marginBottom: "24px",
           },
         },
         children: [
           {
-            type: "Repeater",
-            props: {
-              items: "@store.state.filteredProducts",
-              template: {
-                type: "Card",
+            type: "div",
+            children: [
+              {
+                type: "div",
+                props: {
+                  style: {
+                    marginBottom: "16px",
+                    fontSize: "18px",
+                    fontWeight: "500",
+                  },
+                },
+                children: "Results: @store.computed.resultCount products",
+              },
+              {
+                type: "div",
+                props: {
+                  style: {
+                    display: "grid",
+                    gridTemplateColumns:
+                      "repeat(auto-fill, minmax(300px, 1fr))",
+                    gap: "16px",
+                  },
+                },
                 children: [
                   {
-                    type: "CardHeader",
+                    type: "Card",
+                    props: {
+                      style: {
+                        gridRow: "span 2",
+                      },
+                    },
                     children: [
                       {
-                        type: "CardTitle",
-                        props: {
-                          style: {
-                            fontSize: "18px",
+                        type: "CardHeader",
+                        children: [
+                          {
+                            type: "CardTitle",
+                            children: "Category Distribution",
                           },
-                        },
-                        children: "@item.name",
+                          {
+                            type: "CardDescription",
+                            children: "Products by category",
+                          },
+                        ],
                       },
                       {
-                        type: "CardDescription",
-                        children: "@item.category",
+                        type: "CardContent",
+                        children: [
+                          {
+                            type: "ChartContainer",
+                            props: {
+                              config: {},
+                              className: "w-full",
+                              style: { height: "300px" },
+                            },
+                            children: [
+                              {
+                                type: "PieChart",
+                                children: [
+                                  {
+                                    type: "Pie",
+                                    props: {
+                                      data: "@store.state.categoryData",
+                                      dataKey: "value",
+                                      nameKey: "name",
+                                      cx: "50%",
+                                      cy: "50%",
+                                      outerRadius: 100,
+                                      label: true,
+                                    },
+                                  },
+                                  {
+                                    type: "ChartTooltip",
+                                    props: {
+                                      content: ChartTooltipContent,
+                                    },
+                                  },
+                                ],
+                              },
+                            ],
+                          },
+                        ],
                       },
                     ],
                   },
                   {
-                    type: "CardContent",
-                    children: [
-                      {
-                        type: "div",
-                        props: {
-                          style: {
-                            display: "flex",
-                            justifyContent: "space-between",
-                            marginBottom: "8px",
-                          },
-                        },
+                    type: "Repeater",
+                    props: {
+                      items: "@store.state.filteredProducts",
+                      template: {
+                        type: "Card",
                         children: [
                           {
-                            type: "span",
-                            props: {
-                              style: {
-                                fontSize: "24px",
-                                fontWeight: "bold",
-                                color: "#3b82f6",
+                            type: "CardHeader",
+                            children: [
+                              {
+                                type: "CardTitle",
+                                props: {
+                                  style: {
+                                    fontSize: "18px",
+                                  },
+                                },
+                                children: "@item.name",
                               },
-                            },
-                            children: "$@item.price",
+                              {
+                                type: "CardDescription",
+                                children: "@item.category",
+                              },
+                            ],
                           },
                           {
-                            type: "span",
-                            props: {
-                              style: {
-                                fontSize: "14px",
-                                color: "#666",
+                            type: "CardContent",
+                            children: [
+                              {
+                                type: "div",
+                                props: {
+                                  style: {
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    marginBottom: "8px",
+                                  },
+                                },
+                                children: [
+                                  {
+                                    type: "span",
+                                    props: {
+                                      style: {
+                                        fontSize: "24px",
+                                        fontWeight: "bold",
+                                        color: "#3b82f6",
+                                      },
+                                    },
+                                    children: "$@item.price",
+                                  },
+                                  {
+                                    type: "span",
+                                    props: {
+                                      style: {
+                                        fontSize: "14px",
+                                        color: "#666",
+                                      },
+                                    },
+                                    children: "⭐ @item.rating",
+                                  },
+                                ],
                               },
-                            },
-                            children: "⭐ @item.rating",
+                              {
+                                type: "div",
+                                props: {
+                                  style: {
+                                    padding: "4px 8px",
+                                    borderRadius: "4px",
+                                    fontSize: "12px",
+                                    fontWeight: "500",
+                                    display: "inline-block",
+                                  },
+                                },
+                                modifiers: [
+                                  {
+                                    conditions: [
+                                      {
+                                        path: "item.inStock",
+                                        operator: "equals",
+                                        value: true,
+                                      },
+                                    ],
+                                    props: {
+                                      style: {
+                                        backgroundColor: "#d1fae5",
+                                        color: "#065f46",
+                                      },
+                                    },
+                                  },
+                                  {
+                                    conditions: [
+                                      {
+                                        path: "item.inStock",
+                                        operator: "equals",
+                                        value: false,
+                                      },
+                                    ],
+                                    props: {
+                                      style: {
+                                        backgroundColor: "#fee2e2",
+                                        color: "#991b1b",
+                                      },
+                                    },
+                                  },
+                                ],
+                                children:
+                                  "@item.inStock ? 'In Stock' : 'Out of Stock'",
+                              },
+                            ],
                           },
                         ],
                       },
-                      {
-                        type: "div",
-                        props: {
-                          style: {
-                            padding: "4px 8px",
-                            borderRadius: "4px",
-                            fontSize: "12px",
-                            fontWeight: "500",
-                            display: "inline-block",
-                          },
-                        },
-                        modifiers: [
-                          {
-                            conditions: [
-                              {
-                                path: "item.inStock",
-                                operator: "equals",
-                                value: true,
-                              },
-                            ],
-                            props: {
-                              style: {
-                                backgroundColor: "#d1fae5",
-                                color: "#065f46",
-                              },
-                            },
-                          },
-                          {
-                            conditions: [
-                              {
-                                path: "item.inStock",
-                                operator: "equals",
-                                value: false,
-                              },
-                            ],
-                            props: {
-                              style: {
-                                backgroundColor: "#fee2e2",
-                                color: "#991b1b",
-                              },
-                            },
-                          },
-                        ],
-                        children: "@item.inStock ? 'In Stock' : 'Out of Stock'",
-                      },
-                    ],
+                    },
                   },
                 ],
               },
-            },
+            ],
           },
         ],
       },
