@@ -61,7 +61,14 @@ const generateUsers = () => {
 };
 
 type State = {
-  users: any[];
+  users: Array<{
+    id: number;
+    name: string;
+    avatar: string;
+    speed: string;
+    lat: number;
+    lng: number;
+  }>;
   selectedUserId: null | number;
 };
 

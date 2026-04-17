@@ -4,6 +4,7 @@ import { DemoPageView } from "./pages/demo/DemoPageView";
 import { StressTestPageView } from "./pages/stress-test/StressTestPageView";
 import { MapPageView } from "./pages/map/MapPageView";
 import { ApiPageView } from "./pages/api/ApiPageView";
+import { FormPageView } from "./pages/form/FormPageView";
 import HomePage from "./pages/home/";
 import Layout from "./Layout";
 
@@ -17,6 +18,7 @@ function App() {
           <Route path="stress-test" element={<StressTestPageView />} />
           <Route path="map" element={<MapPageView />} />
           <Route path="api" element={<ApiPageView />} />
+          <Route path="form" element={<FormPageView />} />
         </Route>
       </Routes>
     </BrowserRouter>

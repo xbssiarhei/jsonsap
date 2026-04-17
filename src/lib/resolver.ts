@@ -81,13 +81,13 @@ function resolveObject(
     if (typeof value === "string" && value.startsWith("@store.")) {
       const resolvedValue = resolveValue(value, store);
 
-      // Special handling for onClick with actions
-      if (key === "onClick" && typeof resolvedValue === "function") {
+      // Special handling for onChange with actions
+      if (key === "onChange" && typeof resolvedValue === "function") {
         // Check for __itemValue from Repeater
         const itemValue = obj["__itemValue"];
         if (itemValue !== undefined) {
-          resolved[key] = (e: unknown) => {
-            (resolvedValue as (...args: unknown[]) => void)(e, itemValue);
+          resolved[key] = (e: { target: { value: unknown } }) => {
+            (resolvedValue as (...args: unknown[]) => void)(e, itemValue, e.target.value);
           };
           // Don't include __itemValue in final props
           continue;
@@ -96,8 +96,8 @@ function resolveObject(
         // Check if there's an item prop to pass
         const itemProp = obj["item"];
         if (itemProp !== undefined) {
-          resolved[key] = (e: unknown) => {
-            (resolvedValue as (...args: unknown[]) => void)(e, itemProp);
+          resolved[key] = (e: { target: { value: unknown } }) => {
+            (resolvedValue as (...args: unknown[]) => void)(e, itemProp, e.target.value);
           };
         } else {
           resolved[key] = resolvedValue;
@@ -106,7 +106,7 @@ function resolveObject(
         resolved[key] = resolvedValue;
       }
     } else if (key === "__itemValue") {
-      // Skip __itemValue, it's only used for onClick
+      // Skip __itemValue, it's only used for onChange
       continue;
     } else if (
       typeof value === "object" &&

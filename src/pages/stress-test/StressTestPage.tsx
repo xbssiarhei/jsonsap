@@ -3,6 +3,7 @@ import {
   pluginRegistry,
   type AppConfig,
   type StoreConfig,
+  autoBindPlugin,
 } from "../../lib";
 import { Button } from "../../components/ui/button";
 import {
@@ -17,6 +18,7 @@ import { wrapperPlugin } from "../../lib/plugins/wrapper";
 import { StressTestItem } from "../../components/StressTestItem";
 import { Repeater } from "../../lib/components/Repeater";
 import { NumericRoller } from "../../components/roller";
+import { Input } from "../../components/ui/input";
 
 // Register components
 componentRegistry.register("Button", Button);
@@ -27,16 +29,19 @@ componentRegistry.register("CardDescription", CardDescription);
 componentRegistry.register("CardContent", CardContent);
 componentRegistry.register("StressTestItem", StressTestItem);
 componentRegistry.register("Repeater", Repeater);
+componentRegistry.register("Input", Input);
 componentRegistry.register("div", "div");
 componentRegistry.register("h1", "h1");
 componentRegistry.register("h2", "h2");
 componentRegistry.register("p", "p");
 componentRegistry.register("span", "span");
+componentRegistry.register("label", "label");
 componentRegistry.register("NumericRoller", NumericRoller);
 
 // Register plugins
 pluginRegistry.register(loggerPlugin);
 pluginRegistry.register(wrapperPlugin);
+pluginRegistry.register(autoBindPlugin);
 
 // Generate n items
 const generateItems = (count: number) => {
@@ -58,6 +63,7 @@ type StressState = {
   isRunning: boolean;
   updateCount: number;
   intervalId: number | null;
+  threshold: number;
 };
 
 const COUNT_ITEMS = 42;
@@ -68,6 +74,7 @@ const store: StoreConfig<StressState> = {
     isRunning: false,
     updateCount: 0,
     intervalId: null as number | null,
+    threshold: 75,
   },
   actions: {
     startStressTest: (state) => {
@@ -239,6 +246,41 @@ export const stressTestPageConfig: AppConfig<StressState> = {
                 },
                 children: "Status: @store.state.isRunning",
               },
+              {
+                type: "div",
+                props: {
+                  style: {
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    marginTop: "16px",
+                  },
+                },
+                children: [
+                  {
+                    type: "label",
+                    props: {
+                      style: {
+                        fontSize: "14px",
+                        fontWeight: "500",
+                      },
+                    },
+                    children: "Threshold for red highlight:",
+                  },
+                  {
+                    type: "Input",
+                    props: {
+                      type: "number",
+                      value: "@store.state.threshold",
+                      autoBind: "threshold",
+                      style: {
+                        width: "80px",
+                      },
+                    },
+                    plugins: ["autoBind"],
+                  },
+                ],
+              },
             ],
           },
         ],
@@ -283,7 +325,7 @@ export const stressTestPageConfig: AppConfig<StressState> = {
                       {
                         path: "item.value",
                         operator: "greaterThan",
-                        value: 75,
+                        value: "@store.state.threshold",
                       },
                     ],
                     props: {

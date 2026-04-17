@@ -94,13 +94,25 @@ function checkModifier(
     // AND logic: all conditions must match
     return conditions.every((condition) => {
       const value = resolveValue(condition.path, props, store);
-      return evaluateCondition(condition, value);
+      // Resolve condition.value if it's a store reference
+      const expectedValue =
+        typeof condition.value === "string" &&
+        condition.value.startsWith("@store.")
+          ? resolveValue(condition.value, props, store)
+          : condition.value;
+      return evaluateCondition({ ...condition, value: expectedValue }, value);
     });
   } else {
     // OR logic: at least one condition must match
     return conditions.some((condition) => {
       const value = resolveValue(condition.path, props, store);
-      return evaluateCondition(condition, value);
+      // Resolve condition.value if it's a store reference
+      const expectedValue =
+        typeof condition.value === "string" &&
+        condition.value.startsWith("@store.")
+          ? resolveValue(condition.value, props, store)
+          : condition.value;
+      return evaluateCondition({ ...condition, value: expectedValue }, value);
     });
   }
 }
