@@ -14,12 +14,21 @@ type Product = {
   price: number;
   inStock: boolean;
   rating: number;
+  tmp?: boolean;
 };
 
 type ProductsState = {
   products: Product[];
   sortOrder: "asc" | "desc";
   priceThreshold: number;
+  editingId: number | null;
+  newProduct: {
+    name: string;
+    category: string;
+    price: number;
+    inStock: boolean;
+    rating: number;
+  };
 };
 
 const store: StoreConfig<ProductsState> = {
@@ -27,6 +36,14 @@ const store: StoreConfig<ProductsState> = {
     products: mockData,
     sortOrder: "asc",
     priceThreshold: 100,
+    editingId: null,
+    newProduct: {
+      name: "",
+      category: "",
+      price: 0,
+      inStock: true,
+      rating: 0,
+    },
   },
   actions: {
     toggleSortOrder: (state) => {
@@ -34,6 +51,105 @@ const store: StoreConfig<ProductsState> = {
     },
     setPriceThreshold: (state, _e: unknown, value: number) => {
       state.priceThreshold = value;
+    },
+    deleteProduct: (state, _e: unknown, _item: unknown) => {
+      const index = state.products.findIndex((p) => p.id === _item.id);
+      if (index !== -1) {
+        state.products.splice(index, 1);
+      }
+    },
+    startEdit: (state, _e: unknown, _item: unknown) => {
+      state.editingId = _item.id;
+    },
+    cancelEdit: (state) => {
+      state.editingId = null;
+    },
+    updateProductField: (
+      state,
+      e: { target: { value: unknown } },
+      _item: unknown,
+      id: number,
+      field: string,
+    ) => {
+      const product = state.products.find((p) => p.id === id);
+      if (product) {
+        (product as Record<string, unknown>)[field] = e.target.value;
+      }
+    },
+    updateProductName: (
+      state,
+      e: { target: { value: unknown } },
+      _item: unknown,
+      id: number,
+    ) => {
+      const product = state.products.find((p) => p.id === id);
+      if (product) {
+        product.name = String(e.target.value);
+      }
+    },
+    updateProductCategory: (
+      state,
+      e: { target: { value: unknown } },
+      _item: unknown,
+      id: number,
+    ) => {
+      const product = state.products.find((p) => p.id === id);
+      if (product) {
+        product.category = String(e.target.value);
+      }
+    },
+    updateProductPrice: (
+      state,
+      e: { target: { value: unknown } },
+      _item: unknown,
+      // id: number,
+    ) => {
+      const product = state.products.find((p) => p.id === _item.id);
+      if (product) {
+        product.price = Number(e.target.value);
+      }
+    },
+    updateProductRating: (
+      state,
+      e: { target: { value: unknown } },
+      _item: unknown,
+      // id: number,
+    ) => {
+      const product = state.products.find((p) => p.id === _item.id);
+      if (product) {
+        product.rating = Number(e.target.value);
+      }
+    },
+    saveEdit: (state) => {
+      state.editingId = null;
+    },
+    addProduct: (state) => {
+      const newId = Math.max(...state.products.map((p) => p.id)) + 1;
+      const index = state.products.push({
+        id: newId,
+        name: state.newProduct.name || "New Product",
+        category: state.newProduct.category || "Electronics",
+        price: Number(state.newProduct.price) || 0,
+        inStock: state.newProduct.inStock,
+        rating: Number(state.newProduct.rating) || 0,
+        tmp: true,
+      });
+
+      console.log(state.products[index - 1]);
+
+      setTimeout(() => {
+        const product = state.products[index - 1];
+        delete product.tmp;
+      }, 3000);
+
+      // Reset form
+      state.newProduct = {
+        name: "",
+        category: "",
+        price: 0,
+        inStock: true,
+        rating: 0,
+      };
     },
   },
   computed: {
@@ -49,7 +165,7 @@ const store: StoreConfig<ProductsState> = {
     },
     // JSONata computed - filter expensive items
     expensiveProducts: {
-      $jsonata: "$[price > 100]",
+      $jsonata: "$[price > 200]",
       source: "@store.state.products",
     },
     // JSONata computed - top 5 rated
@@ -152,7 +268,7 @@ export const productsPageConfig: AppConfig<ProductsState> = {
         props: {
           style: {
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
             gap: "24px",
           },
         },
@@ -240,11 +356,12 @@ export const productsPageConfig: AppConfig<ProductsState> = {
                 children: [
                   {
                     type: "CardTitle",
-                    children: "Expensive Products",
+                    children:
+                      "Expensive Products (@store.computed.expensiveProducts.length)",
                   },
                   {
                     type: "CardDescription",
-                    children: "JSONata: $[price > 100]",
+                    children: "JSONata: $[price > 200]",
                   },
                 ],
               },
@@ -314,7 +431,8 @@ export const productsPageConfig: AppConfig<ProductsState> = {
                 children: [
                   {
                     type: "CardTitle",
-                    children: "In Stock Products",
+                    children:
+                      "In Stock Products (@store.computed.inStockProducts.length)",
                   },
                   {
                     type: "CardDescription",
@@ -455,6 +573,562 @@ export const productsPageConfig: AppConfig<ProductsState> = {
                     ],
                   },
                 ],
+              },
+            ],
+          },
+        ],
+      },
+      // CRUD Table
+      {
+        type: "div",
+        props: {
+          style: {
+            marginTop: "48px",
+          },
+        },
+        children: [
+          {
+            type: "h2",
+            props: {
+              style: {
+                fontSize: "28px",
+                fontWeight: "bold",
+                marginBottom: "24px",
+              },
+            },
+            children: "Products Table (CRUD)",
+          },
+          // Add new product form
+          {
+            type: "Card",
+            props: {
+              style: {
+                marginBottom: "24px",
+                backgroundColor: "#f0fdf4",
+              },
+            },
+            children: [
+              {
+                type: "CardHeader",
+                children: [
+                  {
+                    type: "CardTitle",
+                    children: "Add New Product",
+                  },
+                ],
+              },
+              {
+                type: "CardContent",
+                children: [
+                  {
+                    type: "div",
+                    props: {
+                      style: {
+                        display: "grid",
+                        gridTemplateColumns:
+                          "repeat(auto-fit, minmax(150px, 1fr))",
+                        gap: "12px",
+                        marginBottom: "16px",
+                      },
+                    },
+                    children: [
+                      {
+                        type: "Input",
+                        props: {
+                          placeholder: "Name",
+                          value: "@store.state.newProduct.name",
+                          onChange: {
+                            $action: "set",
+                            path: "newProduct.name",
+                          },
+                        },
+                      },
+                      {
+                        type: "Input",
+                        props: {
+                          placeholder: "Category",
+                          value: "@store.state.newProduct.category",
+                          onChange: {
+                            $action: "set",
+                            path: "newProduct.category",
+                          },
+                        },
+                      },
+                      {
+                        type: "Input",
+                        props: {
+                          type: "number",
+                          placeholder: "Price",
+                          value: "@store.state.newProduct.price",
+                          onChange: {
+                            $action: "set",
+                            path: "newProduct.price",
+                          },
+                        },
+                      },
+                      {
+                        type: "Input",
+                        props: {
+                          type: "number",
+                          placeholder: "Rating",
+                          value: "@store.state.newProduct.rating",
+                          onChange: {
+                            $action: "set",
+                            path: "newProduct.rating",
+                          },
+                        },
+                      },
+                    ],
+                  },
+                  {
+                    type: "Button",
+                    props: {
+                      onClick: "@store.actions.addProduct",
+                    },
+                    children: "Add Product",
+                  },
+                ],
+              },
+            ],
+          },
+          // Table
+          {
+            type: "div",
+            props: {
+              className: "max-h-[300px] overflow-auto",
+              style: {
+                border: "1px solid #e5e7eb",
+                borderRadius: "8px",
+              },
+            },
+            children: [
+              // Table header
+              {
+                type: "div",
+                props: {
+                  className: "grid gap-4 sticky top-0 z-2",
+                  style: {
+                    gridTemplateColumns: "60px 2fr 1fr 100px 80px 80px 150px",
+                    backgroundColor: "#f9fafb",
+                    padding: "12px",
+                    fontWeight: "600",
+                    borderBottom: "1px solid #e5e7eb",
+                  },
+                },
+                children: [
+                  { type: "div", children: "ID" },
+                  { type: "div", children: "Name" },
+                  { type: "div", children: "Category" },
+                  { type: "div", children: "Price" },
+                  { type: "div", children: "Rating" },
+                  { type: "div", children: "Stock" },
+                  { type: "div", children: "Actions" },
+                ],
+              },
+              // Table rows
+              {
+                type: "Repeater",
+                props: {
+                  items: "@store.state.products",
+                  template: {
+                    type: "div",
+                    props: {
+                      className: "grid gap-4 z-1",
+                      style: {
+                        gridTemplateColumns:
+                          "60px 2fr 1fr 100px 80px 80px 150px",
+                        padding: "12px",
+                        borderBottom: "1px solid #e5e7eb",
+                        alignItems: "center",
+                      },
+                      item: "@item",
+                    },
+                    modifiers: [
+                      {
+                        conditions: [
+                          {
+                            path: "item.id",
+                            operator: "equals",
+                            value: "@store.state.editingId",
+                          },
+                        ],
+                        props: {
+                          style: {
+                            backgroundColor: "#eff6ff",
+                          },
+                        },
+                      },
+                      {
+                        conditions: [
+                          {
+                            path: "item.tmp",
+                            operator: "equals",
+                            value: true,
+                          },
+                        ],
+                        props: {
+                          style: {
+                            opacity: "0.2",
+                          },
+                          inert: true,
+                        },
+                      },
+                    ],
+                    children: [
+                      {
+                        type: "div",
+                        children: "@item.id",
+                      },
+                      {
+                        type: "div",
+                        children: [
+                          {
+                            type: "ControlledInput",
+                            props: {
+                              value: "@item.name",
+                              onChange: "@store.actions.updateProductName",
+                              item: "@item",
+                            },
+                            modifiers: [
+                              {
+                                conditions: [
+                                  {
+                                    path: "item.id",
+                                    operator: "notEquals",
+                                    value: "@store.state.editingId",
+                                  },
+                                ],
+                                props: {
+                                  style: {
+                                    display: "none",
+                                  },
+                                },
+                              },
+                            ],
+                          },
+                          {
+                            type: "span",
+                            children: "@item.name",
+                            props: {
+                              item: "@item",
+                            },
+                            modifiers: [
+                              {
+                                conditions: [
+                                  {
+                                    path: "item.id",
+                                    operator: "equals",
+                                    value: "@store.state.editingId",
+                                  },
+                                ],
+                                props: {
+                                  style: {
+                                    display: "none",
+                                  },
+                                },
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                      {
+                        type: "div",
+                        children: [
+                          {
+                            type: "ControlledInput",
+                            props: {
+                              value: "@item.category",
+                              onChange: "@store.actions.updateProductCategory",
+                              item: "@item",
+                            },
+                            modifiers: [
+                              {
+                                conditions: [
+                                  {
+                                    path: "item.id",
+                                    operator: "notEquals",
+                                    value: "@store.state.editingId",
+                                  },
+                                ],
+                                props: {
+                                  style: {
+                                    display: "none",
+                                  },
+                                },
+                              },
+                            ],
+                          },
+                          {
+                            type: "span",
+                            children: "@item.category",
+                            props: {
+                              item: "@item",
+                            },
+                            modifiers: [
+                              {
+                                conditions: [
+                                  {
+                                    path: "item.id",
+                                    operator: "equals",
+                                    value: "@store.state.editingId",
+                                  },
+                                ],
+                                props: {
+                                  style: {
+                                    display: "none",
+                                  },
+                                },
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                      {
+                        type: "div",
+                        children: [
+                          {
+                            type: "ControlledInput",
+                            props: {
+                              type: "number",
+                              value: "@item.price",
+                              onChange: "@store.actions.updateProductPrice",
+                              item: "@item",
+                            },
+                            modifiers: [
+                              {
+                                conditions: [
+                                  {
+                                    path: "item.id",
+                                    operator: "notEquals",
+                                    value: "@store.state.editingId",
+                                  },
+                                ],
+                                props: {
+                                  style: {
+                                    display: "none",
+                                  },
+                                },
+                              },
+                            ],
+                          },
+                          {
+                            type: "span",
+                            children: "$@item.price",
+                            props: {
+                              item: "@item",
+                            },
+                            modifiers: [
+                              {
+                                conditions: [
+                                  {
+                                    path: "item.id",
+                                    operator: "equals",
+                                    value: "@store.state.editingId",
+                                  },
+                                ],
+                                props: {
+                                  style: {
+                                    display: "none",
+                                  },
+                                },
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                      {
+                        type: "div",
+                        children: [
+                          {
+                            type: "ControlledInput",
+                            props: {
+                              type: "number",
+                              value: "@item.rating",
+                              onChange: "@store.actions.updateProductRating",
+                              item: "@item",
+                            },
+                            modifiers: [
+                              {
+                                conditions: [
+                                  {
+                                    path: "item.id",
+                                    operator: "notEquals",
+                                    value: "@store.state.editingId",
+                                  },
+                                ],
+                                props: {
+                                  style: {
+                                    display: "none",
+                                  },
+                                },
+                              },
+                            ],
+                          },
+                          {
+                            type: "span",
+                            children: "@item.rating",
+                            props: {
+                              item: "@item",
+                            },
+                            modifiers: [
+                              {
+                                conditions: [
+                                  {
+                                    path: "item.id",
+                                    operator: "equals",
+                                    value: "@store.state.editingId",
+                                  },
+                                ],
+                                props: {
+                                  style: {
+                                    display: "none",
+                                  },
+                                },
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                      {
+                        type: "div",
+                        children: [
+                          // {
+                          //   type: "span",
+                          //   props: {
+                          //     style: {
+                          //       padding: "2px 8px",
+                          //       borderRadius: "4px",
+                          //       fontSize: "12px",
+                          //     },
+                          //   },
+                          //   modifiers: [
+                          //     {
+                          //       conditions: [
+                          //         {
+                          //           path: "item.inStock",
+                          //           operator: "equals",
+                          //           value: true,
+                          //         },
+                          //       ],
+                          //       props: {
+                          //         style: {
+                          //           backgroundColor: "#d1fae5",
+                          //           color: "#065f46",
+                          //         },
+                          //       },
+                          //     },
+                          //     {
+                          //       conditions: [
+                          //         {
+                          //           path: "item.inStock",
+                          //           operator: "equals",
+                          //           value: false,
+                          //         },
+                          //       ],
+                          //       props: {
+                          //         style: {
+                          //           backgroundColor: "#fee2e2",
+                          //           color: "#991b1b",
+                          //         },
+                          //       },
+                          //     },
+                          //   ],
+                          //   children: "@item.inStock",
+                          // },
+                          {
+                            type: "Checkbox",
+                            props: {
+                              item: "@item",
+                              checked: "@item.inStock",
+                            },
+                          },
+                        ],
+                      },
+                      {
+                        type: "div",
+                        props: {
+                          style: {
+                            display: "flex",
+                            gap: "8px",
+                          },
+                        },
+                        children: [
+                          {
+                            type: "Button",
+                            props: {
+                              variant: "outline",
+                              size: "sm",
+                              // onClick: {
+                              //   $action: "set",
+                              //   path: "editingId",
+                              //   value: "@item.id",
+                              // },
+                              onClick: "@store.actions.startEdit",
+                              item: "@item",
+                            },
+                            children: "Edit",
+                            modifiers: [
+                              {
+                                conditions: [
+                                  {
+                                    path: "item.id",
+                                    operator: "equals",
+                                    value: "@store.state.editingId",
+                                  },
+                                ],
+                                props: {
+                                  style: {
+                                    display: "none",
+                                  },
+                                },
+                              },
+                            ],
+                          },
+                          {
+                            type: "Button",
+                            props: {
+                              variant: "default",
+                              size: "sm",
+                              onClick: {
+                                $action: "set",
+                                path: "editingId",
+                                value: null,
+                              },
+                              item: "@item",
+                            },
+                            children: "Save",
+                            modifiers: [
+                              {
+                                conditions: [
+                                  {
+                                    path: "item.id",
+                                    operator: "notEquals",
+                                    value: "@store.state.editingId",
+                                  },
+                                ],
+                                props: {
+                                  style: {
+                                    display: "none",
+                                  },
+                                },
+                              },
+                            ],
+                          },
+                          {
+                            type: "Button",
+                            props: {
+                              variant: "destructive",
+                              size: "sm",
+                              onClick: "@store.actions.deleteProduct",
+                              item: "@item",
+                            },
+                            children: "Delete",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
               },
             ],
           },
