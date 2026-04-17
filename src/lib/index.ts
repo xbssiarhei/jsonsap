@@ -1,13 +1,16 @@
-export { JsonRenderer } from './renderer';
-export { componentRegistry } from './registry';
-export { pluginRegistry } from './plugins';
-export { createStore, subscribeToStore } from './store';
-export { StoreProvider, useStore } from './StoreProvider';
-export { useStoreState, useStoreActions, useStoreComputed } from './storeHooks';
-export { applyModifiers } from './modifiers';
-export { loggerPlugin } from './plugins/logger';
-export { wrapperPlugin } from './plugins/wrapper';
-export { autoBindPlugin } from './plugins/autoBind';
+import { registerCommonComponents } from "./registerComponents";
+
+export { JsonRenderer } from "./renderer";
+export { componentRegistry } from "./registry";
+export { pluginRegistry } from "./plugins";
+export { createStore, subscribeToStore } from "./store";
+export { StoreProvider, useStore } from "./StoreProvider";
+export { useStoreState, useStoreActions, useStoreComputed } from "./storeHooks";
+export { applyModifiers } from "./modifiers";
+export { loggerPlugin } from "./plugins/logger";
+export { wrapperPlugin } from "./plugins/wrapper";
+export { autoBindPlugin } from "./plugins/autoBind";
+export { registerCommonComponents } from "./registerComponents";
 export type {
   ComponentConfig,
   Plugin,
@@ -18,5 +21,7 @@ export type {
   AppConfig,
   StoreInstance,
   Modifier,
-  ModifierCondition
-} from './types';
+  ModifierCondition,
+} from "./types";
+
+registerCommonComponents();

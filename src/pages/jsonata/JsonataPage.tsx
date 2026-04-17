@@ -1,51 +1,10 @@
-import {
-  componentRegistry,
-  pluginRegistry,
-  type AppConfig,
-  type StoreConfig,
-} from "../../lib";
-import { Button } from "../../components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../../components/ui/card";
-import { Input } from "../../components/ui/input";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "../../components/ui/chart";
+import { pluginRegistry, type AppConfig, type StoreConfig } from "../../lib";
 import { loggerPlugin } from "../../lib/plugins/logger";
 import { wrapperPlugin } from "../../lib/plugins/wrapper";
 import { autoBindPlugin } from "../../lib/plugins/autoBind";
-import { Repeater } from "../../lib/components/Repeater";
 import jsonata from "jsonata";
 import mockData from "./mock";
-import { PieChart, Pie, Cell } from "recharts";
-
-// Register components
-componentRegistry.register("Button", Button);
-componentRegistry.register("Card", Card);
-componentRegistry.register("CardHeader", CardHeader);
-componentRegistry.register("CardTitle", CardTitle);
-componentRegistry.register("CardDescription", CardDescription);
-componentRegistry.register("CardContent", CardContent);
-componentRegistry.register("Input", Input);
-componentRegistry.register("Repeater", Repeater);
-componentRegistry.register("ChartContainer", ChartContainer);
-componentRegistry.register("ChartTooltip", ChartTooltip);
-componentRegistry.register("ChartTooltipContent", ChartTooltipContent);
-componentRegistry.register("PieChart", PieChart);
-componentRegistry.register("Pie", Pie);
-componentRegistry.register("Cell", Cell);
-componentRegistry.register("div", "div");
-componentRegistry.register("h1", "h1");
-componentRegistry.register("h2", "h2");
-componentRegistry.register("p", "p");
-componentRegistry.register("span", "span");
+import { ChartTooltipContent } from "@/components/ui/chart";
 
 // Register plugins
 pluginRegistry.register(loggerPlugin);
@@ -263,7 +222,7 @@ export const jsonataPageConfig: AppConfig<JsonataState> = {
                 },
                 children: [
                   {
-                    type: "Input",
+                    type: "ControlledInput",
                     props: {
                       value: "@store.state.query",
                       onChange: {

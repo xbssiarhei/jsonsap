@@ -5,37 +5,13 @@ import {
   type StoreConfig,
   autoBindPlugin,
 } from "../../lib";
-import { Button } from "../../components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../../components/ui/card";
 import { loggerPlugin } from "../../lib/plugins/logger";
 import { wrapperPlugin } from "../../lib/plugins/wrapper";
 import { StressTestItem } from "./components/StressTestItem";
-import { Repeater } from "../../lib/components/Repeater";
 import { NumericRoller } from "../../components/roller";
-import { Input } from "../../components/ui/input";
 
-// Register components
-componentRegistry.register("Button", Button);
-componentRegistry.register("Card", Card);
-componentRegistry.register("CardHeader", CardHeader);
-componentRegistry.register("CardTitle", CardTitle);
-componentRegistry.register("CardDescription", CardDescription);
-componentRegistry.register("CardContent", CardContent);
+// Register page-specific components
 componentRegistry.register("StressTestItem", StressTestItem);
-componentRegistry.register("Repeater", Repeater);
-componentRegistry.register("Input", Input);
-componentRegistry.register("div", "div");
-componentRegistry.register("h1", "h1");
-componentRegistry.register("h2", "h2");
-componentRegistry.register("p", "p");
-componentRegistry.register("span", "span");
-componentRegistry.register("label", "label");
 componentRegistry.register("NumericRoller", NumericRoller);
 
 // Register plugins
@@ -300,56 +276,243 @@ export const stressTestPageConfig: AppConfig<StressState> = {
             props: {
               items: "@store.state.items",
               template: {
-                type: "StressTestItem",
-                props: {
-                  item: "@item",
-                },
-                modifiers: [
-                  {
-                    conditions: [
-                      {
-                        path: "item.status",
-                        operator: "equals",
-                        value: "active",
-                      },
-                    ],
-                    props: {
-                      style: {
-                        backgroundColor: "#dcfce7",
-                        borderColor: "#22c55e",
-                      },
-                    },
-                  },
-                  {
-                    conditions: [
-                      {
-                        path: "item.value",
-                        operator: "greaterThan",
-                        value: "@store.state.threshold",
-                      },
-                    ],
-                    props: {
-                      style: {
-                        borderWidth: "0px",
-                        borderColor: "#ef4444",
-                        backgroundColor: "#ef4444",
-                      },
-                    },
-                  },
-                ],
+                type: "Popover",
                 children: [
                   {
-                    type: "span",
+                    type: "PopoverTrigger",
                     props: {
-                      className: "text-sm",
+                      // asChild: true,
                     },
                     children: [
                       {
-                        type: "NumericRoller",
+                        type: "StressTestItem",
                         props: {
-                          value: "@item.value",
-                          size: 20,
+                          item: "@item",
                         },
+                        modifiers: [
+                          {
+                            conditions: [
+                              {
+                                path: "item.status",
+                                operator: "equals",
+                                value: "active",
+                              },
+                            ],
+                            props: {
+                              style: {
+                                backgroundColor: "#dcfce7",
+                                borderColor: "#22c55e",
+                              },
+                            },
+                          },
+                          {
+                            conditions: [
+                              {
+                                path: "item.value",
+                                operator: "greaterThan",
+                                value: "@store.state.threshold",
+                              },
+                            ],
+                            props: {
+                              style: {
+                                borderWidth: "0px",
+                                borderColor: "#ef4444",
+                                backgroundColor: "#ef4444",
+                              },
+                            },
+                          },
+                        ],
+                        children: [
+                          {
+                            type: "span",
+                            props: {
+                              className: "text-sm",
+                            },
+                            children: [
+                              {
+                                type: "NumericRoller",
+                                props: {
+                                  value: "@item.value",
+                                  size: 20,
+                                },
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    type: "PopoverContent",
+                    props: {
+                      className: "w-80",
+                      item: "@item",
+                    },
+                    modifiers: [
+                      {
+                        conditions: [
+                          {
+                            path: "item.value",
+                            operator: "greaterThan",
+                            value: "@store.state.threshold",
+                          },
+                        ],
+                        props: {
+                          style: {
+                            borderWidth: "0px",
+                            borderColor: "#ef4444",
+                            backgroundColor: "#ef4444",
+                          },
+                        },
+                      },
+                    ],
+                    children: [
+                      {
+                        type: "div",
+                        props: {
+                          style: {
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "8px",
+                          },
+                        },
+                        children: [
+                          {
+                            type: "h3",
+                            props: {
+                              style: {
+                                fontSize: "16px",
+                                fontWeight: "600",
+                                marginBottom: "8px",
+                              },
+                            },
+                            children: "Item #@item.id Details",
+                          },
+                          {
+                            type: "div",
+                            props: {
+                              style: {
+                                display: "flex",
+                                justifyContent: "space-between",
+                                padding: "4px 0",
+                              },
+                            },
+                            children: [
+                              {
+                                type: "span",
+                                props: {
+                                  style: {
+                                    fontWeight: "500",
+                                    color: "#666",
+                                  },
+                                },
+                                children: "ID:",
+                              },
+                              {
+                                type: "span",
+                                children: "@item.id",
+                              },
+                            ],
+                          },
+                          {
+                            type: "div",
+                            props: {
+                              style: {
+                                display: "flex",
+                                justifyContent: "space-between",
+                                padding: "4px 0",
+                              },
+                            },
+                            children: [
+                              {
+                                type: "span",
+                                props: {
+                                  style: {
+                                    fontWeight: "500",
+                                    color: "#666",
+                                  },
+                                },
+                                children: "Value:",
+                              },
+                              {
+                                type: "span",
+                                props: {
+                                  style: {
+                                    fontWeight: "600",
+                                    color: "#3b82f6",
+                                  },
+                                },
+                                children: "@item.value",
+                              },
+                            ],
+                          },
+                          {
+                            type: "div",
+                            props: {
+                              style: {
+                                display: "flex",
+                                justifyContent: "space-between",
+                                padding: "4px 0",
+                              },
+                            },
+                            children: [
+                              {
+                                type: "span",
+                                props: {
+                                  style: {
+                                    fontWeight: "500",
+                                    color: "#666",
+                                  },
+                                },
+                                children: "Status:",
+                              },
+                              {
+                                type: "span",
+                                props: {
+                                  style: {
+                                    padding: "2px 8px",
+                                    borderRadius: "4px",
+                                    fontSize: "12px",
+                                    fontWeight: "500",
+                                  },
+                                },
+                                modifiers: [
+                                  {
+                                    conditions: [
+                                      {
+                                        path: "item.status",
+                                        operator: "equals",
+                                        value: "active",
+                                      },
+                                    ],
+                                    props: {
+                                      style: {
+                                        backgroundColor: "#dcfce7",
+                                        color: "#16a34a",
+                                      },
+                                    },
+                                  },
+                                  {
+                                    conditions: [
+                                      {
+                                        path: "item.status",
+                                        operator: "equals",
+                                        value: "inactive",
+                                      },
+                                    ],
+                                    props: {
+                                      style: {
+                                        backgroundColor: "#f3f4f6",
+                                        color: "#6b7280",
+                                      },
+                                    },
+                                  },
+                                ],
+                                children: "@item.status",
+                              },
+                            ],
+                          },
+                        ],
                       },
                     ],
                   },

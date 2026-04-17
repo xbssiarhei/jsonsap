@@ -4,32 +4,11 @@ import {
   type AppConfig,
   type StoreConfig,
 } from "../../lib";
-import { Button } from "../../components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../../components/ui/card";
-import { Input } from "../../components/ui/input";
 import { loggerPlugin } from "../../lib/plugins/logger";
 import { wrapperPlugin } from "../../lib/plugins/wrapper";
 import { TodoItem, TodoList } from "../../components/TodoComponents";
 
-// Register components
-componentRegistry.register("Button", Button);
-componentRegistry.register("Card", Card);
-componentRegistry.register("CardHeader", CardHeader);
-componentRegistry.register("CardTitle", CardTitle);
-componentRegistry.register("CardDescription", CardDescription);
-componentRegistry.register("CardContent", CardContent);
-componentRegistry.register("Input", Input);
-componentRegistry.register("div", "div");
-componentRegistry.register("h1", "h1");
-componentRegistry.register("h2", "h2");
-componentRegistry.register("p", "p");
-componentRegistry.register("span", "span");
+// Register page-specific components
 componentRegistry.register("TodoItem", TodoItem);
 componentRegistry.register("TodoList", TodoList);
 

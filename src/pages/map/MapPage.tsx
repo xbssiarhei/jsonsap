@@ -4,31 +4,10 @@ import {
   type AppConfig,
   type StoreConfig,
 } from "../../lib";
-import { Button } from "../../components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../../components/ui/card";
 import { loggerPlugin } from "../../lib/plugins/logger";
 import { wrapperPlugin } from "../../lib/plugins/wrapper";
-import { Repeater } from "../../lib/components/Repeater";
 
-// Register components
-componentRegistry.register("Button", Button);
-componentRegistry.register("Card", Card);
-componentRegistry.register("CardHeader", CardHeader);
-componentRegistry.register("CardTitle", CardTitle);
-componentRegistry.register("CardDescription", CardDescription);
-componentRegistry.register("CardContent", CardContent);
-componentRegistry.register("Repeater", Repeater);
-componentRegistry.register("div", "div");
-componentRegistry.register("h1", "h1");
-componentRegistry.register("h2", "h2");
-componentRegistry.register("p", "p");
-componentRegistry.register("span", "span");
+// Register page-specific components
 componentRegistry.register("img", "img");
 
 // Register plugins

@@ -1,36 +1,9 @@
 import {
-  componentRegistry,
   pluginRegistry,
   type AppConfig,
   type StoreConfig,
   autoBindPlugin,
 } from "../../lib";
-import { Button } from "../../components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../../components/ui/card";
-import { Input } from "../../components/ui/input";
-import { Checkbox } from "../../components/ui/checkbox";
-
-// Register components
-componentRegistry.register("Button", Button);
-componentRegistry.register("Card", Card);
-componentRegistry.register("CardHeader", CardHeader);
-componentRegistry.register("CardTitle", CardTitle);
-componentRegistry.register("CardDescription", CardDescription);
-componentRegistry.register("CardContent", CardContent);
-componentRegistry.register("Input", Input);
-componentRegistry.register("Checkbox", Checkbox);
-componentRegistry.register("div", "div");
-componentRegistry.register("h1", "h1");
-componentRegistry.register("h2", "h2");
-componentRegistry.register("p", "p");
-componentRegistry.register("pre", "pre");
-componentRegistry.register("label", "label");
 
 // Register autoBind plugin
 pluginRegistry.register(autoBindPlugin);
