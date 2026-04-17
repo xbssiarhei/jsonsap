@@ -16,6 +16,7 @@ import { loggerPlugin } from "../../lib/plugins/logger";
 import { wrapperPlugin } from "../../lib/plugins/wrapper";
 import { StressTestItem } from "../../components/StressTestItem";
 import { Repeater } from "../../lib/components/Repeater";
+import { NumericRoller } from "@/components/roller";
 
 // Register components
 componentRegistry.register("Button", Button);
@@ -31,14 +32,15 @@ componentRegistry.register("h1", "h1");
 componentRegistry.register("h2", "h2");
 componentRegistry.register("p", "p");
 componentRegistry.register("span", "span");
+componentRegistry.register("NumericRoller", NumericRoller);
 
 // Register plugins
 pluginRegistry.register(loggerPlugin);
 pluginRegistry.register(wrapperPlugin);
 
-// Generate 30 items
-const generateItems = () => {
-  return Array.from({ length: 30 }, (_, i) => ({
+// Generate n items
+const generateItems = (count: number) => {
+  return Array.from({ length: count }, (_, i) => ({
     id: i + 1,
     value: Math.floor(Math.random() * 100),
     status: Math.random() > 0.5 ? "active" : "inactive",
@@ -58,9 +60,11 @@ type StressState = {
   intervalId: number | null;
 };
 
+const COUNT_ITEMS = 42;
+
 const store: StoreConfig<StressState> = {
   state: {
-    items: generateItems(),
+    items: generateItems(COUNT_ITEMS),
     isRunning: false,
     updateCount: 0,
     intervalId: null as number | null,
@@ -94,7 +98,7 @@ const store: StoreConfig<StressState> = {
       state.isRunning = false;
     },
     resetItems: (state) => {
-      state.items = generateItems();
+      state.items = generateItems(COUNT_ITEMS);
       state.updateCount = 0;
     },
   },
@@ -128,7 +132,7 @@ export const stressTestPageConfig: AppConfig = {
         props: {
           style: { fontSize: "36px", fontWeight: "bold", marginBottom: "16px" },
         },
-        children: "Stress Test - 30 Items",
+        children: "Stress Test - @store.state.items.length Items",
       },
       {
         type: "p",
@@ -136,7 +140,7 @@ export const stressTestPageConfig: AppConfig = {
           style: { fontSize: "18px", color: "#666", marginBottom: "40px" },
         },
         children:
-          "Testing reactive updates with 30 items updating every second",
+          "Testing reactive updates with @store.state.items.length items updating every second",
       },
       {
         type: "Card",
@@ -284,10 +288,28 @@ export const stressTestPageConfig: AppConfig = {
                     ],
                     props: {
                       style: {
-                        borderWidth: "2px",
+                        borderWidth: "0px",
                         borderColor: "#ef4444",
+                        backgroundColor: "#ef4444",
                       },
                     },
+                  },
+                ],
+                children: [
+                  {
+                    type: "span",
+                    props: {
+                      className: "text-sm",
+                    },
+                    children: [
+                      {
+                        type: "NumericRoller",
+                        props: {
+                          value: "@item.value",
+                          size: 20,
+                        },
+                      },
+                    ],
                   },
                 ],
               },

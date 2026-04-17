@@ -12,9 +12,12 @@ interface JsonRendererProps {
   context?: Partial<PluginContext>;
 }
 
-export function JsonRenderer({ config, context = {} }: JsonRendererProps): ReactElement | null {
+export function JsonRenderer({
+  config,
+  context = {},
+}: JsonRendererProps): ReactElement | null {
   // Check if config has store (AppConfig) or is just ComponentConfig
-  const isAppConfig = 'ui' in config || 'store' in config;
+  const isAppConfig = "ui" in config || "store" in config;
 
   if (isAppConfig) {
     const appConfig = config as AppConfig;
@@ -35,7 +38,12 @@ export function JsonRenderer({ config, context = {} }: JsonRendererProps): React
   }
 
   // Legacy: direct ComponentConfig
-  return <JsonRendererInternal config={config as ComponentConfig} context={context} />;
+  return (
+    <JsonRendererInternal
+      config={config as ComponentConfig}
+      context={context}
+    />
+  );
 }
 
 interface JsonRendererInternalProps {
@@ -43,7 +51,10 @@ interface JsonRendererInternalProps {
   context?: Partial<PluginContext>;
 }
 
-function JsonRendererInternal({ config, context = {} }: JsonRendererInternalProps): ReactElement | null {
+function JsonRendererInternal({
+  config,
+  context = {},
+}: JsonRendererInternalProps): ReactElement | null {
   const store = useStore();
 
   const pluginContext: PluginContext = {
@@ -60,7 +71,7 @@ function JsonRendererInternal({ config, context = {} }: JsonRendererInternalProp
 
 function renderComponent(
   config: ComponentConfig,
-  context: PluginContext
+  context: PluginContext,
 ): ReactElement | null {
   if (!config || !config.type) {
     return null;
@@ -84,25 +95,18 @@ function renderComponent(
   }
 
   // Render children
-  const renderedChildren = renderChildren(
-    modifiedConfig.children,
-    {
-      ...context,
-      depth: context.depth + 1,
-      parentType: modifiedConfig.type,
-    }
-  );
+  const renderedChildren = renderChildren(modifiedConfig.children, {
+    ...context,
+    depth: context.depth + 1,
+    parentType: modifiedConfig.type,
+  });
 
   // Apply modifiers to get final props
   const store = context.store as ReturnType<typeof createStore> | null;
   const finalProps = applyModifiers(modifiedConfig, store);
 
   // Create element
-  let element = createElement(
-    Component,
-    finalProps,
-    renderedChildren,
-  );
+  let element = createElement(Component, finalProps, renderedChildren);
 
   // Execute afterRender plugins
   if (config.plugins && config.plugins.length > 0) {
@@ -119,7 +123,7 @@ function renderComponent(
 
 function renderChildren(
   children: ComponentConfig["children"],
-  context: PluginContext
+  context: PluginContext,
 ): React.ReactNode {
   if (!children) {
     return null;

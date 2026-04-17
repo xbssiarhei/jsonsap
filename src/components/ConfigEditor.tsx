@@ -59,7 +59,7 @@ export function ConfigEditor({ config, onConfigChange }: ConfigEditorProps) {
           Edit Config
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-3xl max-h-[80vh] sm:max-w-xl">
+      <DialogContent className="max-w-4/5 max-h-[80vh] sm:max-w-4/5">
         <DialogHeader>
           <DialogTitle>Edit UI Configuration</DialogTitle>
           <DialogDescription>
@@ -72,7 +72,7 @@ export function ConfigEditor({ config, onConfigChange }: ConfigEditorProps) {
             <Textarea
               value={jsonText}
               onChange={(e) => setJsonText(e.target.value)}
-              className="font-mono text-xs min-h-[400px]"
+              className="font-mono text-xs min-h-100"
               placeholder="Enter JSON configuration..."
             />
             {error && (

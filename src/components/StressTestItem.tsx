@@ -1,7 +1,7 @@
-import type { ComponentProps } from "react";
+import type { ComponentProps, PropsWithChildren } from "react";
 import { Card } from "./ui/card";
 
-interface StressTestItemProps {
+interface StressTestItemProps extends PropsWithChildren {
   item: {
     id: number;
     value: number;
@@ -11,7 +11,7 @@ interface StressTestItemProps {
   style?: ComponentProps<"div">["style"];
 }
 
-export function StressTestItem({ item, style }: StressTestItemProps) {
+export function StressTestItem({ item, style, children }: StressTestItemProps) {
   // Use item.lastUpdate directly for styling without Date.now()
   const isRecent = item.lastUpdate > 0;
 
@@ -48,7 +48,10 @@ export function StressTestItem({ item, style }: StressTestItemProps) {
           </span>
         </div>
         <span style={{ fontSize: "20px", fontWeight: "bold" }}>
-          {item.value}
+          {/* <NumericRoller value={item.value} size={20} /> */}
+          {/* <Roller size={20} value={item.value} /> */}
+          {/* {item.value} */}
+          {children}
         </span>
       </div>
     </Card>

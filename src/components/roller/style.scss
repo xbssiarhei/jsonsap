@@ -1,0 +1,31 @@
+.CharRolling {
+  overflow: hidden;
+  // margin-top: calc(-24px * 2);
+  // border: 1px solid #000;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+
+  &-Chars {
+    transition: 0.5s;
+    // margin-top: calc(-24px * 2);
+
+    &-Item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+  }
+}
+
+.AnimationRoller {
+  display: flex;
+  line-height: 1;
+  flex-wrap: wrap;
+}
+
+.Numeric {
+  display: flex;
+  gap: 10px;
+}
