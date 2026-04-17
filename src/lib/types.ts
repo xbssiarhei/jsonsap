@@ -55,12 +55,23 @@ export type PluginRegistry = Map<string, Plugin>;
 
 export type DefaultState = Record<string, unknown>;
 
+// JSONata computed property
+export interface JSONataComputed {
+  $jsonata: string; // JSONata expression
+  source: string; // @store.state.* reference to data source
+}
+
+// Computed value can be a function or JSONata expression
+export type ComputedValue<State> =
+  | ((state: State) => unknown)
+  | JSONataComputed;
+
 // Store types
 export interface StoreConfig<State = DefaultState> {
   state: State;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   actions?: Record<string, (state: State, ...args: any[]) => void>;
-  computed?: Record<string, (state: State) => unknown>;
+  computed?: Record<string, ComputedValue<State>>;
 }
 
 export interface AppConfig<State extends DefaultState> {

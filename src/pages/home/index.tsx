@@ -106,6 +106,12 @@ const features = [
       "Built-in support for PieChart, BarChart, and LineChart. Bind chart data directly to store state for dynamic visualizations.",
   },
   {
+    title: "Dynamic Computed",
+    description: "JSONata-powered transformations",
+    content:
+      "Define computed properties using JSONata expressions in JSON config. Sort, filter, and transform data without writing code.",
+  },
+  {
     title: "TypeScript Support",
     description: "Fully typed for better DX",
     content:

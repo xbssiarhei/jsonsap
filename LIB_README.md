@@ -1280,6 +1280,145 @@ pluginRegistry.register(somePlugin);
 - **DON'T**: Re-register common components on individual pages
 - **DON'T**: Import UI components directly on pages (use componentRegistry instead)
 
+## Dynamic Computed Properties
+
+Computed properties can be defined as TypeScript functions OR JSONata expressions in the JSON config.
+
+### JSONataComputed Interface
+
+```typescript
+interface JSONataComputed {
+  $jsonata: string;  // JSONata expression
+  source: string;    // @store.state.* reference to data source
+}
+
+type ComputedValue<State> = 
+  | ((state: State) => unknown)  // Function
+  | JSONataComputed;              // JSONata expression
+```
+
+### Features
+
+- **Data Transformation**: Sort, filter, slice, and transform data using JSONata
+- **Declarative**: Define complex queries in JSON without writing TypeScript
+- **Reactive**: Automatically updates when source data changes
+- **Memoized**: Computed values are cached and only recalculated when dependencies change
+- **Mixed Mode**: Use both function and JSONata computed in the same store
+
+### Usage
+
+```typescript
+const store: StoreConfig<State> = {
+  state: {
+    products: [
+      { id: 1, name: "Laptop", price: 999, rating: 4.5 },
+      { id: 2, name: "Mouse", price: 25, rating: 4.2 },
+      { id: 3, name: "Keyboard", price: 75, rating: 4.8 }
+    ]
+  },
+  computed: {
+    // JSONata: Sort by price ascending
+    sortedByPrice: {
+      $jsonata: "$ ^(>price)",
+      source: "@store.state.products"
+    },
+    // JSONata: Filter expensive items
+    expensiveProducts: {
+      $jsonata: "$[price > 100]",
+      source: "@store.state.products"
+    },
+    // JSONata: Top 5 rated products
+    topRated: {
+      $jsonata: "$ ^(>rating)[[0..4]]",
+      source: "@store.state.products"
+    },
+    // Function: Total count (existing style)
+    totalCount: (state) => state.products.length
+  }
+};
+```
+
+### Common JSONata Patterns
+
+**Sorting:**
+```json
+{
+  "$jsonata": "$ ^(>price)",        // Sort ascending by price
+  "source": "@store.state.products"
+}
+{
+  "$jsonata": "$ ^(<price)",        // Sort descending by price
+  "source": "@store.state.products"
+}
+```
+
+**Filtering:**
+```json
+{
+  "$jsonata": "$[price > 100]",     // Filter by condition
+  "source": "@store.state.products"
+}
+{
+  "$jsonata": "$[inStock = true]",  // Filter by boolean
+  "source": "@store.state.products"
+}
+```
+
+**Slicing:**
+```json
+{
+  "$jsonata": "$[[0..4]]",          // First 5 items
+  "source": "@store.state.products"
+}
+{
+  "$jsonata": "$ ^(>rating)[[0..2]]", // Top 3 rated
+  "source": "@store.state.products"
+}
+```
+
+**Combining:**
+```json
+{
+  "$jsonata": "$[price < 100] ^(>rating)[[0..9]]", // Filter, sort, slice
+  "source": "@store.state.products"
+}
+```
+
+### Source Paths
+
+The `source` field supports:
+- Root state: `"@store.state"`
+- Nested paths: `"@store.state.user.orders"`
+- Array properties: `"@store.state.products"`
+
+### Error Handling
+
+Invalid JSONata expressions log errors to console and return `null`:
+
+```typescript
+// Invalid expression
+{
+  "$jsonata": "$ ^(>invalid syntax",
+  "source": "@store.state.products"
+}
+// Console: "JSONata error in computed.sortedProducts: ..."
+// Returns: null
+```
+
+### When to Use
+
+**Use JSONata computed when:**
+- Sorting, filtering, or slicing arrays
+- Simple data transformations
+- Query-like operations
+- Configuration should be portable/serializable
+
+**Use function computed when:**
+- Complex business logic
+- Multiple data sources
+- Conditional logic with many branches
+- Need TypeScript type safety
+
 Built-in component for editing JSON configuration at runtime.
 
 ### Usage

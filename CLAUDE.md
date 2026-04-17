@@ -383,6 +383,43 @@ pluginRegistry.register(somePlugin);
 
 - Do NOT register common components on pages - they're already global
 
+**Dynamic Computed Properties with JSONata:**
+
+- Computed properties can be defined as TypeScript functions OR JSONata expressions
+- JSONata expressions enable data transformation directly in JSON config
+- Supports sorting, filtering, slicing, and complex queries
+- Example:
+
+```json
+{
+  "store": {
+    "state": {
+      "products": [...]
+    },
+    "computed": {
+      "sortedProducts": {
+        "$jsonata": "$ ^(>price)",
+        "source": "@store.state.products"
+      },
+      "expensiveProducts": {
+        "$jsonata": "$[price > 100]",
+        "source": "@store.state.products"
+      },
+      "topRated": {
+        "$jsonata": "$ ^(>rating)[[0..4]]",
+        "source": "@store.state.products"
+      },
+      "productCount": (state) => state.products.length
+    }
+  }
+}
+```
+
+- `$jsonata`: JSONata expression to evaluate
+- `source`: Path to data source (e.g., "@store.state.products")
+- Can mix function and JSONata computed in same store
+- JSONata computed are reactive and memoized automatically
+
 ### Component Styling
 
 - Uses `class-variance-authority` (cva) for variant-based component styling

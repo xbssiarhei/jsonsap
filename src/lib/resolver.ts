@@ -158,7 +158,9 @@ function resolveObject(
     } else if (
       typeof value === "object" &&
       value !== null &&
-      !Array.isArray(value)
+      !Array.isArray(value) &&
+      !(value instanceof Map) &&
+      !(value instanceof Promise)
     ) {
       resolved[key] = resolveObject(value as Record<string, unknown>, store);
     } else {

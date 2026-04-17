@@ -10,6 +10,7 @@ const menuItems = [
   { path: "/form", label: "Form" },
   { path: "/dashboard", label: "Dashboard" },
   { path: "/jsonata", label: "JSONata" },
+  { path: "/products", label: "Products" },
 ];
 
 const Layout = () => {
