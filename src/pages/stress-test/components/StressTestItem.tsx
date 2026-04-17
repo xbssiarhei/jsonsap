@@ -1,5 +1,5 @@
 import type { ComponentProps, PropsWithChildren } from "react";
-import { Card } from "./ui/card";
+import { Card } from "../../../components/ui/card";
 
 interface StressTestItemProps extends PropsWithChildren {
   item: {

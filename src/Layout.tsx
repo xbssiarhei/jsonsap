@@ -1,10 +1,30 @@
-import { Link, Outlet } from "react-router";
+import { Link, Outlet, useLocation } from "react-router";
 import { Button } from "./components/ui/button";
 
+const menuItems = [
+  { path: "/", label: "Home" },
+  { path: "/demo", label: "Demo" },
+  { path: "/stress-test", label: "Stress Test" },
+  { path: "/map", label: "Map" },
+  { path: "/api", label: "API" },
+  { path: "/form", label: "Form" },
+  { path: "/dashboard", label: "Dashboard" },
+  { path: "/jsonata", label: "JSONata" },
+];
+
 const Layout = () => {
+  const location = useLocation();
+
+  const isActive = (path: string) => {
+    if (path === "/") {
+      return location.pathname === "/";
+    }
+    return location.pathname.startsWith(path);
+  };
+
   return (
-    <div>
-      <header className="px-6 py-4 border-b bg-background overflow-x-auto">
+    <>
+      <header className="px-6 py-4 border-b bg-background overflow-x-auto sticky top-0">
         <nav className="flex items-center justify-between mx-auto max-w-[1200px]">
           <div style={{ display: "flex", alignItems: "center", gap: "32px" }}>
             <Link
@@ -19,30 +39,13 @@ const Layout = () => {
               jsonsap
             </Link>
             <div className="flex gap-4">
-              <Link to="/">
-                <Button variant="ghost">Home</Button>
-              </Link>
-              <Link to="/demo">
-                <Button variant="ghost">Demo</Button>
-              </Link>
-              <Link to="/stress-test">
-                <Button variant="ghost">Stress Test</Button>
-              </Link>
-              <Link to="/map">
-                <Button variant="ghost">Map</Button>
-              </Link>
-              <Link to="/api">
-                <Button variant="ghost">API</Button>
-              </Link>
-              <Link to="/form">
-                <Button variant="ghost">Form</Button>
-              </Link>
-              <Link to="/dashboard">
-                <Button variant="ghost">Dashboard</Button>
-              </Link>
-              <Link to="/jsonata">
-                <Button variant="ghost">JSONata</Button>
-              </Link>
+              {menuItems.map((item) => (
+                <Link key={item.path} to={item.path}>
+                  <Button variant={isActive(item.path) ? "outline" : "ghost"}>
+                    {item.label}
+                  </Button>
+                </Link>
+              ))}
             </div>
           </div>
           <div className="flex gap-4">
@@ -57,7 +60,7 @@ const Layout = () => {
       <main>
         <Outlet />
       </main>
-    </div>
+    </>
   );
 };
 

@@ -15,7 +15,7 @@ import {
 } from "../../components/ui/card";
 import { loggerPlugin } from "../../lib/plugins/logger";
 import { wrapperPlugin } from "../../lib/plugins/wrapper";
-import { StressTestItem } from "../../components/StressTestItem";
+import { StressTestItem } from "./components/StressTestItem";
 import { Repeater } from "../../lib/components/Repeater";
 import { NumericRoller } from "../../components/roller";
 import { Input } from "../../components/ui/input";
