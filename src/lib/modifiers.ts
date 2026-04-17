@@ -1,5 +1,6 @@
 import type { Modifier, ModifierCondition, ComponentConfig } from "./types";
 import type { StoreInstance } from "./types";
+import { useSnapshot } from "valtio";
 
 /**
  * Evaluates a single condition against a value
@@ -46,20 +47,19 @@ function evaluateCondition(
 function resolveValue(
   path: string,
   props: Record<string, unknown>,
-  store: StoreInstance | null,
+  stateSnapshot: Record<string, unknown> | null,
+  computedSnapshot: Record<string, unknown> | null,
 ): unknown {
   // Handle store references
   if (path.startsWith("@store.")) {
-    if (!store) return undefined;
-
     const storePath = path.substring(7); // Remove '@store.'
     const [section, ...rest] = storePath.split(".");
 
-    if (section === "state") {
-      return getNestedValue(store.state, rest);
+    if (section === "state" && stateSnapshot) {
+      return getNestedValue(stateSnapshot, rest);
     }
-    if (section === "computed") {
-      return getNestedValue(store.computed, rest);
+    if (section === "computed" && computedSnapshot) {
+      return getNestedValue(computedSnapshot, rest);
     }
     return undefined;
   }
@@ -86,31 +86,52 @@ function getNestedValue(obj: unknown, path: string[]): unknown {
 function checkModifier(
   modifier: Modifier,
   props: Record<string, unknown>,
-  store: StoreInstance | null,
+  stateSnapshot: Record<string, unknown> | null,
+  computedSnapshot: Record<string, unknown> | null,
 ): boolean {
   const { conditions, matchAll = true } = modifier;
 
   if (matchAll) {
     // AND logic: all conditions must match
     return conditions.every((condition) => {
-      const value = resolveValue(condition.path, props, store);
+      const value = resolveValue(
+        condition.path,
+        props,
+        stateSnapshot,
+        computedSnapshot,
+      );
       // Resolve condition.value if it's a store reference
       const expectedValue =
         typeof condition.value === "string" &&
         condition.value.startsWith("@store.")
-          ? resolveValue(condition.value, props, store)
+          ? resolveValue(
+              condition.value,
+              props,
+              stateSnapshot,
+              computedSnapshot,
+            )
           : condition.value;
       return evaluateCondition({ ...condition, value: expectedValue }, value);
     });
   } else {
     // OR logic: at least one condition must match
     return conditions.some((condition) => {
-      const value = resolveValue(condition.path, props, store);
+      const value = resolveValue(
+        condition.path,
+        props,
+        stateSnapshot,
+        computedSnapshot,
+      );
       // Resolve condition.value if it's a store reference
       const expectedValue =
         typeof condition.value === "string" &&
         condition.value.startsWith("@store.")
-          ? resolveValue(condition.value, props, store)
+          ? resolveValue(
+              condition.value,
+              props,
+              stateSnapshot,
+              computedSnapshot,
+            )
           : condition.value;
       return evaluateCondition({ ...condition, value: expectedValue }, value);
     });
@@ -130,12 +151,22 @@ export function applyModifiers(
     return baseProps;
   }
 
+  // Get snapshots for reactivity
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const stateSnapshot = store
+    ? (useSnapshot(store.state) as Record<string, unknown>)
+    : null;
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const computedSnapshot = store
+    ? (useSnapshot(store.computed) as Record<string, unknown>)
+    : null;
+
   // Start with base props
   let modifiedProps = { ...baseProps };
 
   // Apply each matching modifier
   for (const modifier of config.modifiers) {
-    if (checkModifier(modifier, baseProps, store)) {
+    if (checkModifier(modifier, baseProps, stateSnapshot, computedSnapshot)) {
       // Merge modifier props (deep merge for style objects)
       modifiedProps = mergeProps(modifiedProps, modifier.props);
     }
