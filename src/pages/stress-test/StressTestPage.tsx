@@ -299,7 +299,7 @@ export const stressTestPageConfig: AppConfig<StressState> = {
             type: "Repeater",
             props: {
               items: "@store.state.items",
-              itemConfig: {
+              template: {
                 type: "StressTestItem",
                 props: {
                   item: "@item",

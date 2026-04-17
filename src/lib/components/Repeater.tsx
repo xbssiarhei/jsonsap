@@ -2,14 +2,14 @@ import { JsonRenderer, type ComponentConfig } from "..";
 
 interface RepeaterProps {
   items: unknown[];
-  itemConfig: {
+  template: {
     type: string;
     props?: Record<string, unknown>;
     children?: unknown;
   };
 }
 
-export function Repeater({ items, itemConfig }: RepeaterProps) {
+export function Repeater({ items, template }: RepeaterProps) {
   if (!items || !Array.isArray(items)) {
     return null;
   }
@@ -18,7 +18,7 @@ export function Repeater({ items, itemConfig }: RepeaterProps) {
     <>
       {items.map((item, index) => {
         // Replace @item.* references in config with actual item values
-        const resolvedConfig = resolveItemReferences(itemConfig, item);
+        const resolvedConfig = resolveItemReferences(template, item);
 
         return (
           <JsonRenderer

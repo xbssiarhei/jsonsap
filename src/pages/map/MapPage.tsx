@@ -140,7 +140,7 @@ export const mapPageConfig: AppConfig<State> = {
                 type: "Repeater",
                 props: {
                   items: "@store.state.users",
-                  itemConfig: {
+                  template: {
                     type: "Card",
                     props: {
                       style: {

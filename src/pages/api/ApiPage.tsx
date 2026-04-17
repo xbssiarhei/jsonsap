@@ -242,7 +242,7 @@ export const apiPageConfig: AppConfig<ApiState> = {
                 type: "Repeater",
                 props: {
                   items: "@store.state.users",
-                  itemConfig: {
+                  template: {
                     type: "Card",
                     props: {
                       style: {
@@ -360,7 +360,7 @@ export const apiPageConfig: AppConfig<ApiState> = {
                 type: "Repeater",
                 props: {
                   items: "@store.computed.filteredPosts",
-                  itemConfig: {
+                  template: {
                     type: "Card",
                     children: [
                       {
