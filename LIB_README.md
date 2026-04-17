@@ -26,7 +26,9 @@ npm run dev
 The library uses a two-part configuration model:
 
 ### UI Section
+
 Defines the visual structure and component tree:
+
 - Component hierarchy and nesting
 - Component types and props
 - Layout and styling
@@ -34,7 +36,9 @@ Defines the visual structure and component tree:
 - Plugin assignments per component
 
 ### Store Section
+
 Defines application state and logic:
+
 - State variables and initial values
 - Actions/handlers for state mutations
 - Computed values/getters
@@ -42,6 +46,7 @@ Defines application state and logic:
 - State persistence rules
 
 This separation enables:
+
 - Clear separation of concerns (presentation vs logic)
 - Reusable UI components with different state
 - Easier testing of UI and logic independently
@@ -105,6 +110,7 @@ interface AppConfig {
 ```
 
 **Important Notes:**
+
 - Actions and computed properties are **functions**, not JSON strings
 - The library uses **Valtio** for reactive state management
 - Computed properties use **derive-valtio** (not the deprecated valtio/utils derive)
@@ -132,7 +138,7 @@ const config = {
     state: {
       count: 0,
       user: { name: "Guest", email: "guest@example.com" },
-      isLoading: false
+      isLoading: false,
     },
     actions: {
       increment: (state) => {
@@ -146,19 +152,20 @@ const config = {
       },
       toggleLoading: (state) => {
         state.isLoading = !state.isLoading;
-      }
+      },
     },
     computed: {
       doubleCount: (state) => state.count * 2,
-      userName: (state) => state.user?.name || 'Guest',
-      userEmail: (state) => state.user?.email || 'No email',
-      isEven: (state) => state.count % 2 === 0
-    }
-  }
+      userName: (state) => state.user?.name || "Guest",
+      userEmail: (state) => state.user?.email || "No email",
+      isEven: (state) => state.count % 2 === 0,
+    },
+  },
 };
 ```
 
 **Key Points:**
+
 - State is a plain object with initial values
 - Actions are functions that receive state as first parameter
 - Actions can mutate state directly (Valtio handles immutability)
@@ -170,23 +177,23 @@ const config = {
 Register components to make them available in JSON configs:
 
 ```typescript
-import { componentRegistry } from './lib';
-import { Button } from './components/ui/button';
+import { componentRegistry } from "./lib";
+import { Button } from "./components/ui/button";
 
 // Register custom component
-componentRegistry.register('Button', Button);
+componentRegistry.register("Button", Button);
 
 // Register HTML elements
-componentRegistry.register('div', 'div');
-componentRegistry.register('span', 'span');
+componentRegistry.register("div", "div");
+componentRegistry.register("span", "span");
 
 // Check if component exists
-if (componentRegistry.has('Button')) {
+if (componentRegistry.has("Button")) {
   // ...
 }
 
 // Unregister component
-componentRegistry.unregister('Button');
+componentRegistry.unregister("Button");
 ```
 
 ## Plugin System
@@ -198,22 +205,29 @@ Plugins can modify components before or after rendering.
 ```typescript
 interface Plugin {
   name: string;
-  beforeRender?: (config: ComponentConfig, context: PluginContext) => ComponentConfig;
-  afterRender?: (element: ReactElement, config: ComponentConfig, context: PluginContext) => ReactElement;
+  beforeRender?: (
+    config: ComponentConfig,
+    context: PluginContext,
+  ) => ComponentConfig;
+  afterRender?: (
+    element: ReactElement,
+    config: ComponentConfig,
+    context: PluginContext,
+  ) => ReactElement;
 }
 ```
 
 ### Creating a Plugin
 
 ```typescript
-import { Plugin } from './lib';
+import { Plugin } from "./lib";
 
 const loggerPlugin: Plugin = {
-  name: 'logger',
+  name: "logger",
   beforeRender: (config, context) => {
-    console.log('Rendering:', config.type);
+    console.log("Rendering:", config.type);
     return config;
-  }
+  },
 };
 
 // Register plugin
@@ -224,27 +238,29 @@ pluginRegistry.register(loggerPlugin);
 
 ```typescript
 const config = {
-  type: 'Button',
-  plugins: ['logger', 'wrapper'],  // Apply multiple plugins
-  children: 'Click me'
+  type: "Button",
+  plugins: ["logger", "wrapper"], // Apply multiple plugins
+  children: "Click me",
 };
 ```
 
 ### Built-in Example Plugins
 
 #### Logger Plugin
+
 Logs component rendering to console:
 
 ```typescript
-import { loggerPlugin } from './lib/plugins/logger';
+import { loggerPlugin } from "./lib/plugins/logger";
 pluginRegistry.register(loggerPlugin);
 ```
 
 #### Wrapper Plugin
+
 Wraps components in a styled div:
 
 ```typescript
-import { wrapperPlugin } from './lib/plugins/wrapper';
+import { wrapperPlugin } from "./lib/plugins/wrapper";
 pluginRegistry.register(wrapperPlugin);
 ```
 
@@ -255,6 +271,7 @@ pluginRegistry.register(wrapperPlugin);
 Use `@store.*` syntax to reference store values in UI configuration. The library supports two modes:
 
 #### 1. Direct Reference (returns value)
+
 When the entire string is a store reference, it returns the actual value:
 
 ```json
@@ -265,6 +282,7 @@ When the entire string is a store reference, it returns the actual value:
 ```
 
 #### 2. String Interpolation (embeds value in text)
+
 When store references are part of a larger string, they are interpolated:
 
 ```json
@@ -275,6 +293,7 @@ When store references are part of a larger string, they are interpolated:
 ```
 
 #### 3. Multiple References
+
 You can use multiple store references in one string:
 
 ```json
@@ -285,6 +304,7 @@ You can use multiple store references in one string:
 ```
 
 #### 4. Nested Paths
+
 Access nested properties using dot notation:
 
 ```json
@@ -340,19 +360,19 @@ Access nested properties using dot notation:
 ```typescript
 const config = {
   ui: {
-    type: 'div',
+    type: "div",
     children: [
       {
-        type: 'h1',
-        children: 'Title'
+        type: "h1",
+        children: "Title",
       },
       {
-        type: 'Button',
-        props: { variant: 'default' },
-        children: 'Action'
-      }
-    ]
-  }
+        type: "Button",
+        props: { variant: "default" },
+        children: "Action",
+      },
+    ],
+  },
 };
 ```
 
@@ -379,12 +399,12 @@ function App() {
 ### Custom Plugin Context
 
 ```typescript
-<JsonRenderer 
-  config={config} 
-  context={{ 
+<JsonRenderer
+  config={config}
+  context={{
     userId: '123',
-    theme: 'dark' 
-  }} 
+    theme: 'dark'
+  }}
 />
 ```
 
@@ -392,16 +412,16 @@ Access context in plugins:
 
 ```typescript
 const themePlugin: Plugin = {
-  name: 'theme',
+  name: "theme",
   beforeRender: (config, context) => {
-    if (context.theme === 'dark') {
+    if (context.theme === "dark") {
       config.props = {
         ...config.props,
-        className: 'dark-mode'
+        className: "dark-mode",
       };
     }
     return config;
-  }
+  },
 };
 ```
 
@@ -412,6 +432,7 @@ const themePlugin: Plugin = {
 Main component for rendering JSON configurations.
 
 **Props:**
+
 - `config: ComponentConfig | AppConfig` - JSON configuration object (with optional store)
 - `context?: Partial<PluginContext>` - Optional context passed to plugins
 
@@ -420,6 +441,7 @@ Main component for rendering JSON configurations.
 Singleton for managing component mappings.
 
 **Methods:**
+
 - `register(name: string, component: ComponentType)` - Register a component
 - `get(name: string)` - Get a registered component
 - `has(name: string)` - Check if component exists
@@ -431,6 +453,7 @@ Singleton for managing component mappings.
 Singleton for managing plugins.
 
 **Methods:**
+
 - `register(plugin: Plugin)` - Register a plugin
 - `get(name: string)` - Get a registered plugin
 - `has(name: string)` - Check if plugin exists
@@ -439,6 +462,7 @@ Singleton for managing plugins.
 ## Examples
 
 See `src/App.tsx` for a complete working example with:
+
 - Multiple component types
 - Plugin usage
 - Dynamic state integration
@@ -449,6 +473,7 @@ See `example-config.json` for a sample JSON configuration file.
 ## Future Development
 
 The library supports:
+
 - Reactive state management with Valtio
 - `@store.*` syntax for connecting UI to state with string interpolation
 - Computed properties with derive-valtio
@@ -576,7 +601,7 @@ Universal component for rendering arrays from JSON configuration.
   "type": "Repeater",
   "props": {
     "items": "@store.state.items",
-    "itemConfig": {
+    "template": {
       "type": "Card",
       "props": {
         "title": "@item.name",
@@ -587,7 +612,7 @@ Universal component for rendering arrays from JSON configuration.
 }
 ```
 
-### @item.* Syntax
+### @item.\* Syntax
 
 - Direct reference: `"@item"` → entire item object
 - Property access: `"@item.name"` → `item.name`
@@ -601,7 +626,7 @@ Universal component for rendering arrays from JSON configuration.
   "type": "Repeater",
   "props": {
     "items": "@store.state.todos",
-    "itemConfig": {
+    "template": {
       "type": "TodoItem",
       "props": {
         "item": "@item"
@@ -626,12 +651,13 @@ Universal component for rendering arrays from JSON configuration.
 The Repeater component fully supports event handlers with automatic item data passing:
 
 **onClick Example:**
+
 ```json
 {
   "type": "Repeater",
   "props": {
     "items": "@store.state.users",
-    "itemConfig": {
+    "template": {
       "type": "Card",
       "props": {
         "onClick": "@store.actions.selectUser",
@@ -643,12 +669,13 @@ The Repeater component fully supports event handlers with automatic item data pa
 ```
 
 **onChange Example:**
+
 ```json
 {
   "type": "Repeater",
   "props": {
     "items": "@store.state.items",
-    "itemConfig": {
+    "template": {
       "type": "Input",
       "props": {
         "value": "@item.value",
@@ -661,15 +688,17 @@ The Repeater component fully supports event handlers with automatic item data pa
 ```
 
 The resolver automatically wraps event handlers to pass:
+
 - For onClick: `(event, itemId)`
 - For onChange: `(event, itemId, event.target.value)`
 
 Your action receives:
+
 ```typescript
 updateItem: (state, _event, itemId, newValue) => {
-  const item = state.items.find(i => i.id === itemId);
+  const item = state.items.find((i) => i.id === itemId);
   if (item) item.value = newValue;
-}
+};
 ```
 
 ## AutoBind Plugin
@@ -679,7 +708,7 @@ Automatically creates onChange handlers for form inputs, eliminating the need fo
 ### Usage
 
 ```typescript
-import { autoBindPlugin } from './lib';
+import { autoBindPlugin } from "./lib";
 
 // Register the plugin
 pluginRegistry.register(autoBindPlugin);
@@ -713,9 +742,9 @@ const store = {
     username: "",
     email: "",
     settings: {
-      notifications: false
-    }
-  }
+      notifications: false,
+    },
+  },
 };
 
 const config = {
@@ -727,24 +756,25 @@ const config = {
         props: {
           type: "text",
           value: "@store.state.username",
-          autoBind: "username"
+          autoBind: "username",
         },
-        plugins: ["autoBind"]
+        plugins: ["autoBind"],
       },
       {
         type: "Checkbox",
         props: {
           checked: "@store.state.settings.notifications",
-          autoBind: "settings.notifications"
+          autoBind: "settings.notifications",
         },
-        plugins: ["autoBind"]
-      }
-    ]
-  }
+        plugins: ["autoBind"],
+      },
+    ],
+  },
 };
 ```
 
 The plugin automatically:
+
 1. Creates an onChange (or onCheckedChange for checkboxes) handler
 2. Updates the store state at the specified path
 3. Removes the `autoBind` prop from final component props
@@ -786,23 +816,23 @@ MIT
 Register components to make them available in JSON configs:
 
 ```typescript
-import { componentRegistry } from './lib';
-import { Button } from './components/ui/button';
+import { componentRegistry } from "./lib";
+import { Button } from "./components/ui/button";
 
 // Register custom component
-componentRegistry.register('Button', Button);
+componentRegistry.register("Button", Button);
 
 // Register HTML elements
-componentRegistry.register('div', 'div');
-componentRegistry.register('span', 'span');
+componentRegistry.register("div", "div");
+componentRegistry.register("span", "span");
 
 // Check if component exists
-if (componentRegistry.has('Button')) {
+if (componentRegistry.has("Button")) {
   // ...
 }
 
 // Unregister component
-componentRegistry.unregister('Button');
+componentRegistry.unregister("Button");
 ```
 
 ## Plugin System
@@ -814,22 +844,29 @@ Plugins can modify components before or after rendering.
 ```typescript
 interface Plugin {
   name: string;
-  beforeRender?: (config: ComponentConfig, context: PluginContext) => ComponentConfig;
-  afterRender?: (element: ReactElement, config: ComponentConfig, context: PluginContext) => ReactElement;
+  beforeRender?: (
+    config: ComponentConfig,
+    context: PluginContext,
+  ) => ComponentConfig;
+  afterRender?: (
+    element: ReactElement,
+    config: ComponentConfig,
+    context: PluginContext,
+  ) => ReactElement;
 }
 ```
 
 ### Creating a Plugin
 
 ```typescript
-import { Plugin } from './lib';
+import { Plugin } from "./lib";
 
 const loggerPlugin: Plugin = {
-  name: 'logger',
+  name: "logger",
   beforeRender: (config, context) => {
-    console.log('Rendering:', config.type);
+    console.log("Rendering:", config.type);
     return config;
-  }
+  },
 };
 
 // Register plugin
@@ -840,27 +877,29 @@ pluginRegistry.register(loggerPlugin);
 
 ```typescript
 const config = {
-  type: 'Button',
-  plugins: ['logger', 'wrapper'],  // Apply multiple plugins
-  children: 'Click me'
+  type: "Button",
+  plugins: ["logger", "wrapper"], // Apply multiple plugins
+  children: "Click me",
 };
 ```
 
 ### Built-in Example Plugins
 
 #### Logger Plugin
+
 Logs component rendering to console:
 
 ```typescript
-import { loggerPlugin } from './lib/plugins/logger';
+import { loggerPlugin } from "./lib/plugins/logger";
 pluginRegistry.register(loggerPlugin);
 ```
 
 #### Wrapper Plugin
+
 Wraps components in a styled div:
 
 ```typescript
-import { wrapperPlugin } from './lib/plugins/wrapper';
+import { wrapperPlugin } from "./lib/plugins/wrapper";
 pluginRegistry.register(wrapperPlugin);
 ```
 
@@ -870,18 +909,18 @@ pluginRegistry.register(wrapperPlugin);
 
 ```typescript
 const config = {
-  type: 'div',
+  type: "div",
   children: [
     {
-      type: 'h1',
-      children: 'Title'
+      type: "h1",
+      children: "Title",
     },
     {
-      type: 'Button',
-      props: { variant: 'default' },
-      children: 'Action'
-    }
-  ]
+      type: "Button",
+      props: { variant: "default" },
+      children: "Action",
+    },
+  ],
 };
 ```
 
@@ -906,12 +945,12 @@ function App() {
 ### Custom Plugin Context
 
 ```typescript
-<JsonRenderer 
-  config={config} 
-  context={{ 
+<JsonRenderer
+  config={config}
+  context={{
     userId: '123',
-    theme: 'dark' 
-  }} 
+    theme: 'dark'
+  }}
 />
 ```
 
@@ -919,16 +958,16 @@ Access context in plugins:
 
 ```typescript
 const themePlugin: Plugin = {
-  name: 'theme',
+  name: "theme",
   beforeRender: (config, context) => {
-    if (context.theme === 'dark') {
+    if (context.theme === "dark") {
       config.props = {
         ...config.props,
-        className: 'dark-mode'
+        className: "dark-mode",
       };
     }
     return config;
-  }
+  },
 };
 ```
 
@@ -939,6 +978,7 @@ const themePlugin: Plugin = {
 Main component for rendering JSON configurations.
 
 **Props:**
+
 - `config: ComponentConfig` - JSON configuration object
 - `context?: Partial<PluginContext>` - Optional context passed to plugins
 
@@ -947,6 +987,7 @@ Main component for rendering JSON configurations.
 Singleton for managing component mappings.
 
 **Methods:**
+
 - `register(name: string, component: ComponentType)` - Register a component
 - `get(name: string)` - Get a registered component
 - `has(name: string)` - Check if component exists
@@ -958,6 +999,7 @@ Singleton for managing component mappings.
 Singleton for managing plugins.
 
 **Methods:**
+
 - `register(plugin: Plugin)` - Register a plugin
 - `get(name: string)` - Get a registered plugin
 - `has(name: string)` - Check if plugin exists
@@ -966,6 +1008,7 @@ Singleton for managing plugins.
 ## Examples
 
 See `src/App.tsx` for a complete working example with:
+
 - Multiple component types
 - Plugin usage
 - Dynamic state integration

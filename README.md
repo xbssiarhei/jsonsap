@@ -575,7 +575,7 @@ Universal component for rendering arrays from JSON configuration.
   "type": "Repeater",
   "props": {
     "items": "@store.state.items",
-    "itemConfig": {
+    "template": {
       "type": "Card",
       "props": {
         "title": "@item.name",
@@ -600,7 +600,7 @@ Universal component for rendering arrays from JSON configuration.
   "type": "Repeater",
   "props": {
     "items": "@store.state.todos",
-    "itemConfig": {
+    "template": {
       "type": "TodoItem",
       "props": {
         "item": "@item"

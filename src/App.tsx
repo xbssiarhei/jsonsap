@@ -6,6 +6,7 @@ import { MapPageView } from "./pages/map/MapPageView";
 import { ApiPageView } from "./pages/api/ApiPageView";
 import { FormPageView } from "./pages/form/FormPageView";
 import DashboardPageView from "./pages/dashboard/DashboardPageView";
+import JsonataPageView from "./pages/jsonata/JsonataPageView";
 import HomePage from "./pages/home/";
 import Layout from "./Layout";
 
@@ -21,6 +22,7 @@ function App() {
           <Route path="api" element={<ApiPageView />} />
           <Route path="form" element={<FormPageView />} />
           <Route path="dashboard" element={<DashboardPageView />} />
+          <Route path="jsonata" element={<JsonataPageView />} />
         </Route>
       </Routes>
     </BrowserRouter>
