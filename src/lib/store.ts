@@ -28,7 +28,17 @@ function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
   }, obj);
 }
 
-export function createStore(config: StoreConfig): StoreInstance {
+/**
+ * Parse source path to get the state key to watch
+ * "@store.state.products" -> "products"
+ * "@store.state.user.orders" -> "user"
+ */
+function getSourceRootKey(source: string): string {
+  const path = source.replace("@store.state.", "").replace("@store.state", "");
+  return path.split(".")[0] || "";
+}
+
+export async function createStore(config: StoreConfig): Promise<StoreInstance> {
   // Create reactive state with Valtio proxy
   const state = proxy(config.state);
 
@@ -45,44 +55,96 @@ export function createStore(config: StoreConfig): StoreInstance {
   // Create computed properties using derive-valtio
   let computed: Record<string, unknown> = {};
   if (config.computed) {
+    // Separate JSONata and function computed
+    const functionComputed: Record<
+      string,
+      (state: Record<string, unknown>) => unknown
+    > = {};
+    const jsonataComputed: Record<string, JSONataComputed> = {};
+
+    Object.entries(config.computed).forEach(([name, computeValue]) => {
+      if (isJSONataComputed(computeValue)) {
+        jsonataComputed[name] = computeValue;
+      } else {
+        functionComputed[name] = computeValue;
+      }
+    });
+
+    // Create proxy for JSONata computed results
+    const jsonataResults = proxy<Record<string, unknown>>({});
+
+    // Initialize JSONata computed values
+    await Promise.all(
+      Object.entries(jsonataComputed).map(async ([name, computeValue]) => {
+        const sourcePath = computeValue.source
+          .replace("@store.state.", "")
+          .replace("@store.state", "");
+
+        const sourceData = sourcePath
+          ? getNestedValue(state, sourcePath)
+          : state;
+
+        try {
+          const expression = jsonata(computeValue.$jsonata);
+          const result = await expression.evaluate(sourceData);
+          jsonataResults[name] = result;
+        } catch (error) {
+          console.error(`JSONata error in computed.${name}:`, error);
+          jsonataResults[name] = null;
+        }
+      }),
+    );
+
+    // Subscribe to state changes and recalculate JSONata computed
+    Object.entries(jsonataComputed).forEach(([name, computeValue]) => {
+      const sourceRootKey = getSourceRootKey(computeValue.source);
+
+      if (sourceRootKey) {
+        // Subscribe to changes in the source data
+        subscribe(state, () => {
+          const sourcePath = computeValue.source
+            .replace("@store.state.", "")
+            .replace("@store.state", "");
+
+          const sourceData = sourcePath
+            ? getNestedValue(state, sourcePath)
+            : state;
+
+          // Recalculate JSONata expression
+          const expression = jsonata(computeValue.$jsonata);
+          expression
+            .evaluate(sourceData)
+            .then((result) => {
+              jsonataResults[name] = result;
+            })
+            .catch((error) => {
+              console.error(`JSONata error in computed.${name}:`, error);
+              jsonataResults[name] = null;
+            });
+        });
+      }
+    });
+
+    // Create computed getters combining function and JSONata computed
     const computedGetters: Record<
       string,
       (get: (obj: unknown) => unknown) => unknown
     > = {};
 
-    Object.entries(config.computed).forEach(([name, computeValue]) => {
-      if (isJSONataComputed(computeValue)) {
-        // Handle JSONata computed
-        computedGetters[name] = (get) => {
-          const snapshot = get(state) as Record<string, unknown>;
+    // Add function computed
+    Object.entries(functionComputed).forEach(([name, computeFn]) => {
+      computedGetters[name] = (get) => {
+        const snapshot = get(state);
+        return computeFn(snapshot as Record<string, unknown>);
+      };
+    });
 
-          // Parse source path: "@store.state.products" -> "products"
-          const sourcePath = computeValue.source
-            .replace("@store.state.", "")
-            .replace("@store.state", "");
-
-          // Get source data from state
-          const sourceData = sourcePath
-            ? getNestedValue(snapshot, sourcePath)
-            : snapshot;
-
-          // Evaluate JSONata expression
-          try {
-            const expression = jsonata(computeValue.$jsonata);
-            const result = expression.evaluate(sourceData);
-            return result;
-          } catch (error) {
-            console.error(`JSONata error in computed.${name}:`, error);
-            return null;
-          }
-        };
-      } else {
-        // Handle function computed (existing logic)
-        computedGetters[name] = (get) => {
-          const snapshot = get(state);
-          return computeValue(snapshot as Record<string, unknown>);
-        };
-      }
+    // Add JSONata computed (read from jsonataResults proxy)
+    Object.keys(jsonataComputed).forEach((name) => {
+      computedGetters[name] = (get) => {
+        const results = get(jsonataResults);
+        return (results as Record<string, unknown>)[name];
+      };
     });
 
     // @ts-expect-error skip error

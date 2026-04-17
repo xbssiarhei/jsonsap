@@ -1,4 +1,10 @@
-import { createElement, Fragment, type ReactElement } from "react";
+import {
+  createElement,
+  Fragment,
+  type ReactElement,
+  useState,
+  useEffect,
+} from "react";
 import type { ComponentConfig, PluginContext, AppConfig } from "./types";
 import { componentRegistry } from "./registry";
 import { pluginRegistry } from "./plugins";
@@ -6,6 +12,8 @@ import { createStore } from "./store";
 import { StoreProvider, useStore } from "./StoreProvider";
 import { useResolvedConfig } from "./resolver";
 import { applyModifiers } from "./modifiers";
+import type { StoreInstance } from "./types";
+import { Spinner } from "@/components/ui/spinner";
 
 interface JsonRendererProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -19,13 +27,25 @@ export function JsonRenderer({
 }: JsonRendererProps): ReactElement | null {
   // Check if config has store (AppConfig) or is just ComponentConfig
   const isAppConfig = "ui" in config || "store" in config;
+  const [store, setStore] = useState<StoreInstance | null>(null);
+
+  useEffect(() => {
+    const appConfig = config as AppConfig<Record<string, unknown>>;
+    if (appConfig.store) {
+      createStore(appConfig.store!).then((storeInstance) => {
+        setStore(storeInstance);
+      });
+    }
+  }, []);
 
   if (isAppConfig) {
     const appConfig = config as AppConfig<Record<string, unknown>>;
 
     // Create store if provided
     if (appConfig.store) {
-      const store = createStore(appConfig.store);
+      if (!store) {
+        return <Spinner />;
+      }
 
       return (
         <StoreProvider store={store}>
@@ -104,7 +124,10 @@ function renderComponent(
 
   // Apply modifiers to get final props
   const store = context.store as ReturnType<typeof createStore> | null;
-  const finalProps = applyModifiers(modifiedConfig, store);
+  const finalProps = applyModifiers(
+    modifiedConfig,
+    store as unknown as StoreInstance,
+  );
 
   // Create element
   let element = createElement(Component, finalProps, renderedChildren);

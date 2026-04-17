@@ -8,7 +8,11 @@ export default function ProductsPageView() {
 
   return (
     <div>
-      <ConfigEditor config={config} onConfigChange={setConfig} />
+      <div
+        style={{ position: "fixed", top: "80px", right: "24px", zIndex: 1000 }}
+      >
+        <ConfigEditor config={config} onConfigChange={setConfig} />
+      </div>
       <JsonRenderer config={config} />
     </div>
   );

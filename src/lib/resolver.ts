@@ -121,7 +121,7 @@ function resolveObject(
       const resolvedValue = resolveValue(value, store);
 
       // Special handling for onChange with actions
-      if (key === "onChange" && typeof resolvedValue === "function") {
+      if (handlerRegex.test(key) && typeof resolvedValue === "function") {
         // Check for __itemValue from Repeater
         const itemValue = obj["__itemValue"];
         if (itemValue !== undefined) {
@@ -143,7 +143,7 @@ function resolveObject(
             (resolvedValue as (...args: unknown[]) => void)(
               e,
               itemProp,
-              e.target.value,
+              e?.target?.value ?? e,
             );
           };
         } else {

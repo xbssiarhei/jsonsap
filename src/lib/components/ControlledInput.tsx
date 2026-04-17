@@ -34,7 +34,7 @@ export function ControlledInput({
 
     // Call onChange immediately to update store
     if (onChange) {
-      onChange(newValue);
+      onChange(e);
     }
   };
 
