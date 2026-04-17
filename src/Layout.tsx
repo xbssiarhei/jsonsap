@@ -4,7 +4,7 @@ import { Button } from "./components/ui/button";
 const Layout = () => {
   return (
     <div>
-      <header className="px-6 py-4 border-b bg-background">
+      <header className="px-6 py-4 border-b bg-background overflow-x-auto">
         <nav className="flex items-center justify-between mx-auto max-w-[1200px]">
           <div style={{ display: "flex", alignItems: "center", gap: "32px" }}>
             <Link
@@ -37,14 +37,13 @@ const Layout = () => {
               <Link to="/form">
                 <Button variant="ghost">Form</Button>
               </Link>
+              <Link to="/dashboard">
+                <Button variant="ghost">Dashboard</Button>
+              </Link>
             </div>
           </div>
           <div className="flex gap-4">
-            <a
-              href="https://github.com/anthropics/claude-code"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a href="#" rel="noopener noreferrer">
               <Button variant="outline" size="sm">
                 GitHub
               </Button>

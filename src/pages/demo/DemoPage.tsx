@@ -135,7 +135,7 @@ export const demoPageConfig: AppConfig<DemoState> = {
         props: {
           style: {
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
             gap: "24px",
           },
         },

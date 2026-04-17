@@ -5,6 +5,7 @@ import { StressTestPageView } from "./pages/stress-test/StressTestPageView";
 import { MapPageView } from "./pages/map/MapPageView";
 import { ApiPageView } from "./pages/api/ApiPageView";
 import { FormPageView } from "./pages/form/FormPageView";
+import DashboardPageView from "./pages/dashboard/DashboardPageView";
 import HomePage from "./pages/home/";
 import Layout from "./Layout";
 
@@ -19,6 +20,7 @@ function App() {
           <Route path="map" element={<MapPageView />} />
           <Route path="api" element={<ApiPageView />} />
           <Route path="form" element={<FormPageView />} />
+          <Route path="dashboard" element={<DashboardPageView />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -87,7 +87,11 @@ function resolveObject(
         const itemValue = obj["__itemValue"];
         if (itemValue !== undefined) {
           resolved[key] = (e: { target: { value: unknown } }) => {
-            (resolvedValue as (...args: unknown[]) => void)(e, itemValue, e.target.value);
+            (resolvedValue as (...args: unknown[]) => void)(
+              e,
+              itemValue,
+              e.target.value,
+            );
           };
           // Don't include __itemValue in final props
           continue;
@@ -97,7 +101,11 @@ function resolveObject(
         const itemProp = obj["item"];
         if (itemProp !== undefined) {
           resolved[key] = (e: { target: { value: unknown } }) => {
-            (resolvedValue as (...args: unknown[]) => void)(e, itemProp, e.target.value);
+            (resolvedValue as (...args: unknown[]) => void)(
+              e,
+              itemProp,
+              e.target.value,
+            );
           };
         } else {
           resolved[key] = resolvedValue;
@@ -203,12 +211,14 @@ function resolveStoreReference(
 }
 
 function getNestedValue(obj: unknown, path: string[]): unknown {
-  return path.reduce((current, key) => {
+  const result = path.reduce((current, key) => {
     if (current && typeof current === "object" && key in current) {
       return (current as Record<string, unknown>)[key];
     }
     return undefined;
   }, obj);
+
+  return Array.isArray(result) ? result.slice() : result;
 }
 
 /**
