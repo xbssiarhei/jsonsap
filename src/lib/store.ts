@@ -31,6 +31,7 @@ export function createStore(config: StoreConfig): StoreInstance {
       };
     });
 
+    // @ts-expect-error skip error
     computed = derive(computedGetters);
   }
 

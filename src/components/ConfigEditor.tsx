@@ -13,8 +13,10 @@ import { Textarea } from "./ui/textarea";
 import type { AppConfig } from "../lib/types";
 
 interface ConfigEditorProps {
-  config: AppConfig;
-  onConfigChange: (config: AppConfig) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  config: AppConfig<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onConfigChange: (config: AppConfig<any>) => void;
 }
 
 export function ConfigEditor({ config, onConfigChange }: ConfigEditorProps) {

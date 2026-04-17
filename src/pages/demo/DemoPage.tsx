@@ -37,7 +37,20 @@ componentRegistry.register("TodoList", TodoList);
 pluginRegistry.register(loggerPlugin);
 pluginRegistry.register(wrapperPlugin);
 
-const store: StoreConfig = {
+type DemoState = {
+  count: number;
+  user: {
+    name: string;
+    role: string;
+  };
+  todos: {
+    id: number;
+    text: string;
+    done: boolean;
+  }[];
+};
+
+const store: StoreConfig<DemoState> = {
   state: {
     count: 0,
     user: { name: "Guest", role: "visitor" },
@@ -90,7 +103,7 @@ const store: StoreConfig = {
 };
 
 // JSON configuration with store
-export const demoPageConfig: AppConfig = {
+export const demoPageConfig: AppConfig<DemoState> = {
   store: store,
   ui: {
     type: "div",

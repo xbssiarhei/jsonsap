@@ -11,4 +11,17 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          if (id.includes("react")) return "react";
+          if (id.includes("lib")) return "lib";
+          if (id.includes("node_modules")) return "vendor";
+
+          return null;
+        },
+      },
+    },
+  },
 });

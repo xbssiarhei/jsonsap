@@ -39,18 +39,24 @@ export interface Plugin {
   ) => ReactElement;
 }
 
-export type ComponentRegistry = Map<string, ComponentType<unknown>>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type LibComponent<P = any> = ComponentType<P> | string | undefined;
+
+export type ComponentRegistry = Map<string, LibComponent>;
 export type PluginRegistry = Map<string, Plugin>;
 
+export type DefaultState = Record<string, unknown>;
+
 // Store types
-export interface StoreConfig<State = Record<string, unknown>> {
+export interface StoreConfig<State = DefaultState> {
   state: State;
-  actions?: Record<string, (state: State, ...args: unknown[]) => void>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  actions?: Record<string, (state: State, ...args: any[]) => void>;
   computed?: Record<string, (state: State) => unknown>;
 }
 
-export interface AppConfig {
-  store?: StoreConfig;
+export interface AppConfig<State extends DefaultState> {
+  store?: StoreConfig<State>;
   ui: ComponentConfig;
 }
 

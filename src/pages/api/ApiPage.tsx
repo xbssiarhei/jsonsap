@@ -1,8 +1,8 @@
 import {
   componentRegistry,
   pluginRegistry,
-  type AppConfig,
   type StoreConfig,
+  type AppConfig,
 } from "../../lib";
 import { Button } from "../../components/ui/button";
 import {
@@ -35,9 +35,19 @@ componentRegistry.register("span", "span");
 pluginRegistry.register(loggerPlugin);
 pluginRegistry.register(wrapperPlugin);
 
-type ApiState = {
-  posts: any[];
-  users: any[];
+export type ApiState = {
+  posts: Array<{
+    userId: number;
+    id: number;
+    title: string;
+    body: string;
+  }>;
+  users: Array<{
+    id: number;
+    name: string;
+    email: string;
+    company: { name: string };
+  }>;
   selectedUserId: number | null;
   isLoading: boolean;
   error: string | null;
@@ -105,7 +115,7 @@ const store: StoreConfig<ApiState> = {
 };
 
 // JSON configuration with store
-export const apiPageConfig: AppConfig = {
+export const apiPageConfig: AppConfig<ApiState> = {
   store: store,
   ui: {
     type: "div",

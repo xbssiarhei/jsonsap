@@ -38,7 +38,7 @@ function resolveChildren(
       return resolved;
     }
 
-    return resolved;
+    return resolved as ComponentConfig;
   }
 
   if (typeof children === "number") {
@@ -48,7 +48,7 @@ function resolveChildren(
   if (Array.isArray(children)) {
     return children.map((child) => {
       if (typeof child === "string") {
-        const resolved = resolveValue(child, store);
+        const resolved = resolveValue(child, store) as ComponentConfig;
 
         // If resolved value is an array, return it as-is
         if (Array.isArray(resolved)) {
@@ -64,6 +64,10 @@ function resolveChildren(
     });
   }
 
+  if (!children) {
+    return undefined;
+  }
+
   return resolveStoreReferences(children, store);
 }
 
@@ -77,14 +81,23 @@ function resolveObject(
     if (typeof value === "string" && value.startsWith("@store.")) {
       const resolvedValue = resolveValue(value, store);
 
-      // Special handling for onClick with actions - wrap to pass item data
+      // Special handling for onClick with actions
       if (key === "onClick" && typeof resolvedValue === "function") {
-        // Check if there's an item prop to pass
-        const itemValue = obj["item"];
+        // Check for __itemValue from Repeater
+        const itemValue = obj["__itemValue"];
         if (itemValue !== undefined) {
           resolved[key] = (e: unknown) => {
-            // Call action with event and item
             (resolvedValue as (...args: unknown[]) => void)(e, itemValue);
+          };
+          // Don't include __itemValue in final props
+          continue;
+        }
+
+        // Check if there's an item prop to pass
+        const itemProp = obj["item"];
+        if (itemProp !== undefined) {
+          resolved[key] = (e: unknown) => {
+            (resolvedValue as (...args: unknown[]) => void)(e, itemProp);
           };
         } else {
           resolved[key] = resolvedValue;
@@ -92,6 +105,9 @@ function resolveObject(
       } else {
         resolved[key] = resolvedValue;
       }
+    } else if (key === "__itemValue") {
+      // Skip __itemValue, it's only used for onClick
+      continue;
     } else if (
       typeof value === "object" &&
       value !== null &&

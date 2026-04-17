@@ -60,7 +60,12 @@ const generateUsers = () => {
   }));
 };
 
-const store: StoreConfig = {
+type State = {
+  users: any[];
+  selectedUserId: null | number;
+};
+
+const store: StoreConfig<State> = {
   state: {
     users: generateUsers(),
     selectedUserId: null as number | null,
@@ -78,7 +83,7 @@ const store: StoreConfig = {
 };
 
 // JSON configuration with store
-export const mapPageConfig: AppConfig = {
+export const mapPageConfig: AppConfig<State> = {
   store: store,
   ui: {
     type: "div",

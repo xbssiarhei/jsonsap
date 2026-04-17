@@ -8,7 +8,8 @@ import { useResolvedConfig } from "./resolver";
 import { applyModifiers } from "./modifiers";
 
 interface JsonRendererProps {
-  config: ComponentConfig | AppConfig;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  config: ComponentConfig | AppConfig<any>;
   context?: Partial<PluginContext>;
 }
 
@@ -20,7 +21,7 @@ export function JsonRenderer({
   const isAppConfig = "ui" in config || "store" in config;
 
   if (isAppConfig) {
-    const appConfig = config as AppConfig;
+    const appConfig = config as AppConfig<Record<string, unknown>>;
 
     // Create store if provided
     if (appConfig.store) {

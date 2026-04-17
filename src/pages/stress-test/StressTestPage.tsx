@@ -16,7 +16,7 @@ import { loggerPlugin } from "../../lib/plugins/logger";
 import { wrapperPlugin } from "../../lib/plugins/wrapper";
 import { StressTestItem } from "../../components/StressTestItem";
 import { Repeater } from "../../lib/components/Repeater";
-import { NumericRoller } from "@/components/roller";
+import { NumericRoller } from "../../components/roller";
 
 // Register components
 componentRegistry.register("Button", Button);
@@ -115,8 +115,8 @@ const store: StoreConfig<StressState> = {
 };
 
 // JSON configuration with store
-export const stressTestPageConfig: AppConfig = {
-  store: store as unknown as StoreConfig,
+export const stressTestPageConfig: AppConfig<StressState> = {
+  store: store,
   ui: {
     type: "div",
     props: {

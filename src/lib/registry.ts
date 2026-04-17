@@ -1,14 +1,14 @@
-import type { ComponentType } from "react";
-import type { ComponentRegistry } from "./types";
+// import type { ComponentType } from "react";
+import type { ComponentRegistry, LibComponent } from "./types";
 
 class Registry {
   private components: ComponentRegistry = new Map();
 
-  register(name: string, component: ComponentType<unknown>): void {
+  register(name: string, component: LibComponent): void {
     this.components.set(name, component);
   }
 
-  get(name: string): ComponentType<unknown> | undefined {
+  get(name: string): LibComponent | undefined {
     return this.components.get(name);
   }
 

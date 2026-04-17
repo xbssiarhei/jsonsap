@@ -24,14 +24,8 @@ export function StressTestItem({ item, style, children }: StressTestItemProps) {
         ...style,
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
           <span style={{ fontWeight: "bold", fontSize: "14px" }}>
             #{item.id}
           </span>

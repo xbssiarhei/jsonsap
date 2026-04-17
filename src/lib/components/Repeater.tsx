@@ -1,4 +1,4 @@
-import { JsonRenderer } from "..";
+import { JsonRenderer, type ComponentConfig } from "..";
 
 interface RepeaterProps {
   items: unknown[];
@@ -24,10 +24,10 @@ export function Repeater({ items, itemConfig }: RepeaterProps) {
           <JsonRenderer
             key={
               typeof item === "object" && item !== null && "id" in item
-                ? (item as { id: unknown }).id
+                ? (item as { id: string }).id
                 : index
             }
-            config={resolvedConfig}
+            config={resolvedConfig as ComponentConfig}
           />
         );
       })}
@@ -35,7 +35,7 @@ export function Repeater({ items, itemConfig }: RepeaterProps) {
   );
 }
 
-const patternHandler = /on[A-Z].*/;
+// const patternHandler = /on[A-Z].*/;
 
 function resolveItemReferences(config: unknown, item: unknown): unknown {
   if (typeof config === "string") {
@@ -46,7 +46,7 @@ function resolveItemReferences(config: unknown, item: unknown): unknown {
     }
     // Support string interpolation
     if (config.includes("@item.")) {
-      return config.replace(/@item\.([\w.]+)/g, (match, path) => {
+      return config.replace(/@item\.([\w.]+)/g, (_match, path) => {
         const value = getNestedValue(item, path.split("."));
         return String(value ?? "");
       });
