@@ -12,6 +12,14 @@ export interface Modifier {
   matchAll?: boolean; // true = AND logic, false = OR logic (default: true)
 }
 
+export interface SetAction {
+  $action: "set";
+  store?: string; // Optional store name (for future multi-store support)
+  path: string; // Path in store state, e.g., "/firstName" or "user.name"
+  value?: unknown; // Optional explicit value to set (can be @item.* reference)
+  then?: string; // Optional action to call after setting value, e.g., "applyFilter"
+}
+
 export interface ComponentConfig {
   type: string;
   props?: Record<string, unknown>;

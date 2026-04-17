@@ -67,6 +67,10 @@ const store: StoreConfig<JsonataState> = {
   },
   actions: {
     applyFilter: async (state) => {
+      if (!state.query) {
+        state.filteredProducts = state.products;
+        return;
+      }
       try {
         const expression = jsonata(state.query);
         const result = await expression.evaluate(state.products);
@@ -83,8 +87,8 @@ const store: StoreConfig<JsonataState> = {
       }
     },
     resetFilter: (state) => {
-      state.query = "$[price < 100]";
-      state.filteredProducts = state.products.filter((p) => p.price < 100);
+      state.query = "";
+      state.filteredProducts = state.products;
       state.error = "";
     },
     setPresetQuery: async (
@@ -129,7 +133,7 @@ const presetQueries = [
     query: "$[category = 'Furniture' and price < 300]",
   },
   { label: "Sort by price (asc)", query: "$ ^(price)" },
-  { label: "Top 3 by rating", query: "$ ^(>rating)[0..2]" },
+  { label: "Top 3 by rating", query: "$ ^(>rating)[[0..2]]" },
 ];
 
 export const jsonataPageConfig: AppConfig<JsonataState> = {
@@ -215,13 +219,15 @@ export const jsonataPageConfig: AppConfig<JsonataState> = {
                     type: "Input",
                     props: {
                       value: "@store.state.query",
-                      autoBind: "query",
+                      onChange: {
+                        $action: "set",
+                        path: "query",
+                      },
                       placeholder: "Enter JSONata query...",
                       style: {
                         flex: 1,
                       },
                     },
-                    plugins: ["autoBind"],
                   },
                   {
                     type: "Button",
@@ -281,12 +287,31 @@ export const jsonataPageConfig: AppConfig<JsonataState> = {
                       template: {
                         type: "Button",
                         props: {
+                          item: "@item",
                           variant: "outline",
                           size: "sm",
-                          onClick: "@store.actions.setPresetQuery",
-                          item: "@item.query",
+                          onClick: {
+                            $action: "set",
+                            path: "query",
+                            value: "@item.query",
+                            then: "applyFilter",
+                          },
                         },
-                        children: "@item.query",
+                        modifiers: [
+                          {
+                            conditions: [
+                              {
+                                path: "item.query",
+                                operator: "equals",
+                                value: "@store.state.query",
+                              },
+                            ],
+                            props: {
+                              variant: "default",
+                            },
+                          },
+                        ],
+                        children: "@item.label",
                       },
                     },
                   },

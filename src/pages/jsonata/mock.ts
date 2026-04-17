@@ -21,7 +21,7 @@ const sampleProducts = [
     category: "Electronics",
     price: 75,
     inStock: false,
-    rating: 4.7,
+    rating: 3.7,
   },
   {
     id: 4,

@@ -41,6 +41,10 @@ type FormState = {
   age: string;
   newsletter: boolean;
   bio: string;
+  // New fields to demonstrate SetAction
+  firstName: string;
+  lastName: string;
+  phone: string;
 };
 
 const store: StoreConfig<FormState> = {
@@ -50,6 +54,9 @@ const store: StoreConfig<FormState> = {
     age: "",
     newsletter: false,
     bio: "",
+    firstName: "",
+    lastName: "",
+    phone: "",
   },
   actions: {
     resetForm: (state) => {
@@ -58,6 +65,9 @@ const store: StoreConfig<FormState> = {
       state.age = "";
       state.newsletter = false;
       state.bio = "";
+      state.firstName = "";
+      state.lastName = "";
+      state.phone = "";
     },
   },
   computed: {
@@ -103,7 +113,7 @@ export const formPageConfig: AppConfig<FormState> = {
           },
         },
         children:
-          "Form inputs automatically bound to store state using autoBind plugin",
+          "Demonstrates two binding methods: autoBind plugin and SetAction syntax",
       },
       {
         type: "Card",
@@ -118,11 +128,11 @@ export const formPageConfig: AppConfig<FormState> = {
             children: [
               {
                 type: "CardTitle",
-                children: "User Information",
+                children: "AutoBind Plugin Method",
               },
               {
                 type: "CardDescription",
-                children: "Fill out the form below",
+                children: "Uses autoBind prop with plugin",
               },
             ],
           },
@@ -193,6 +203,173 @@ export const formPageConfig: AppConfig<FormState> = {
                       },
                     ],
                   },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        type: "Card",
+        props: {
+          style: {
+            marginBottom: "24px",
+          },
+        },
+        children: [
+          {
+            type: "CardHeader",
+            children: [
+              {
+                type: "CardTitle",
+                children: "SetAction Method",
+              },
+              {
+                type: "CardDescription",
+                children: "Uses { $action: 'set', path: '...' } syntax",
+              },
+            ],
+          },
+          {
+            type: "CardContent",
+            children: [
+              {
+                type: "div",
+                props: {
+                  style: {
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "16px",
+                  },
+                },
+                children: [
+                  {
+                    type: "div",
+                    children: [
+                      {
+                        type: "label",
+                        props: {
+                          style: {
+                            display: "block",
+                            fontSize: "14px",
+                            fontWeight: "500",
+                            marginBottom: "8px",
+                          },
+                        },
+                        children: "First Name",
+                      },
+                      {
+                        type: "Input",
+                        props: {
+                          type: "text",
+                          placeholder: "Enter first name",
+                          value: "@store.state.firstName",
+                          onChange: {
+                            $action: "set",
+                            path: "/firstName",
+                          },
+                        },
+                      },
+                    ],
+                  },
+                  {
+                    type: "div",
+                    children: [
+                      {
+                        type: "label",
+                        props: {
+                          style: {
+                            display: "block",
+                            fontSize: "14px",
+                            fontWeight: "500",
+                            marginBottom: "8px",
+                          },
+                        },
+                        children: "Last Name",
+                      },
+                      {
+                        type: "Input",
+                        props: {
+                          type: "text",
+                          placeholder: "Enter last name",
+                          value: "@store.state.lastName",
+                          onChange: {
+                            $action: "set",
+                            path: "lastName",
+                          },
+                        },
+                      },
+                    ],
+                  },
+                  {
+                    type: "div",
+                    children: [
+                      {
+                        type: "label",
+                        props: {
+                          style: {
+                            display: "block",
+                            fontSize: "14px",
+                            fontWeight: "500",
+                            marginBottom: "8px",
+                          },
+                        },
+                        children: "Phone",
+                      },
+                      {
+                        type: "Input",
+                        props: {
+                          type: "tel",
+                          placeholder: "Enter phone",
+                          value: "@store.state.phone",
+                          onChange: {
+                            $action: "set",
+                            path: "phone",
+                          },
+                        },
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        type: "Card",
+        props: {
+          style: {
+            marginBottom: "24px",
+          },
+        },
+        children: [
+          {
+            type: "CardHeader",
+            children: [
+              {
+                type: "CardTitle",
+                children: "User Information",
+              },
+              {
+                type: "CardDescription",
+                children: "Fill out the form below",
+              },
+            ],
+          },
+          {
+            type: "CardContent",
+            children: [
+              {
+                type: "div",
+                props: {
+                  style: {
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "16px",
+                  },
+                },
+                children: [
                   {
                     type: "div",
                     children: [

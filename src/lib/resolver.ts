@@ -1,5 +1,31 @@
 import { useSnapshot } from "valtio";
-import type { ComponentConfig, StoreInstance } from "./types";
+import type { ComponentConfig, StoreInstance, SetAction } from "./types";
+
+/**
+ * Check if value is a SetAction object
+ */
+function isSetAction(value: unknown): value is SetAction {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "$action" in value &&
+    (value as SetAction).$action === "set" &&
+    "path" in value
+  );
+}
+
+/**
+ * Check if SetAction contains @item.* references (should be resolved by Repeater first)
+ */
+function hasItemReferences(action: SetAction): boolean {
+  if (typeof action.value === "string" && action.value.includes("@item.")) {
+    return true;
+  }
+  if (typeof action.path === "string" && action.path.includes("@item.")) {
+    return true;
+  }
+  return false;
+}
 
 /**
  * Resolves @store.* references in component configuration
@@ -71,6 +97,8 @@ function resolveChildren(
   return resolveStoreReferences(children, store);
 }
 
+const handlerRegex = /on[A-Z].*/;
+
 function resolveObject(
   obj: Record<string, unknown>,
   store: StoreInstance,
@@ -78,6 +106,17 @@ function resolveObject(
   const resolved: Record<string, unknown> = {};
 
   for (const [key, value] of Object.entries(obj)) {
+    // Handle SetAction objects for onChange and onClick
+    if (handlerRegex.test(key) && isSetAction(value)) {
+      // Skip SetAction with @item.* references - let Repeater resolve them first
+      if (hasItemReferences(value)) {
+        resolved[key] = value;
+        continue;
+      }
+      resolved[key] = createSetActionHandler(value, store, obj);
+      continue;
+    }
+
     if (typeof value === "string" && value.startsWith("@store.")) {
       const resolvedValue = resolveValue(value, store);
 
@@ -128,6 +167,72 @@ function resolveObject(
   }
 
   return resolved;
+}
+
+/**
+ * Creates a handler for SetAction (works for both onChange and onClick)
+ */
+function createSetActionHandler(
+  action: SetAction,
+  store: StoreInstance,
+  obj: Record<string, unknown>,
+) {
+  return (e?: {
+    target?: { value: unknown; checked?: boolean; type?: string };
+  }) => {
+    const path = action.path.startsWith("/")
+      ? action.path.substring(1)
+      : action.path;
+    const pathParts = path.split(/[./]/);
+
+    // Get the value - either from explicit value prop or from event
+    let value: unknown;
+    if (action.value !== undefined) {
+      // If value is explicitly provided, use it (can be @item.* reference)
+      value = action.value;
+    } else if (e?.target) {
+      // Otherwise get from event (for onChange)
+      value = e.target.type === "checkbox" ? e.target.checked : e.target.value;
+    } else {
+      // No value provided and no event target (shouldn't happen)
+      return;
+    }
+
+    // Set the value in the store
+    setNestedValue(store.state, pathParts, value);
+
+    // Call the "then" action if specified
+    if (action.then && store.actions[action.then]) {
+      store.actions[action.then]();
+    }
+  };
+}
+
+/**
+ * Sets a nested value in an object
+ */
+function setNestedValue(
+  obj: Record<string, unknown>,
+  path: string[],
+  value: unknown,
+): void {
+  if (path.length === 0) return;
+
+  if (path.length === 1) {
+    obj[path[0]] = value;
+    return;
+  }
+
+  const [first, ...rest] = path;
+  if (
+    !(first in obj) ||
+    typeof obj[first] !== "object" ||
+    obj[first] === null
+  ) {
+    obj[first] = {};
+  }
+
+  setNestedValue(obj[first] as Record<string, unknown>, rest, value);
 }
 
 function resolveValue(value: string, store: StoreInstance): unknown {
