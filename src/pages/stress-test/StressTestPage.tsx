@@ -3,21 +3,20 @@ import {
   pluginRegistry,
   type AppConfig,
   type StoreConfig,
-  autoBindPlugin,
 } from "../../lib";
 import { loggerPlugin } from "../../lib/plugins/logger";
 import { wrapperPlugin } from "../../lib/plugins/wrapper";
 import { StressTestItem } from "./components/StressTestItem";
 import { NumericRoller } from "../../components/roller";
+import modifiers from "@/modifiers";
 
 // Register page-specific components
 componentRegistry.register("StressTestItem", StressTestItem);
 componentRegistry.register("NumericRoller", NumericRoller);
 
-// Register plugins
+// Register plugins (autoBind and repeater are already registered globally)
 pluginRegistry.register(loggerPlugin);
 pluginRegistry.register(wrapperPlugin);
-pluginRegistry.register(autoBindPlugin);
 
 // Generate n items
 const generateItems = (count: number) => {
@@ -272,7 +271,9 @@ export const stressTestPageConfig: AppConfig<StressState> = {
         },
         children: [
           {
-            type: "Repeater",
+            type: "Repeater2",
+            plugins: ["repeater"],
+            // store: "@store.state.items",
             props: {
               items: "@store.state.items",
               template: {
@@ -280,37 +281,27 @@ export const stressTestPageConfig: AppConfig<StressState> = {
                 children: [
                   {
                     type: "PopoverTrigger",
-                    props: {
-                      // asChild: true,
-                    },
                     children: [
                       {
                         type: "StressTestItem",
                         props: {
                           item: "@item",
                         },
-                        modifiers: [
+                        modifiers2: [
+                          modifiers.byStatus("@store/state"),
+                          modifiers.byValue("@store/state"),
                           {
                             conditions: [
                               {
-                                path: "item.status",
-                                operator: "equals",
-                                value: "active",
-                              },
-                            ],
-                            props: {
-                              style: {
-                                backgroundColor: "#dcfce7",
-                                borderColor: "#22c55e",
-                              },
-                            },
-                          },
-                          {
-                            conditions: [
-                              {
-                                path: "item.value",
+                                store: {
+                                  store: `@store/state/items/@item.id`,
+                                  path: "value",
+                                },
                                 operator: "greaterThan",
-                                value: "@store.state.threshold",
+                                value: {
+                                  store: "@store/state",
+                                  path: "threshold",
+                                },
                               },
                             ],
                             props: {
@@ -348,13 +339,19 @@ export const stressTestPageConfig: AppConfig<StressState> = {
                       className: "w-80",
                       item: "@item",
                     },
-                    modifiers: [
+                    modifiers2: [
                       {
                         conditions: [
                           {
-                            path: "item.value",
+                            store: {
+                              store: `@store/state/items/@item.id`,
+                              path: "value",
+                            },
                             operator: "greaterThan",
-                            value: "@store.state.threshold",
+                            value: {
+                              store: "@store/state",
+                              path: "threshold",
+                            },
                           },
                         ],
                         props: {
@@ -476,11 +473,14 @@ export const stressTestPageConfig: AppConfig<StressState> = {
                                     fontWeight: "500",
                                   },
                                 },
-                                modifiers: [
+                                modifiers2: [
                                   {
                                     conditions: [
                                       {
-                                        path: "item.status",
+                                        store: {
+                                          store: `@store/state/items/@item.id`,
+                                          path: "status",
+                                        },
                                         operator: "equals",
                                         value: "active",
                                       },
@@ -495,7 +495,10 @@ export const stressTestPageConfig: AppConfig<StressState> = {
                                   {
                                     conditions: [
                                       {
-                                        path: "item.status",
+                                        store: {
+                                          store: `@store/state/items/@item.id`,
+                                          path: "status",
+                                        },
                                         operator: "equals",
                                         value: "inactive",
                                       },

@@ -38,22 +38,23 @@ export function resolveStoreReferences(
   store: StoreInstance,
 ): ComponentConfig {
   const { props, children, ...rest } = config;
-  const resolved = resolveObject(rest, store) as unknown as ComponentConfig;
+  const resolved = { ...config };
+  // const resolved = resolveObject(rest, store) as unknown as ComponentConfig;
 
   // Resolve props
-  if (props) {
+  if (props && config.type !== "Repeater2") {
     resolved.props = resolveObject(props, store);
   }
 
   // Resolve children
   if (children) {
-    resolved.children = resolveChildren(children, store);
+    // resolved.children = resolveChildren(children, store);
   }
 
   return resolved;
 }
 
-function resolveChildren(
+export function resolveChildren(
   children: ComponentConfig["children"],
   store: StoreInstance,
 ): ComponentConfig["children"] {

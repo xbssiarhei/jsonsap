@@ -10,7 +10,7 @@ import { componentRegistry } from "./registry";
 import { pluginRegistry } from "./plugins";
 import { createStore } from "./store";
 import { StoreProvider, useStore } from "./StoreProvider";
-import { useResolvedConfig } from "./resolver";
+import { resolveChildren, useResolvedConfig } from "./resolver";
 import { applyModifiers, applyModifiers2 } from "./modifiers";
 import type { StoreInstance } from "./types";
 import { Spinner } from "@/components/ui/spinner";
@@ -117,6 +117,17 @@ function renderComponent(
     return null;
   }
 
+  if (
+    modifiedConfig.children &&
+    String(modifiedConfig.children).includes("@store")
+  ) {
+    console.log(modifiedConfig);
+    modifiedConfig.children = resolveChildren(
+      modifiedConfig.children,
+      context.store as StoreInstance,
+    );
+  }
+
   // Render children
   const renderedChildren = renderChildren(modifiedConfig.children, {
     ...context,
@@ -126,7 +137,7 @@ function renderComponent(
 
   // Apply modifiers to get final props
   const store = context.store as ReturnType<typeof createStore> | null;
-  const finalProps2 = applyModifiers(
+  const finalProps1 = applyModifiers(
     modifiedConfig,
     store as unknown as StoreInstance,
   );
@@ -134,7 +145,7 @@ function renderComponent(
   const finalProps = applyModifiers2(
     {
       ...modifiedConfig,
-      props: finalProps2,
+      props: finalProps1,
     },
     store as unknown as StoreInstance,
   );

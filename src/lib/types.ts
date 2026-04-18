@@ -26,6 +26,7 @@ export interface ComponentConfig {
   children?: ComponentConfig[] | ComponentConfig | string | number;
   plugins?: string[];
   modifiers?: Modifier[]; // Conditional prop modifications
+  modifiers2?: Modifier[]; // Conditional prop modifications
 }
 
 export interface PluginContext {
@@ -34,15 +35,15 @@ export interface PluginContext {
   [key: string]: unknown;
 }
 
-export interface Plugin {
+export interface Plugin<T = object> {
   name: string;
   beforeRender?: (
-    config: ComponentConfig,
+    config: ComponentConfig & T,
     context: PluginContext,
   ) => ComponentConfig;
   afterRender?: (
     element: ReactElement,
-    config: ComponentConfig,
+    config: ComponentConfig & T,
     context: PluginContext,
   ) => ReactElement;
 }

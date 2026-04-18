@@ -97,6 +97,9 @@ function getNestedValue(obj: unknown, path: string[]): unknown {
     ) {
       return current.get(key) ?? current.get(Number(key));
     }
+    if (Array.isArray(current)) {
+      return current.slice().find((item) => String(item.id) === String(key));
+    }
     return undefined;
   }, obj);
 

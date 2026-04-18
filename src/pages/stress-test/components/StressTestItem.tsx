@@ -9,17 +9,21 @@ interface StressTestItemProps extends PropsWithChildren {
     lastUpdate: number;
   };
   style?: ComponentProps<"div">["style"];
+  className?: string;
 }
 
-export function StressTestItem({ item, style, children }: StressTestItemProps) {
+export function StressTestItem({
+  className,
+  item,
+  style,
+  children,
+}: StressTestItemProps) {
   // Use item.lastUpdate directly for styling without Date.now()
-  const isRecent = item.lastUpdate > 0;
-
   return (
     <Card
+      className={className}
       style={{
         padding: "12px 16px",
-        backgroundColor: isRecent ? "#f0fdf4" : "white",
         transition: "background-color 0.3s ease",
         ...style,
       }}

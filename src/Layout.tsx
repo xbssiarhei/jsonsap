@@ -26,9 +26,9 @@ const Layout = () => {
 
   return (
     <>
-      <header className="px-6 py-4 border-b bg-background overflow-x-auto sticky top-0">
-        <nav className="flex items-center justify-between mx-auto max-w-[1200px]">
-          <div style={{ display: "flex", alignItems: "center", gap: "32px" }}>
+      <header className="flex px-6 py-4 border-b bg-background overflow-x-auto sticky top-0">
+        <nav className="flex items-center gap-6 justify-between mx-auto max-w-[1200px]">
+          <div className="flex items-center gap-8">
             <Link
               to="/"
               style={{
