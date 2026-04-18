@@ -53,7 +53,7 @@ const store: StoreConfig<KanbanState> = {
     newTaskDescription: "",
   },
   actions: {
-    moveTask: (state, _e, taskId: number, newStatus: string) => {
+    moveTask: (state, _e: unknown, taskId: number, newStatus: string) => {
       const task = state.tasks.find((t) => t.id === taskId);
       if (task) {
         task.status = (newStatus || "todo") as "todo" | "progress" | "done";
@@ -73,7 +73,7 @@ const store: StoreConfig<KanbanState> = {
       state.newTaskTitle = "";
       state.newTaskDescription = "";
     },
-    deleteTask: (state, _e, taskId: number) => {
+    deleteTask: (state, _e: unknown, taskId: number) => {
       state.tasks = state.tasks.filter((t) => t.id !== taskId);
     },
   },
@@ -179,9 +179,11 @@ const createColumn = (
                           props: {
                             variant: "outline",
                             size: "sm",
-                            onClick: "@store.actions.moveTask",
-                            item: "@item.id",
-                            status: "todo",
+                            onClick: {
+                              $action: "call",
+                              name: "moveTask",
+                              args: ["@item.id", "todo"],
+                            },
                             className: "text-xs",
                           },
                           children: "← Todo",
@@ -194,9 +196,11 @@ const createColumn = (
                           props: {
                             variant: "outline",
                             size: "sm",
-                            onClick: "@store.actions.moveTask",
-                            item: "@item.id",
-                            status: "progress",
+                            onClick: {
+                              $action: "call",
+                              name: "moveTask",
+                              args: ["@item.id", "progress"],
+                            },
                             className: "text-xs",
                           },
                           children: "⟳ Progress",
@@ -209,9 +213,11 @@ const createColumn = (
                           props: {
                             variant: "outline",
                             size: "sm",
-                            onClick: "@store.actions.moveTask",
-                            item: "@item.id",
-                            status: "done",
+                            onClick: {
+                              $action: "call",
+                              name: "moveTask",
+                              args: ["@item.id", "done"],
+                            },
                             className: "text-xs",
                           },
                           children: "✓ Done",
@@ -223,8 +229,11 @@ const createColumn = (
                       props: {
                         variant: "destructive",
                         size: "sm",
-                        onClick: "@store.actions.deleteTask",
-                        item: "@item.id",
+                        onClick: {
+                          $action: "call",
+                          name: "deleteTask",
+                          args: ["@item.id"],
+                        },
                         className: "text-xs",
                       },
                       children: "Delete",
