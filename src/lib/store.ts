@@ -40,7 +40,7 @@ function getSourceRootKey(source: string): string {
 
 export async function createStore(config: StoreConfig): Promise<StoreInstance> {
   // Create reactive state with Valtio proxy
-  const state = proxy(config.state);
+  const state = config.state._isProxy ? config.state : proxy(config.state);
 
   // Bind actions to state
   const actions: Record<string, (...args: unknown[]) => void> = {};

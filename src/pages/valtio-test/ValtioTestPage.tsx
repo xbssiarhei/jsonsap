@@ -1,4 +1,4 @@
-import { proxy, useSnapshot } from "valtio";
+import { useSnapshot } from "valtio";
 import { useEffect, useState } from "react";
 import { Button } from "../../components/ui/button";
 import {
@@ -7,61 +7,15 @@ import {
   CardHeader,
   CardTitle,
 } from "../../components/ui/card";
-
-type Item = { id: number; value: number; lastUpdate: number };
-
-// Store with Map
-const storeWithMap = proxy({
-  items: new Map<number, Item>(),
-});
-
-// Store with Array
-const storeWithArray = proxy<{
-  items: Array<Item>;
-}>({
-  items: [],
-});
-
-const proxyStore = proxy({
-  map: 0,
-  array: 0,
-});
-
-// Initialize data
-const ITEMS_COUNT = 1000;
-const MAX_COUNT_UPDATE = 100;
-for (let i = 1; i <= ITEMS_COUNT; i++) {
-  storeWithMap.items.set(i, proxy({ id: i, value: 0, lastUpdate: Date.now() }));
-  storeWithArray.items.push({ id: i, value: 0, lastUpdate: Date.now() });
-}
-
-// Update random items in Map (up to half)
-function updateRandomItemInMap() {
-  const updateCount = Math.floor(Math.random() * MAX_COUNT_UPDATE) + 1;
-  proxyStore.map = updateCount;
-  for (let i = 0; i < updateCount; i++) {
-    const randomId = Math.floor(Math.random() * ITEMS_COUNT) + 1;
-    const item = storeWithMap.items.get(randomId);
-    if (item) {
-      item.value = Math.floor(Math.random() * 100);
-      item.lastUpdate = Date.now();
-    }
-  }
-}
-
-// Update random items in Array (up to half)
-function updateRandomItemInArray() {
-  const updateCount = Math.floor(Math.random() * MAX_COUNT_UPDATE) + 1;
-  proxyStore.array = updateCount;
-  for (let i = 0; i < updateCount; i++) {
-    const randomIndex = Math.floor(Math.random() * ITEMS_COUNT);
-    const item = storeWithArray.items[randomIndex];
-    if (item) {
-      item.value = Math.floor(Math.random() * 100);
-      item.lastUpdate = Date.now();
-    }
-  }
-}
+import { JsonRenderer } from "@/lib";
+import {
+  proxyStore,
+  storeWithArray,
+  storeWithMap,
+  updateRandomItemInArray,
+  updateRandomItemInMap,
+} from "./store";
+import config from "./ValtioTestConfig";
 
 // Component for Map item
 function MapItem({ id }: { id: number }) {
@@ -133,7 +87,7 @@ const CountUpdate = ({ store, name }) => {
   return <span>{value[name]}</span>;
 };
 
-const DELAY = 100;
+const DELAY = 1000;
 export default function ValtioTestPage() {
   const [isMapRunning, setIsMapRunning] = useState(false);
   const [isArrayRunning, setIsArrayRunning] = useState(false);
@@ -185,12 +139,12 @@ export default function ValtioTestPage() {
       >
         {/* Map Test */}
         <div>
-          <Card style={{ marginBottom: "16px" }}>
+          <Card className="mb-4">
             <CardHeader>
               <CardTitle>Map Store (Optimized)</CardTitle>
             </CardHeader>
             <CardContent>
-              <p style={{ marginBottom: "16px", fontSize: "14px" }}>
+              <p className="mb-4" style={{ fontSize: "14px" }}>
                 Using Map with direct .get(id) access. Should only re-render
                 changed items.
               </p>
@@ -209,7 +163,7 @@ export default function ValtioTestPage() {
               display: "grid",
               gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))",
               gap: "8px",
-              maxHeight: "600px",
+              maxHeight: "400px",
               overflowY: "auto",
             }}
           >
@@ -221,12 +175,12 @@ export default function ValtioTestPage() {
 
         {/* Array Test */}
         <div>
-          <Card style={{ marginBottom: "16px" }}>
+          <Card className="mb-4">
             <CardHeader>
               <CardTitle>Array Store (Standard)</CardTitle>
             </CardHeader>
             <CardContent>
-              <p style={{ marginBottom: "16px", fontSize: "14px" }}>
+              <p className="mb-4" style={{ fontSize: "14px" }}>
                 Using Array with .find(id) access. May re-render more
                 components.
               </p>
@@ -245,9 +199,10 @@ export default function ValtioTestPage() {
               display: "grid",
               gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))",
               gap: "8px",
-              maxHeight: "600px",
+              maxHeight: "400px",
               overflowY: "auto",
             }}
+            // className="grid-cols-1"
           >
             {storeWithArray.items.map((item) => (
               <ArrayItem key={item.id} id={item.id} />
@@ -255,6 +210,7 @@ export default function ValtioTestPage() {
           </div>
         </div>
       </div>
+      <JsonRenderer config={config} />
     </div>
   );
 }

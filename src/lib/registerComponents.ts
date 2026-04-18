@@ -18,10 +18,21 @@ import {
 } from "../components/ui/chart";
 import { Input } from "../components/ui/input";
 import { Checkbox } from "../components/ui/checkbox";
-import { Repeater } from "./components/Repeater";
+import { Repeater, Repeater2 } from "./components/Repeater";
 import { ControlledInput } from "./components/ControlledInput";
 import { componentRegistry } from "./registry";
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  LineChart,
+  Line,
+} from "recharts";
 
 // Register all common components
 export function registerCommonComponents() {
@@ -56,6 +67,7 @@ export function registerCommonComponents() {
 
   // Library Components
   componentRegistry.register("Repeater", Repeater);
+  componentRegistry.register("Repeater2", Repeater2);
 
   // HTML Elements
   componentRegistry.register("div", "div");

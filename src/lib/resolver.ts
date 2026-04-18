@@ -37,16 +37,17 @@ export function resolveStoreReferences(
   config: ComponentConfig,
   store: StoreInstance,
 ): ComponentConfig {
-  const resolved = { ...config };
+  const { props, children, ...rest } = config;
+  const resolved = resolveObject(rest, store) as unknown as ComponentConfig;
 
   // Resolve props
-  if (resolved.props) {
-    resolved.props = resolveObject(resolved.props, store);
+  if (props) {
+    resolved.props = resolveObject(props, store);
   }
 
   // Resolve children
-  if (resolved.children) {
-    resolved.children = resolveChildren(resolved.children, store);
+  if (children) {
+    resolved.children = resolveChildren(children, store);
   }
 
   return resolved;
@@ -160,7 +161,8 @@ function resolveObject(
       value !== null &&
       !Array.isArray(value) &&
       !(value instanceof Map) &&
-      !(value instanceof Promise)
+      !(value instanceof Promise) &&
+      !("values" in value)
     ) {
       resolved[key] = resolveObject(value as Record<string, unknown>, store);
     } else {

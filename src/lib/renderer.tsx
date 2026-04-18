@@ -11,7 +11,7 @@ import { pluginRegistry } from "./plugins";
 import { createStore } from "./store";
 import { StoreProvider, useStore } from "./StoreProvider";
 import { useResolvedConfig } from "./resolver";
-import { applyModifiers } from "./modifiers";
+import { applyModifiers, applyModifiers2 } from "./modifiers";
 import type { StoreInstance } from "./types";
 import { Spinner } from "@/components/ui/spinner";
 
@@ -19,11 +19,13 @@ interface JsonRendererProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config: ComponentConfig | AppConfig<any>;
   context?: Partial<PluginContext>;
+  store?: unknown;
 }
 
 export function JsonRenderer({
   config,
   context = {},
+  // store
 }: JsonRendererProps): ReactElement | null {
   // Check if config has store (AppConfig) or is just ComponentConfig
   const isAppConfig = "ui" in config || "store" in config;
@@ -124,8 +126,16 @@ function renderComponent(
 
   // Apply modifiers to get final props
   const store = context.store as ReturnType<typeof createStore> | null;
-  const finalProps = applyModifiers(
+  const finalProps2 = applyModifiers(
     modifiedConfig,
+    store as unknown as StoreInstance,
+  );
+
+  const finalProps = applyModifiers2(
+    {
+      ...modifiedConfig,
+      props: finalProps2,
+    },
     store as unknown as StoreInstance,
   );
 
