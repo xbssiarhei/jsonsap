@@ -1,5 +1,5 @@
 import { useSnapshot } from "valtio";
-import type { ComponentConfig, StoreInstance, SetAction } from "./types";
+import type { ComponentConfig, StoreInstance, SetAction, CallAction } from "./types";
 
 /**
  * Check if value is a SetAction object
@@ -15,14 +15,35 @@ function isSetAction(value: unknown): value is SetAction {
 }
 
 /**
+ * Check if value is a CallAction object
+ */
+function isCallAction(value: unknown): value is CallAction {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "$action" in value &&
+    (value as CallAction).$action === "call" &&
+    "name" in value
+  );
+}
+
+/**
  * Check if SetAction contains @item.* references (should be resolved by Repeater first)
  */
-function hasItemReferences(action: SetAction): boolean {
-  if (typeof action.value === "string" && action.value.includes("@item.")) {
+function hasItemReferences(action: SetAction | CallAction): boolean {
+  if ("value" in action && typeof action.value === "string" && action.value.includes("@item.")) {
     return true;
   }
-  if (typeof action.path === "string" && action.path.includes("@item.")) {
+  if ("path" in action && typeof action.path === "string" && action.path.includes("@item.")) {
     return true;
+  }
+  if ("args" in action && Array.isArray(action.args)) {
+    return action.args.some(arg => typeof arg === "string" && arg.includes("@item."));
+  }
+  if ("params" in action && typeof action.params === "object") {
+    return Object.values(action.params || {}).some(
+      val => typeof val === "string" && val.includes("@item.")
+    );
   }
   return false;
 }
@@ -108,6 +129,17 @@ function resolveObject(
   const resolved: Record<string, unknown> = {};
 
   for (const [key, value] of Object.entries(obj)) {
+    // Handle CallAction objects for onChange and onClick
+    if (handlerRegex.test(key) && isCallAction(value)) {
+      // Skip CallAction with @item.* references - let Repeater resolve them first
+      if (hasItemReferences(value)) {
+        resolved[key] = value;
+        continue;
+      }
+      resolved[key] = createCallActionHandler(value, store);
+      continue;
+    }
+
     // Handle SetAction objects for onChange and onClick
     if (handlerRegex.test(key) && isSetAction(value)) {
       // Skip SetAction with @item.* references - let Repeater resolve them first
@@ -172,6 +204,37 @@ function resolveObject(
   }
 
   return resolved;
+}
+
+/**
+ * Creates a handler for CallAction
+ * Supports both args array and params object
+ */
+function createCallActionHandler(
+  action: CallAction,
+  store: StoreInstance,
+) {
+  return (e?: { target?: { value: unknown; checked?: boolean; type?: string } }) => {
+    const actionFn = store.actions[action.name];
+    if (!actionFn) {
+      console.warn(`Action "${action.name}" not found in store`);
+      return;
+    }
+
+    // Build arguments array
+    let args: unknown[] = [];
+
+    if (action.args) {
+      // Use args array directly
+      args = action.args;
+    } else if (action.params) {
+      // Convert params object to args array (pass as single object)
+      args = [action.params];
+    }
+
+    // Call the action with event as first argument, then other args
+    actionFn(e, ...args);
+  };
 }
 
 /**

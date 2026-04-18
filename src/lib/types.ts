@@ -20,6 +20,15 @@ export interface SetAction {
   then?: string; // Optional action to call after setting value, e.g., "applyFilter"
 }
 
+export interface CallAction {
+  $action: "call";
+  name: string; // Action name to call, e.g., "moveTask"
+  args?: unknown[]; // Array of arguments (can include @item.* references)
+  params?: Record<string, unknown>; // Named parameters (can include @item.* references)
+}
+
+export type ActionConfig = SetAction | CallAction | string;
+
 export interface ComponentConfig {
   type: string;
   props?: Record<string, unknown>;
