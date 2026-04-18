@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 
 interface ControlledInputProps {
   value: string;
-  onChange?: (value: string) => void;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur?: () => void;
   placeholder?: string;
   style?: React.CSSProperties;

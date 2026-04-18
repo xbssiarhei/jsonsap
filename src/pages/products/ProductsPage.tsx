@@ -52,14 +52,14 @@ const store: StoreConfig<ProductsState> = {
     setPriceThreshold: (state, _e: unknown, value: number) => {
       state.priceThreshold = value;
     },
-    deleteProduct: (state, _e: unknown, _item: unknown) => {
-      const index = state.products.findIndex((p) => p.id === _item.id);
+    deleteProduct: (state, _e: unknown, productId: number) => {
+      const index = state.products.findIndex((p) => p.id === productId);
       if (index !== -1) {
         state.products.splice(index, 1);
       }
     },
-    startEdit: (state, _e: unknown, _item: unknown) => {
-      state.editingId = _item.id;
+    startEdit: (state, _e: unknown, productId: number) => {
+      state.editingId = productId;
     },
     cancelEdit: (state) => {
       state.editingId = null;
@@ -79,7 +79,6 @@ const store: StoreConfig<ProductsState> = {
     updateProductName: (
       state,
       e: { target: { value: unknown } },
-      _item: unknown,
       id: number,
     ) => {
       const product = state.products.find((p) => p.id === id);
@@ -90,7 +89,6 @@ const store: StoreConfig<ProductsState> = {
     updateProductCategory: (
       state,
       e: { target: { value: unknown } },
-      _item: unknown,
       id: number,
     ) => {
       const product = state.products.find((p) => p.id === id);
@@ -101,10 +99,9 @@ const store: StoreConfig<ProductsState> = {
     updateProductPrice: (
       state,
       e: { target: { value: unknown } },
-      _item: unknown,
-      // id: number,
+      id: number,
     ) => {
-      const product = state.products.find((p) => p.id === _item.id);
+      const product = state.products.find((p) => p.id === id);
       if (product) {
         product.price = Number(e.target.value);
       }
@@ -112,10 +109,9 @@ const store: StoreConfig<ProductsState> = {
     updateProductRating: (
       state,
       e: { target: { value: unknown } },
-      _item: unknown,
-      // id: number,
+      id: number,
     ) => {
-      const product = state.products.find((p) => p.id === _item.id);
+      const product = state.products.find((p) => p.id === id);
       if (product) {
         product.rating = Number(e.target.value);
       }
@@ -786,16 +782,19 @@ export const productsPageConfig: AppConfig<ProductsState> = {
                             type: "ControlledInput",
                             props: {
                               value: "@item.name",
-                              onChange: "@store.actions.updateProductName",
-                              item: "@item",
+                              onChange: {
+                                $action: "call",
+                                name: "updateProductName",
+                                args: ["@item.id"],
+                              },
                             },
                             modifiers: [
                               {
                                 conditions: [
                                   {
-                                    path: "item.id",
+                                    value: "@item.id",
                                     operator: "notEquals",
-                                    value: "@store.state.editingId",
+                                    path: "@store.state.editingId",
                                   },
                                 ],
                                 props: {
@@ -838,16 +837,19 @@ export const productsPageConfig: AppConfig<ProductsState> = {
                             type: "ControlledInput",
                             props: {
                               value: "@item.category",
-                              onChange: "@store.actions.updateProductCategory",
-                              item: "@item",
+                              onChange: {
+                                $action: "call",
+                                name: "updateProductCategory",
+                                args: ["@item.id"],
+                              },
                             },
                             modifiers: [
                               {
                                 conditions: [
                                   {
-                                    path: "item.id",
+                                    path: "@store.state.editingId",
                                     operator: "notEquals",
-                                    value: "@store.state.editingId",
+                                    value: "@item.id",
                                   },
                                 ],
                                 props: {
@@ -891,16 +893,19 @@ export const productsPageConfig: AppConfig<ProductsState> = {
                             props: {
                               type: "number",
                               value: "@item.price",
-                              onChange: "@store.actions.updateProductPrice",
-                              item: "@item",
+                              onChange: {
+                                $action: "call",
+                                name: "updateProductPrice",
+                                args: ["@item.id"],
+                              },
                             },
                             modifiers: [
                               {
                                 conditions: [
                                   {
-                                    path: "item.id",
+                                    path: "@store.state.editingId",
                                     operator: "notEquals",
-                                    value: "@store.state.editingId",
+                                    value: "@item.id",
                                   },
                                 ],
                                 props: {
@@ -944,16 +949,19 @@ export const productsPageConfig: AppConfig<ProductsState> = {
                             props: {
                               type: "number",
                               value: "@item.rating",
-                              onChange: "@store.actions.updateProductRating",
-                              item: "@item",
+                              onChange: {
+                                $action: "call",
+                                name: "updateProductRating",
+                                args: ["@item.id"],
+                              },
                             },
                             modifiers: [
                               {
                                 conditions: [
                                   {
-                                    path: "item.id",
+                                    path: "@store.state.editingId",
                                     operator: "notEquals",
-                                    value: "@store.state.editingId",
+                                    value: "@item.id",
                                   },
                                 ],
                                 props: {
@@ -974,9 +982,9 @@ export const productsPageConfig: AppConfig<ProductsState> = {
                               {
                                 conditions: [
                                   {
-                                    path: "item.id",
+                                    path: "@store.state.editingId",
                                     operator: "equals",
-                                    value: "@store.state.editingId",
+                                    value: "@item.id",
                                   },
                                 ],
                                 props: {
@@ -992,49 +1000,6 @@ export const productsPageConfig: AppConfig<ProductsState> = {
                       {
                         type: "div",
                         children: [
-                          // {
-                          //   type: "span",
-                          //   props: {
-                          //     style: {
-                          //       padding: "2px 8px",
-                          //       borderRadius: "4px",
-                          //       fontSize: "12px",
-                          //     },
-                          //   },
-                          //   modifiers: [
-                          //     {
-                          //       conditions: [
-                          //         {
-                          //           path: "item.inStock",
-                          //           operator: "equals",
-                          //           value: true,
-                          //         },
-                          //       ],
-                          //       props: {
-                          //         style: {
-                          //           backgroundColor: "#d1fae5",
-                          //           color: "#065f46",
-                          //         },
-                          //       },
-                          //     },
-                          //     {
-                          //       conditions: [
-                          //         {
-                          //           path: "item.inStock",
-                          //           operator: "equals",
-                          //           value: false,
-                          //         },
-                          //       ],
-                          //       props: {
-                          //         style: {
-                          //           backgroundColor: "#fee2e2",
-                          //           color: "#991b1b",
-                          //         },
-                          //       },
-                          //     },
-                          //   ],
-                          //   children: "@item.inStock",
-                          // },
                           {
                             type: "Checkbox",
                             props: {
@@ -1058,22 +1023,20 @@ export const productsPageConfig: AppConfig<ProductsState> = {
                             props: {
                               variant: "outline",
                               size: "sm",
-                              // onClick: {
-                              //   $action: "set",
-                              //   path: "editingId",
-                              //   value: "@item.id",
-                              // },
-                              onClick: "@store.actions.startEdit",
-                              item: "@item",
+                              onClick: {
+                                $action: "call",
+                                name: "startEdit",
+                                args: ["@item.id"],
+                              },
                             },
                             children: "Edit",
                             modifiers: [
                               {
                                 conditions: [
                                   {
-                                    path: "item.id",
+                                    path: "@store.state.editingId",
                                     operator: "equals",
-                                    value: "@store.state.editingId",
+                                    value: "@item.id",
                                   },
                                 ],
                                 props: {
@@ -1119,8 +1082,11 @@ export const productsPageConfig: AppConfig<ProductsState> = {
                             props: {
                               variant: "destructive",
                               size: "sm",
-                              onClick: "@store.actions.deleteProduct",
-                              item: "@item",
+                              onClick: {
+                                $action: "call",
+                                name: "deleteProduct",
+                                args: ["@item.id"],
+                              },
                             },
                             children: "Delete",
                           },
