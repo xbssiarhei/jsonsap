@@ -14,6 +14,7 @@ import { resolveChildren, useResolvedConfig } from "./resolver";
 import { applyModifiers, applyModifiers2 } from "./modifiers";
 import type { StoreInstance } from "./types";
 import { Spinner } from "@/components/ui/spinner";
+import { proxy, useSnapshot } from "valtio";
 
 interface JsonRendererProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -22,14 +23,19 @@ interface JsonRendererProps {
   store?: unknown;
 }
 
-export function JsonRenderer({
+interface JsonRendererRootProps extends JsonRendererProps {
+  config: AppConfig<any>;
+}
+
+const emptyProxy = proxy({});
+
+export function JsonRendererRoot({
   config,
   context = {},
-  // store
-}: JsonRendererProps): ReactElement | null {
-  // Check if config has store (AppConfig) or is just ComponentConfig
-  const isAppConfig = "ui" in config || "store" in config;
+}: JsonRendererRootProps): ReactElement | null {
   const [store, setStore] = useState<StoreInstance | null>(null);
+  const state = useSnapshot(store ? store.state : emptyProxy);
+  const mapVersion = state?.mapVersion;
 
   useEffect(() => {
     const appConfig = config as AppConfig<Record<string, unknown>>;
@@ -38,28 +44,23 @@ export function JsonRenderer({
         setStore(storeInstance);
       });
     }
-  }, []);
+  }, [mapVersion]);
 
-  if (isAppConfig) {
-    const appConfig = config as AppConfig<Record<string, unknown>>;
-
-    // Create store if provided
-    if (appConfig.store) {
-      if (!store) {
-        return <Spinner />;
-      }
-
-      return (
-        <StoreProvider store={store}>
-          <JsonRendererInternal config={appConfig.ui} context={context} />
-        </StoreProvider>
-      );
-    }
-
-    // No store, just render UI
-    return <JsonRendererInternal config={appConfig.ui} context={context} />;
+  if (!store) {
+    return <Spinner />;
   }
+  return (
+    <StoreProvider store={store}>
+      <JsonRenderer config={config.ui} context={context} />
+    </StoreProvider>
+  );
+}
 
+export function JsonRenderer({
+  config,
+  context = {},
+  // store
+}: JsonRendererProps): ReactElement | null {
   // Legacy: direct ComponentConfig
   return (
     <JsonRendererInternal
@@ -68,6 +69,8 @@ export function JsonRenderer({
     />
   );
 }
+
+JsonRenderer.Root = JsonRendererRoot;
 
 interface JsonRendererInternalProps {
   config: ComponentConfig;
@@ -121,7 +124,6 @@ function renderComponent(
     modifiedConfig.children &&
     String(modifiedConfig.children).includes("@store")
   ) {
-    console.log(modifiedConfig);
     modifiedConfig.children = resolveChildren(
       modifiedConfig.children,
       context.store as StoreInstance,

@@ -24,6 +24,7 @@ export const storeWithArray = proxy<{
 export const proxyStore = proxy({
   map: 0,
   array: 0,
+  delay: 100,
 });
 
 // Initialize data

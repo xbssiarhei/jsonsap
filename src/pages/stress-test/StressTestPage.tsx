@@ -9,6 +9,7 @@ import { wrapperPlugin } from "../../lib/plugins/wrapper";
 import { StressTestItem } from "./components/StressTestItem";
 import { NumericRoller } from "../../components/roller";
 import modifiers from "@/modifiers";
+import { proxy } from "valtio";
 
 // Register page-specific components
 componentRegistry.register("StressTestItem", StressTestItem);
@@ -18,52 +19,73 @@ componentRegistry.register("NumericRoller", NumericRoller);
 pluginRegistry.register(loggerPlugin);
 pluginRegistry.register(wrapperPlugin);
 
-// Generate n items
+/**
+ * Generate n items as a Map with proxy-wrapped values
+ * Each item is wrapped in proxy() for Valtio reactivity
+ *
+ * @param count - Number of items to generate
+ * @returns Map of items with numeric keys
+ */
 const generateItems = (count: number) => {
-  return Array.from({ length: count }, (_, i) => ({
-    id: i + 1,
-    value: Math.floor(Math.random() * 100),
-    status: Math.random() > 0.5 ? "active" : "inactive",
-    lastUpdate: Date.now(),
-  }));
+  return new Map(
+    Array.from({ length: count }, (_, i) => [
+      i + 1,
+      proxy({
+        id: i + 1,
+        value: Math.floor(Math.random() * 100),
+        status: Math.random() > 0.5 ? "active" : "inactive",
+        lastUpdate: Date.now(),
+      }),
+    ]),
+  );
 };
 
+type Item = { id: number; value: number; status: string; lastUpdate: number };
+
+/**
+ * Stress test state structure
+ * Uses Map for items to enable selective re-rendering with Valtio
+ */
 type StressState = {
-  items: Array<{
-    id: number;
-    value: number;
-    status: string;
-    lastUpdate: number;
-  }>;
+  items: Map<number, Item>;
   isRunning: boolean;
   updateCount: number;
   intervalId: number | null;
   threshold: number;
+  mapVersion: number; // Incremented when Map is cleared/refilled to trigger Repeater2 re-render
 };
 
 const COUNT_ITEMS = 42;
 
 const store: StoreConfig<StressState> = {
-  state: {
+  state: proxy({
     items: generateItems(COUNT_ITEMS),
     isRunning: false,
     updateCount: 0,
     intervalId: null as number | null,
     threshold: 75,
-  },
+    mapVersion: 0, // Tracks Map replacements - increment to force Repeater2 re-render
+    _isProxy: true,
+  }),
   actions: {
     startStressTest: (state) => {
       if (state.isRunning) return;
 
       state.isRunning = true;
+      const ids = Array.from(state.items.keys());
 
-      // Update random item every second
+      // Update random item every 500ms
       const id = setInterval(() => {
-        const randomIndex = Math.floor(Math.random() * state.items.length);
-        state.items[randomIndex].value = Math.floor(Math.random() * 100);
-        state.items[randomIndex].lastUpdate = Date.now();
-        state.items[randomIndex].status =
-          Math.random() > 0.5 ? "active" : "inactive";
+        const randomIndex = Math.floor(Math.random() * ids.length);
+        const id = ids[randomIndex];
+        const item = state.items.get(id);
+        if (!item) {
+          return;
+        }
+        // Mutate item properties directly - Valtio tracks changes
+        item.value = Math.floor(Math.random() * 100);
+        item.lastUpdate = Date.now();
+        item.status = Math.random() > 0.5 ? "active" : "inactive";
         state.updateCount++;
       }, 500);
 
@@ -80,18 +102,31 @@ const store: StoreConfig<StressState> = {
       state.isRunning = false;
     },
     resetItems: (state) => {
-      state.items = generateItems(COUNT_ITEMS);
+      // Clear existing Map and add new items
+      // This approach maintains the same Map reference for Valtio tracking
+      state.items.clear();
+      const newItems = generateItems(10);
+      newItems.forEach((item, id) => {
+        state.items.set(id, item);
+      });
       state.updateCount = 0;
+      // Increment mapVersion to signal Repeater2 that Map contents changed
+      state.mapVersion++;
     },
   },
   computed: {
     activeCount: (state) =>
-      state.items.filter((item) => item.status === "active").length,
+      Array.from(state.items.values()).filter(
+        (item) => item.status === "active",
+      ).length,
     inactiveCount: (state) =>
-      state.items.filter((item) => item.status === "inactive").length,
+      Array.from(state.items.values()).filter(
+        (item) => item.status === "inactive",
+      ).length,
     averageValue: (state) => {
-      const sum = state.items.reduce((acc, item) => acc + item.value, 0);
-      return Math.round(sum / state.items.length);
+      const items = Array.from(state.items.values());
+      const sum = items.reduce((acc, item) => acc + item.value, 0);
+      return Math.round(sum / items.length);
     },
   },
 };
@@ -163,11 +198,14 @@ export const stressTestPageConfig: AppConfig<StressState> = {
                       variant: "default",
                       onClick: "@store.actions.startStressTest",
                     },
-                    modifiers: [
+                    modifiers2: [
                       {
                         conditions: [
                           {
-                            path: "@store.state.isRunning",
+                            store: {
+                              store: `@store/state/`,
+                              path: "isRunning",
+                            },
                             operator: "equals",
                             value: true,
                           },
@@ -185,11 +223,14 @@ export const stressTestPageConfig: AppConfig<StressState> = {
                       variant: "outline",
                       onClick: "@store.actions.stopStressTest",
                     },
-                    modifiers: [
+                    modifiers2: [
                       {
                         conditions: [
                           {
-                            path: "@store.state.isRunning",
+                            store: {
+                              store: `@store/state/`,
+                              path: "isRunning",
+                            },
                             operator: "equals",
                             value: false,
                           },
