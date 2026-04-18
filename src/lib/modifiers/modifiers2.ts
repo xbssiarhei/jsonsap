@@ -2,21 +2,11 @@ import { useSnapshot } from "valtio";
 import { evaluateCondition, mergeProps } from "./utils";
 import type {
   ComponentConfig,
-  Modifier,
-  ModifierCondition,
+  Modifier2,
+  ModifierCondition2,
+  StoreRef,
   StoreInstance,
 } from "../types";
-
-// Store reference with path for reactive subscriptions
-interface StoreRef {
-  store: string; // Root proxy path (e.g., "@store/state")
-  path: string; // Path within the proxy (e.g., "threshold")
-}
-
-interface Condition extends Omit<ModifierCondition, "path" | "value"> {
-  store: StoreRef; // Changed from string to StoreRef
-  value: StoreRef | any; // Can be StoreRef or primitive value
-}
 
 /**
  * Checks if a modifier's conditions are met
@@ -26,14 +16,14 @@ interface Condition extends Omit<ModifierCondition, "path" | "value"> {
  * @returns true if conditions match, false otherwise
  */
 function checkModifier(
-  modifier: Modifier,
-  props: Record<string, unknown>,
+  modifier: Modifier2,
+  _props: Record<string, unknown>,
   reactiveSnapshots: Record<string, any> | null,
 ): boolean {
   const { conditions, matchAll = true } = modifier;
 
   // Evaluate each condition against reactive snapshot data
-  const iteration = (condition: Condition): boolean => {
+  const iteration = (condition: ModifierCondition2): boolean => {
     // Get the reactive snapshot for the store root
     const storeSnapshot = reactiveSnapshots?.[condition.store.store];
     if (!storeSnapshot) return false;
@@ -46,11 +36,12 @@ function checkModifier(
 
     // Resolve the expected value
     let expectedValue;
-    if (typeof condition.value === "object" && condition.value.store) {
+    if (typeof condition.value === "object" && condition.value !== null && "store" in condition.value) {
       // Value is a StoreRef - get from reactive snapshot
-      const valueSnapshot = reactiveSnapshots?.[condition.value.store];
+      const valueStoreRef = condition.value as StoreRef;
+      const valueSnapshot = reactiveSnapshots?.[valueStoreRef.store];
       expectedValue = valueSnapshot
-        ? getNestedValue(valueSnapshot, condition.value.path.split("."))
+        ? getNestedValue(valueSnapshot, valueStoreRef.path.split("."))
         : undefined;
     } else {
       // Value is a primitive
@@ -139,7 +130,7 @@ export function applyModifiers2(
 
   config.modifiers2.forEach((modifier) => {
     const { conditions } = modifier;
-    conditions.forEach((condition: Condition) => {
+    conditions.forEach((condition: ModifierCondition2) => {
       // Handle condition.store reference
       if (condition.store?.store?.startsWith("@store/")) {
         const rootPath = condition.store.store;
@@ -154,8 +145,9 @@ export function applyModifiers2(
       }
 
       // Handle condition.value reference (if it's a StoreRef)
-      if (condition.value?.store?.startsWith?.("@store/")) {
-        const rootPath = condition.value.store;
+      if (typeof condition.value === "object" && condition.value !== null && "store" in condition.value) {
+        const valueStoreRef = condition.value as StoreRef;
+        const rootPath = valueStoreRef.store;
         if (!snapshots[rootPath]) {
           const path = rootPath.substring(7);
           const parts = path.split("/");

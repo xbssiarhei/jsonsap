@@ -1,4 +1,4 @@
-import { componentRegistry, type AppConfig, type StoreConfig } from "../../lib";
+import { type AppConfig, type StoreConfig } from "../../lib";
 
 // Kanban task type
 type Task = {

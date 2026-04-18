@@ -2,12 +2,6 @@ import { useSnapshot } from "valtio";
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "../../../components/ui/card";
 
-interface ItemCardProps {
-  id: number;
-  store: any;
-  type: "map" | "array";
-}
-
 /**
  * MapItem - Renders a single item from Map store
  * Uses useSnapshot on individual item for selective re-rendering

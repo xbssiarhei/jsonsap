@@ -203,7 +203,7 @@ export const stressTestPageConfig: AppConfig<StressState> = {
                         conditions: [
                           {
                             store: {
-                              store: `@store/state/`,
+                              store: "@store/state",
                               path: "isRunning",
                             },
                             operator: "equals",
@@ -228,7 +228,7 @@ export const stressTestPageConfig: AppConfig<StressState> = {
                         conditions: [
                           {
                             store: {
-                              store: `@store/state/`,
+                              store: "@store/state",
                               path: "isRunning",
                             },
                             operator: "equals",

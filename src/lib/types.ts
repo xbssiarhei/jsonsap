@@ -12,6 +12,25 @@ export interface Modifier {
   matchAll?: boolean; // true = AND logic, false = OR logic (default: true)
 }
 
+// Store reference for modifiers2 reactive subscriptions
+export interface StoreRef {
+  store: string; // Root proxy path (e.g., "@store/state")
+  path: string; // Path within the proxy (e.g., "threshold")
+}
+
+// Condition type for modifiers2 with reactive store references
+export interface ModifierCondition2 {
+  store: StoreRef; // Store reference for reactive subscription
+  operator: "equals" | "notEquals" | "greaterThan" | "lessThan" | "contains";
+  value: StoreRef | unknown; // Can be StoreRef or primitive value
+}
+
+export interface Modifier2 {
+  conditions: ModifierCondition2[];
+  props: Record<string, unknown>; // Props to merge when conditions match
+  matchAll?: boolean; // true = AND logic, false = OR logic (default: true)
+}
+
 export interface SetAction {
   $action: "set";
   store?: string; // Optional store name (for future multi-store support)
@@ -34,8 +53,8 @@ export interface ComponentConfig {
   props?: Record<string, unknown>;
   children?: ComponentConfig[] | ComponentConfig | string | number;
   plugins?: string[];
-  modifiers?: Modifier[]; // Conditional prop modifications
-  modifiers2?: Modifier[]; // Conditional prop modifications
+  modifiers?: Modifier[]; // Conditional prop modifications (old format)
+  modifiers2?: Modifier2[]; // Conditional prop modifications (new reactive format)
 }
 
 export interface PluginContext {

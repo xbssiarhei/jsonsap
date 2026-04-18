@@ -58,7 +58,7 @@ export function resolveStoreReferences(
   config: ComponentConfig,
   store: StoreInstance,
 ): ComponentConfig {
-  const { props, children, ...rest } = config;
+  const { props, children } = config;
   const resolved = { ...config };
   // const resolved = resolveObject(rest, store) as unknown as ComponentConfig;
 
@@ -243,7 +243,7 @@ function createCallActionHandler(
 function createSetActionHandler(
   action: SetAction,
   store: StoreInstance,
-  obj: Record<string, unknown>,
+  _obj: Record<string, unknown>,
 ) {
   return (e?: {
     target?: { value: unknown; checked?: boolean; type?: string };

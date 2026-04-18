@@ -1,8 +1,4 @@
-import {
-  pluginRegistry,
-  type StoreConfig,
-  type AppConfig,
-} from "../../lib";
+import { pluginRegistry, type StoreConfig, type AppConfig } from "../../lib";
 import { loggerPlugin } from "../../lib/plugins/logger";
 import { wrapperPlugin } from "../../lib/plugins/wrapper";
 
@@ -146,7 +142,10 @@ export const apiPageConfig: AppConfig<ApiState> = {
                 type: "Button",
                 props: {
                   variant: "default",
-                  onClick: "@store.actions.fetchPosts",
+                  onClick: {
+                    $action: "call",
+                    name: "fetchPosts",
+                  },
                 },
                 children: "Load Posts",
               },
@@ -154,7 +153,10 @@ export const apiPageConfig: AppConfig<ApiState> = {
                 type: "Button",
                 props: {
                   variant: "outline",
-                  onClick: "@store.actions.fetchUsers",
+                  onClick: {
+                    $action: "call",
+                    name: "fetchUsers",
+                  },
                 },
                 children: "Load Users",
               },
@@ -224,18 +226,12 @@ export const apiPageConfig: AppConfig<ApiState> = {
                         cursor: "pointer",
                         transition: "all 0.2s",
                       },
-                      onClick: "@store.actions.selectUser",
-                      item: "@item.id",
+                      onClick: {
+                        $action: "call",
+                        name: "selectUser",
+                        args: ["@item.id"],
+                      },
                     },
-                    // actionPass: {
-                    //   onClick: "@item.id",
-                    // },
-                    // actions: {
-                    //   onClick: {
-                    //     action: "@store.actions.selectUser",
-                    //     pass: "@item.id",
-                    //   },
-                    // },
                     modifiers: [
                       {
                         conditions: [

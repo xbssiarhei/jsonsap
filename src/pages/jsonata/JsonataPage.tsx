@@ -77,33 +77,6 @@ const store: StoreConfig<JsonataState> = {
       state.error = "";
       updateCategoryData(state);
     },
-    setPresetQuery: async (
-      state,
-      _e: unknown,
-      _item: unknown,
-      query: string,
-    ) => {
-      try {
-        if (query === undefined) {
-          throw Error("Query is undefined");
-        }
-        state.query = query;
-        const expression = jsonata(query);
-        const result = await expression.evaluate(state.products);
-        state.filteredProducts = Array.isArray(result)
-          ? result
-          : result
-            ? [result]
-            : [];
-        state.error = "";
-        updateCategoryData(state);
-      } catch (err) {
-        state.error =
-          err instanceof Error ? err.message : "Invalid JSONata query";
-        state.filteredProducts = [];
-        state.categoryData = [];
-      }
-    },
   },
   computed: {
     resultCount: (state) => state.filteredProducts.length,

@@ -35,7 +35,7 @@ export function JsonRendererRoot({
 }: JsonRendererRootProps): ReactElement | null {
   const [store, setStore] = useState<StoreInstance | null>(null);
   const state = useSnapshot(store ? store.state : emptyProxy);
-  const mapVersion = state?.mapVersion;
+  const mapVersion = (state as any)?.mapVersion;
 
   useEffect(() => {
     const appConfig = config as AppConfig<Record<string, unknown>>;
