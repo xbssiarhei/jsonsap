@@ -1,4 +1,10 @@
-export default {
+import type { Modifier2 } from "@/lib/types";
+
+type ModifiersDict = {
+  [key: string]: (...args: any) => Modifier2;
+};
+
+const modifiers: ModifiersDict = {
   byLastUpdate: (path: string) => ({
     conditions: [
       {
@@ -54,3 +60,5 @@ export default {
     },
   }),
 };
+
+export default modifiers;

@@ -55,7 +55,7 @@ export const repeaterPlugin: Plugin<RepeaterConfig> = {
     // v1: { props: { items: [...], template: {...} } }
     // v2: { store: "@store.state.items", template: {...} }
     if (config?.props?.items && config?.props?.template) {
-      config.store = config.props.items;
+      config.store = config.props.items as string;
       config.template = config.props.template as ComponentConfig;
 
       // Optionally clean up old props (commented out to maintain backward compatibility)

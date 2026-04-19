@@ -55,6 +55,8 @@ export interface ComponentConfig {
   plugins?: string[];
   modifiers?: Modifier[] | Modifier | string | string[]; // Can be inline, reference, or array
   modifiers2?: Modifier2[]; // Conditional prop modifications (new reactive format)
+  store?: string; // For Repeater2: @store.* path to data
+  template?: ComponentConfig; // For Repeater2: template config
 }
 
 export interface PluginContext {

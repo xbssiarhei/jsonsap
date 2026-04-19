@@ -193,11 +193,11 @@ function renderComponent(
   let element = createElement(Component, finalProps, renderedChildren);
 
   // Execute afterRender plugins
-  if (config.plugins && config.plugins.length > 0) {
+  if (modifiedConfig.plugins && modifiedConfig.plugins.length > 0) {
     element = pluginRegistry.executeAfterRender(
       element,
       modifiedConfig,
-      config.plugins,
+      modifiedConfig.plugins,
       context,
     );
   }
