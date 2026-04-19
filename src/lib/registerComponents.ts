@@ -18,7 +18,8 @@ import {
 } from "../components/ui/chart";
 import { Input } from "../components/ui/input";
 import { Checkbox } from "../components/ui/checkbox";
-import { Repeater, Repeater2 } from "./components/Repeater";
+import { Repeater } from "./components/Repeater";
+import { Repeater2 } from "./components/Repeater2";
 import { ControlledInput } from "./components/ControlledInput";
 import { componentRegistry } from "./registry";
 import {
