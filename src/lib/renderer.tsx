@@ -109,22 +109,48 @@ function renderComponent(
     return null;
   }
 
-  // Execute beforeRender plugins
+  // Get component metadata from registry
+  const metadata = componentRegistry.get(config.type);
+  if (!metadata || !metadata.component) {
+    console.warn(`Component "${config.type}" not found in registry`);
+    return null;
+  }
+
+  // Auto-inject required plugins if not already present
   let modifiedConfig = config;
-  if (config.plugins && config.plugins.length > 0) {
+  if (metadata.requiredPlugins && metadata.requiredPlugins.length > 0) {
+    const currentPlugins = config.plugins || [];
+    const missingPlugins = metadata.requiredPlugins.filter(
+      (plugin) => !currentPlugins.includes(plugin),
+    );
+
+    if (missingPlugins.length > 0) {
+      modifiedConfig = {
+        ...config,
+        plugins: [...currentPlugins, ...missingPlugins],
+      };
+
+      // Log in development mode
+      if (import.meta.env.DEV) {
+        console.info(
+          `[${config.type}] Auto-injecting required plugins:`,
+          missingPlugins,
+        );
+      }
+    }
+  }
+
+  // Execute beforeRender plugins
+  if (modifiedConfig.plugins && modifiedConfig.plugins.length > 0) {
     modifiedConfig = pluginRegistry.executeBeforeRender(
-      config,
-      config.plugins,
+      modifiedConfig,
+      modifiedConfig.plugins,
       context,
     );
   }
 
-  // Get component from registry
-  const Component = componentRegistry.get(modifiedConfig.type);
-  if (!Component) {
-    console.warn(`Component "${modifiedConfig.type}" not found in registry`);
-    return null;
-  }
+  // Get component from metadata (already validated above)
+  const Component = metadata.component;
 
   if (
     modifiedConfig.children &&

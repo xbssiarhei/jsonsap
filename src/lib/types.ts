@@ -80,7 +80,12 @@ export interface Plugin<T = object> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type LibComponent<P = any> = ComponentType<P> | string | undefined;
 
-export type ComponentRegistry = Map<string, LibComponent>;
+export interface ComponentMetadata {
+  component: LibComponent;
+  requiredPlugins?: string[];
+}
+
+export type ComponentRegistry = Map<string, ComponentMetadata>;
 export type PluginRegistry = Map<string, Plugin>;
 
 export type DefaultState = Record<string, unknown>;

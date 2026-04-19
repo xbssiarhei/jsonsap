@@ -15,11 +15,12 @@ import Layout from "./Layout";
 
 function App() {
   const pathname = window.location.pathname;
-  const basename = pathname
-    ? pathname.endsWith("/")
-      ? pathname.slice(0, -1)
-      : pathname
-    : "/";
+  const basename =
+    pathname && !import.meta.env.DEV
+      ? pathname.endsWith("/")
+        ? pathname.slice(0, -1)
+        : pathname
+      : "/";
   return (
     <BrowserRouter basename={basename}>
       <Routes>

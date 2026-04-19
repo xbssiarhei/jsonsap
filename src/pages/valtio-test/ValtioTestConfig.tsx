@@ -30,7 +30,6 @@ const column = (state: string) => {
         children: [
           {
             type: "Repeater2",
-            plugins: ["repeater"],
             store: `@store.state.${state}.items`,
             template: {
               type: "Card",

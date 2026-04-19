@@ -1,14 +1,24 @@
 // import type { ComponentType } from "react";
-import type { ComponentRegistry, LibComponent } from "./types";
+import type { ComponentRegistry, LibComponent, ComponentMetadata } from "./types";
 
 class Registry {
   private components: ComponentRegistry = new Map();
 
-  register(name: string, component: LibComponent): void {
-    this.components.set(name, component);
+  // Overload signatures for backward compatibility
+  register(name: string, component: LibComponent): void;
+  register(name: string, component: LibComponent, options: { requiredPlugins?: string[] }): void;
+  register(
+    name: string,
+    component: LibComponent,
+    options?: { requiredPlugins?: string[] }
+  ): void {
+    this.components.set(name, {
+      component,
+      requiredPlugins: options?.requiredPlugins,
+    });
   }
 
-  get(name: string): LibComponent | undefined {
+  get(name: string): ComponentMetadata | undefined {
     return this.components.get(name);
   }
 

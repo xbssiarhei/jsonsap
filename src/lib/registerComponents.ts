@@ -68,7 +68,9 @@ export function registerCommonComponents() {
 
   // Library Components
   componentRegistry.register("Repeater", Repeater);
-  componentRegistry.register("Repeater2", Repeater2);
+  componentRegistry.register("Repeater2", Repeater2, {
+    requiredPlugins: ["repeater"]
+  });
 
   // HTML Elements
   componentRegistry.register("div", "div");

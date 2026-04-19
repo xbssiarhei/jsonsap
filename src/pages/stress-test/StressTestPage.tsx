@@ -15,7 +15,7 @@ import { proxy } from "valtio";
 componentRegistry.register("StressTestItem", StressTestItem);
 componentRegistry.register("NumericRoller", NumericRoller);
 
-// Register plugins (autoBind and repeater are already registered globally)
+// Register plugins
 pluginRegistry.register(loggerPlugin);
 pluginRegistry.register(wrapperPlugin);
 
@@ -313,7 +313,6 @@ export const stressTestPageConfig: AppConfig<StressState> = {
         children: [
           {
             type: "Repeater2",
-            plugins: ["repeater"],
             // store: "@store.state.items",
             props: {
               items: "@store.state.items",
