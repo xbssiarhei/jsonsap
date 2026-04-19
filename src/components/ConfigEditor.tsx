@@ -9,8 +9,8 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import { Button } from "./ui/button";
-import { Textarea } from "./ui/textarea";
 import type { AppConfig } from "../lib/types";
+import { Editor } from "./Editor";
 
 interface ConfigEditorProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -61,7 +61,7 @@ export function ConfigEditor({ config, onConfigChange }: ConfigEditorProps) {
           Edit Config
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-4/5 max-h-[80vh] sm:max-w-4/5">
+      <DialogContent className="max-w-4/5 max-h-[90vh] sm:max-w-4/5">
         <DialogHeader>
           <DialogTitle>Edit UI Configuration</DialogTitle>
           <DialogDescription>
@@ -69,14 +69,9 @@ export function ConfigEditor({ config, onConfigChange }: ConfigEditorProps) {
             immediately.
           </DialogDescription>
         </DialogHeader>
-        <div className="-mx-4 no-scrollbar max-h-[50vh] overflow-y-auto px-4">
+        <div className="-mx-4 no-scrollbar max-h-[90vh] overflow-y-auto px-4">
           <div className="flex flex-col gap-4">
-            <Textarea
-              value={jsonText}
-              onChange={(e) => setJsonText(e.target.value)}
-              className="font-mono text-xs min-h-100"
-              placeholder="Enter JSON configuration..."
-            />
+            <Editor value={jsonText} onChange={(value) => setJsonText(value)} />
             {error && (
               <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">
                 {error}
