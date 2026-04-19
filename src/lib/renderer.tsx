@@ -10,11 +10,13 @@ import { componentRegistry } from "./registry";
 import { pluginRegistry } from "./plugins";
 import { createStore } from "./store";
 import { StoreProvider, useStore } from "./StoreProvider";
+import { SharedProvider } from "./SharedContext";
 import { resolveChildren, useResolvedConfig } from "./resolver";
 import { applyModifiers, applyModifiers2 } from "./modifiers";
 import type { StoreInstance } from "./types";
 import { Spinner } from "@/components/ui/spinner";
 import { proxy, useSnapshot } from "valtio";
+import { resolveSharedReferences } from "./sharedResolver";
 
 interface JsonRendererProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -49,16 +51,14 @@ export function JsonRendererRoot({
   if (!store) {
     return <Spinner />;
   }
+  // resolve all shared references
+  const resolvedConfig = resolveSharedReferences(config, config.shared);
   return (
-    <StoreProvider store={store}>
-      <JsonRenderer
-        config={config.ui}
-        context={{
-          ...context,
-          appConfig: config, // Pass entire AppConfig
-        }}
-      />
-    </StoreProvider>
+    <SharedProvider shared={resolvedConfig.shared}>
+      <StoreProvider store={store}>
+        <JsonRenderer config={resolvedConfig.ui} context={context} />
+      </StoreProvider>
+    </SharedProvider>
   );
 }
 
@@ -148,8 +148,12 @@ function renderComponent(
   const finalProps1 = applyModifiers(
     modifiedConfig,
     store as unknown as StoreInstance,
-    context.appConfig, // Pass appConfig for shared resolver
   );
+
+  // should hide element
+  if (finalProps1.hide) {
+    return null;
+  }
 
   const finalProps = applyModifiers2(
     {

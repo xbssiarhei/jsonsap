@@ -1,5 +1,10 @@
 import { useSnapshot } from "valtio";
-import type { ComponentConfig, StoreInstance, SetAction, CallAction } from "./types";
+import type {
+  ComponentConfig,
+  StoreInstance,
+  SetAction,
+  CallAction,
+} from "./types";
 
 /**
  * Check if value is a SetAction object
@@ -31,18 +36,28 @@ function isCallAction(value: unknown): value is CallAction {
  * Check if SetAction contains @item.* references (should be resolved by Repeater first)
  */
 function hasItemReferences(action: SetAction | CallAction): boolean {
-  if ("value" in action && typeof action.value === "string" && action.value.includes("@item.")) {
+  if (
+    "value" in action &&
+    typeof action.value === "string" &&
+    action.value.includes("@item.")
+  ) {
     return true;
   }
-  if ("path" in action && typeof action.path === "string" && action.path.includes("@item.")) {
+  if (
+    "path" in action &&
+    typeof action.path === "string" &&
+    action.path.includes("@item.")
+  ) {
     return true;
   }
   if ("args" in action && Array.isArray(action.args)) {
-    return action.args.some(arg => typeof arg === "string" && arg.includes("@item."));
+    return action.args.some(
+      (arg) => typeof arg === "string" && arg.includes("@item."),
+    );
   }
   if ("params" in action && typeof action.params === "object") {
     return Object.values(action.params || {}).some(
-      val => typeof val === "string" && val.includes("@item.")
+      (val) => typeof val === "string" && val.includes("@item."),
     );
   }
   return false;
@@ -60,7 +75,6 @@ export function resolveStoreReferences(
 ): ComponentConfig {
   const { props, children } = config;
   const resolved = { ...config };
-  // const resolved = resolveObject(rest, store) as unknown as ComponentConfig;
 
   // Resolve props
   if (props && config.type !== "Repeater2") {
@@ -210,11 +224,10 @@ function resolveObject(
  * Creates a handler for CallAction
  * Supports both args array and params object
  */
-function createCallActionHandler(
-  action: CallAction,
-  store: StoreInstance,
-) {
-  return (e?: { target?: { value: unknown; checked?: boolean; type?: string } }) => {
+function createCallActionHandler(action: CallAction, store: StoreInstance) {
+  return (e?: {
+    target?: { value: unknown; checked?: boolean; type?: string };
+  }) => {
     const actionFn = store.actions[action.name];
     if (!actionFn) {
       console.warn(`Action "${action.name}" not found in store`);

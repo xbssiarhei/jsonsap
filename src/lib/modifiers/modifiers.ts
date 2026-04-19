@@ -1,8 +1,9 @@
 import { evaluateCondition, mergeProps, resolveValue } from "./utils";
-import type { Modifier, ComponentConfig, AppConfig } from "../types";
+import type { Modifier, ComponentConfig } from "../types";
 import type { StoreInstance } from "../types";
 import { useSnapshot } from "valtio";
-import { resolveModifiers } from "../sharedResolver";
+// import { resolveModifiers } from "../sharedResolver";
+// import { useShared } from "../SharedContext";
 
 /**
  * Checks if a modifier's conditions are met
@@ -18,12 +19,10 @@ function checkModifier(
   if (matchAll) {
     // AND logic: all conditions must match
     return conditions.every((condition) => {
-      const value = resolveValue(
-        condition.path,
-        props,
-        stateSnapshot,
-        computedSnapshot,
-      );
+      const value =
+        typeof condition.path === "string"
+          ? resolveValue(condition.path, props, stateSnapshot, computedSnapshot)
+          : condition.path;
       // Resolve condition.value if it's a store reference
       const expectedValue =
         typeof condition.value === "string" &&
@@ -68,7 +67,6 @@ function checkModifier(
 export function applyModifiers(
   config: ComponentConfig,
   store: StoreInstance | null,
-  appConfig?: AppConfig<any>,
 ): Record<string, unknown> {
   const baseProps = config.props || {};
 
@@ -76,10 +74,15 @@ export function applyModifiers(
     return baseProps;
   }
 
-  // Resolve modifier references using shared resolver
-  const resolvedModifiers = resolveModifiers(config.modifiers, appConfig);
+  // Get shared data from context
+  // const shared = useShared();
 
-  if (resolvedModifiers.length === 0) {
+  // Resolve modifier references using shared resolver
+  // const resolvedModifiers = resolveModifiers(config.modifiers, shared);
+  // const resolvedModifiers = resolveModifiers(config.modifiers);
+  const resolvedModifiers = config.modifiers as Modifier[] | undefined;
+
+  if (!resolvedModifiers || resolvedModifiers.length === 0) {
     return baseProps;
   }
 
@@ -99,13 +102,27 @@ export function applyModifiers(
   // Apply each matching modifier
   for (const modifier of resolvedModifiers) {
     // Type guard: only apply Modifier (not Modifier2)
-    if ('conditions' in modifier && modifier.conditions.length > 0) {
+    if (
+      modifier &&
+      "conditions" in modifier &&
+      modifier.conditions.length > 0
+    ) {
       const firstCondition = modifier.conditions[0];
       // Check if it's Modifier (has 'path') or Modifier2 (has 'store')
-      if ('path' in firstCondition) {
+      if ("path" in firstCondition) {
         // It's a Modifier (old format)
-        if (checkModifier(modifier as Modifier, baseProps, stateSnapshot, computedSnapshot)) {
+        if (
+          checkModifier(
+            modifier as Modifier,
+            baseProps,
+            stateSnapshot,
+            computedSnapshot,
+          )
+        ) {
           modifiedProps = mergeProps(modifiedProps, modifier.props);
+          if (modifier.props.hide) {
+            break;
+          }
         }
       }
       // Skip Modifier2 - they should use modifiers2 field instead

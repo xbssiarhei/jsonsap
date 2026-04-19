@@ -1,7 +1,7 @@
 import type { AppConfig, Modifier, Modifier2 } from "./types";
 
 /**
- * Resolves @shared/* references from AppConfig
+ * Resolves @shared/* references from shared data
  * Pattern: @shared/category/name or @category/name (shorthand)
  *
  * Examples:
@@ -14,7 +14,7 @@ import type { AppConfig, Modifier, Modifier2 } from "./types";
  */
 export function resolveSharedReference(
   reference: string,
-  appConfig?: AppConfig<any>,
+  shared?: AppConfig<any>["shared"],
 ): any {
   if (!reference.startsWith("@")) {
     return reference;
@@ -31,17 +31,69 @@ export function resolveSharedReference(
 
   switch (category) {
     case "modifiers": {
-      const modifier = appConfig?.shared?.modifiers?.[name];
+      const modifier = shared?.modifiers?.[name];
       if (!modifier) {
         console.warn(`Modifier "${name}" not found in shared.modifiers`);
       }
-      return modifier;
+      return { ...modifier };
     }
     // Future categories can be added here
     default:
       console.warn(`Unknown shared category: ${category}`);
       return null;
   }
+}
+
+/**
+ * Recursively resolves all @shared/* references in a config object
+ * Walks through the entire config tree and replaces string references with actual objects
+ *
+ * @param config - AppConfig or ComponentConfig to process
+ * @param shared - Shared data for resolving references
+ * @returns Config with all @shared/* references resolved
+ */
+export function resolveSharedReferences<T>(
+  config: T,
+  shared?: AppConfig<any>["shared"],
+): T {
+  if (!config || !shared) return config;
+
+  // Handle arrays
+  if (Array.isArray(config)) {
+    return config.map((item) => resolveSharedReferences(item, shared)) as T;
+  }
+
+  // Handle objects
+  if (typeof config === "object") {
+    const result: any = {};
+
+    for (const [key, value] of Object.entries(config)) {
+      // Special handling for modifiers field
+      if (key === "modifiers" && value) {
+        result[key] = resolveModifiers(
+          value as (Modifier | Modifier2 | string)[] | Modifier | Modifier2 | string,
+          shared
+        );
+      }
+      // Handle string references in any field
+      else if (typeof value === "string" && value.startsWith("@shared/")) {
+        result[key] = resolveSharedReference(value, shared);
+      }
+      // Recursively process nested objects and arrays
+      else if (typeof value === "object" && value !== null) {
+        result[key] = resolveSharedReferences(value, shared);
+      }
+      // Keep primitive values as-is
+      else {
+        result[key] = value;
+      }
+    }
+
+    return result as T;
+  }
+
+  // Return primitives as-is
+  return config;
 }
 
 /**
@@ -52,12 +104,17 @@ export function resolveSharedReference(
  *   - Array of Modifier objects
  *   - Single string reference (@shared/modifiers/name)
  *   - Array of string references or mixed
- * @param appConfig - Full app config for resolving references
+ * @param shared - Shared data for resolving references
  * @returns Array of resolved Modifier objects
  */
 export function resolveModifiers(
-  modifiers: (Modifier | Modifier2 | string)[] | Modifier | Modifier2 | string | undefined,
-  appConfig?: AppConfig<any>,
+  modifiers:
+    | (Modifier | Modifier2 | string)[]
+    | Modifier
+    | Modifier2
+    | string
+    | undefined,
+  shared?: AppConfig<any>["shared"],
 ): (Modifier | Modifier2)[] {
   if (!modifiers) return [];
 
@@ -68,7 +125,7 @@ export function resolveModifiers(
     .map((modifier) => {
       // If it's a string reference, resolve it
       if (typeof modifier === "string") {
-        return resolveSharedReference(modifier, appConfig) as Modifier | Modifier2;
+        return resolveSharedReference(modifier, shared) as Modifier | Modifier2;
       }
       // Already a Modifier object
       return modifier;

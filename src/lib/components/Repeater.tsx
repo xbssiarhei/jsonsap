@@ -119,6 +119,9 @@ export function Repeater({ items, template }: RepeaterProps) {
                 : index
             }
             config={resolvedConfig as ComponentConfig}
+            context={{
+              item,
+            }}
           />
         );
       })}
