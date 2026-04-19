@@ -9,8 +9,10 @@ A React library that renders applications from JSON configuration with extensibl
 - **Plugin System**: Hook into the rendering lifecycle with `beforeRender` and `afterRender` plugins
 - **State Management**: Built-in store configuration with Valtio for reactive state
 - **Modifiers System**: Conditional prop modifications based on data thresholds with store references
+- **Shared Library**: Reusable modifiers and resources with `@shared/*` reference syntax
 - **Repeater Component**: Universal array rendering with `@item.*` syntax and full event handler support
 - **AutoBind Plugin**: Automatic form input binding to store state
+- **Monaco Editor**: Professional code editor with syntax highlighting and validation
 - **Live Config Editor**: Built-in UI for editing JSON configuration on the fly
 - **Type-Safe**: Full TypeScript support
 
@@ -589,6 +591,149 @@ This allows users to change thresholds dynamically through the UI, and all modif
 - **style**: Deep merged with base styles
 - **className**: Concatenated with base classes
 - **other props**: Direct override
+
+## Shared Library System
+
+Define reusable resources once and reference them throughout your configuration to eliminate code duplication.
+
+### Configuration
+
+```typescript
+interface AppConfig {
+  shared?: {
+    modifiers?: Record<string, Modifier | Modifier2>;
+    // Future: styles, components, validators, etc.
+  };
+  store?: StoreConfig;
+  ui: ComponentConfig;
+}
+```
+
+### Usage
+
+Define shared modifiers in the `shared` section:
+
+```json
+{
+  "shared": {
+    "modifiers": {
+      "hideWhenEditing": {
+        "conditions": [
+          {
+            "path": "@item.id",
+            "operator": "equals",
+            "value": "@store.state.editingId"
+          }
+        ],
+        "props": {
+          "hide": true
+        }
+      },
+      "highlightActive": {
+        "conditions": [
+          {
+            "path": "@item.status",
+            "operator": "equals",
+            "value": "active"
+          }
+        ],
+        "props": {
+          "style": {
+            "backgroundColor": "#eff6ff"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+Reference them using `@shared/modifiers/*` or `@modifiers/*` shorthand:
+
+```json
+{
+  "type": "Card",
+  "modifiers": "@modifiers/hideWhenEditing"
+}
+```
+
+Or use multiple references:
+
+```json
+{
+  "type": "Card",
+  "modifiers": [
+    "@modifiers/hideWhenEditing",
+    "@modifiers/highlightActive"
+  ]
+}
+```
+
+### Features
+
+- **DRY Principle**: Define once, use everywhere
+- **Shorthand Syntax**: Both `@shared/modifiers/name` and `@modifiers/name` work
+- **Array Support**: Apply multiple shared modifiers
+- **Mixed Usage**: Combine shared and inline modifiers
+- **Automatic Resolution**: References resolved at app initialization
+- **React Context**: Properly propagates through Repeater components
+- **Extensible**: Architecture supports future shared resources (styles, components, etc.)
+
+### Benefits
+
+- Reduces config file size significantly (100+ lines in typical cases)
+- Single source of truth for common modifiers
+- Easier maintenance and updates
+- Better consistency across components
+
+## Monaco Editor Integration
+
+Professional code editor for editing JSON configurations with syntax highlighting and validation.
+
+### Features
+
+- **Syntax Highlighting**: Full JSON syntax highlighting
+- **Auto-completion**: Intelligent code completion
+- **Error Detection**: Real-time JSON validation
+- **Web Workers**: Runs in background for better performance
+- **Customizable**: Full Monaco Editor API access
+
+### Usage
+
+```typescript
+import { Editor } from './components/Editor';
+
+function ConfigEditor() {
+  const [value, setValue] = useState('{}');
+
+  return (
+    <Editor
+      value={value}
+      onChange={setValue}
+      language="json"
+      height="400px"
+    />
+  );
+}
+```
+
+### Configuration
+
+The editor is pre-configured with:
+- JSON language support
+- Automatic formatting
+- Bracket matching
+- Syntax validation
+- Dark/light theme support
+
+### Dependencies
+
+```json
+{
+  "@monaco-editor/react": "^4.7.0",
+  "monaco-editor": "^0.55.1"
+}
+```
 
 ## Repeater Component
 

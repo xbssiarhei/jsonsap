@@ -22,9 +22,15 @@ The application is a JSON-driven web app builder that renders UI from configurat
   - Supports multiple operators and data sources
   - Enables dynamic styling without custom components
   - Supports @store.\* references in condition values for dynamic thresholds
+- **Shared Library**: Reusable resources system for eliminating code duplication
+  - Define modifiers once in `shared` section
+  - Reference with `@shared/modifiers/*` or `@modifiers/*` syntax
+  - Automatic resolution at app initialization
+  - Properly propagates through React Context in Repeater components
 - **Live Config Editor**: Built-in UI for editing JSON configuration on the fly
-  - Dialog-based editor with syntax validation
-  - Real-time preview of changes
+  - Monaco Editor integration with syntax highlighting
+  - Real-time JSON validation and error detection
+  - Auto-completion and intelligent code completion
   - Available on demo and stress test pages
 - **Event Handlers**: Full support for onClick, onChange in Repeater
   - Automatically passes item data to actions
@@ -292,6 +298,63 @@ The library uses a two-part configuration model:
     }
   }
 }
+```
+
+**Shared Library System:**
+
+- Define reusable modifiers once in `shared` section of AppConfig
+- Reference with `@shared/modifiers/name` or `@modifiers/name` shorthand
+- Supports single reference: `"modifiers": "@modifiers/hideWhenEditing"`
+- Supports array of references: `"modifiers": ["@modifiers/hideWhenEditing", "@modifiers/highlightActive"]`
+- Automatic resolution at app initialization via `resolveSharedReferences()`
+- Uses React Context (SharedProvider) for proper propagation through component tree
+- Example configuration:
+
+```json
+{
+  "shared": {
+    "modifiers": {
+      "hideWhenEditing": {
+        "conditions": [
+          {
+            "path": "@item.id",
+            "operator": "equals",
+            "value": "@store.state.editingId"
+          }
+        ],
+        "props": {
+          "hide": true
+        }
+      }
+    }
+  },
+  "ui": {
+    "type": "Card",
+    "modifiers": "@modifiers/hideWhenEditing"
+  }
+}
+```
+
+**Monaco Editor Integration:**
+
+- Professional code editor for JSON configuration editing
+- Syntax highlighting and validation
+- Auto-completion and intelligent suggestions
+- Runs in web worker for better performance
+- Used in ConfigEditor component
+- Dependencies: `@monaco-editor/react`, `monaco-editor`
+- Example:
+
+```typescript
+import { Editor } from './components/Editor';
+
+<Editor
+  value={jsonConfig}
+  onChange={setJsonConfig}
+  language="json"
+  height="400px"
+/>
+```
 ```
 
 **Popover Component:**

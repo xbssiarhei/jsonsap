@@ -112,6 +112,18 @@ const features = [
       "Define computed properties using JSONata expressions in JSON config. Sort, filter, and transform data without writing code.",
   },
   {
+    title: "Shared Library",
+    description: "Reusable modifiers and resources",
+    content:
+      "Define modifiers once in shared section and reference them throughout your config. Eliminates code duplication and improves maintainability.",
+  },
+  {
+    title: "Monaco Editor",
+    description: "Professional code editing",
+    content:
+      "Integrated Monaco Editor with syntax highlighting, auto-completion, and validation. Edit JSON configurations with a powerful IDE-like experience.",
+  },
+  {
     title: "TypeScript Support",
     description: "Fully typed for better DX",
     content:
