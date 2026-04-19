@@ -14,8 +14,14 @@ import HomePage from "./pages/home/";
 import Layout from "./Layout";
 
 function App() {
+  const pathname = window.location.pathname;
+  const basename = pathname
+    ? pathname.endsWith("/")
+      ? pathname.slice(0, -1)
+      : pathname
+    : "/";
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={basename}>
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<HomePage />} />
