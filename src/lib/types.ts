@@ -53,13 +53,14 @@ export interface ComponentConfig {
   props?: Record<string, unknown>;
   children?: ComponentConfig[] | ComponentConfig | string | number;
   plugins?: string[];
-  modifiers?: Modifier[]; // Conditional prop modifications (old format)
+  modifiers?: Modifier[] | Modifier | string | string[]; // Can be inline, reference, or array
   modifiers2?: Modifier2[]; // Conditional prop modifications (new reactive format)
 }
 
 export interface PluginContext {
   depth: number;
   parentType?: string;
+  appConfig?: AppConfig<any>; // Full app config for accessing shared resources
   [key: string]: unknown;
 }
 
@@ -104,6 +105,10 @@ export interface StoreConfig<State = DefaultState> {
 }
 
 export interface AppConfig<State extends DefaultState> {
+  shared?: {
+    modifiers?: Record<string, Modifier | Modifier2>;
+    // Future: styles, components, validators, etc.
+  };
   store?: StoreConfig<State>;
   ui: ComponentConfig;
 }

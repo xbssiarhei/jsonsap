@@ -192,6 +192,67 @@ const store: StoreConfig<ProductsState> = {
 };
 
 export const productsPageConfig: AppConfig<ProductsState> = {
+  shared: {
+    modifiers: {
+      hideWhenEditing: {
+        conditions: [
+          {
+            path: "item.id",
+            operator: "equals",
+            value: "@store.state.editingId",
+          },
+        ],
+        props: {
+          style: {
+            display: "none",
+          },
+        },
+      },
+      hideWhenNotEditing: {
+        conditions: [
+          {
+            path: "item.id",
+            operator: "notEquals",
+            value: "@store.state.editingId",
+          },
+        ],
+        props: {
+          style: {
+            display: "none",
+          },
+        },
+      },
+      highlightEditing: {
+        conditions: [
+          {
+            path: "item.id",
+            operator: "equals",
+            value: "@store.state.editingId",
+          },
+        ],
+        props: {
+          style: {
+            backgroundColor: "#eff6ff",
+          },
+        },
+      },
+      fadeTemp: {
+        conditions: [
+          {
+            path: "item.tmp",
+            operator: "equals",
+            value: true,
+          },
+        ],
+        props: {
+          style: {
+            opacity: "0.2",
+          },
+          inert: true,
+        },
+      },
+    },
+  },
   store: store,
   ui: {
     type: "div",
@@ -739,37 +800,7 @@ export const productsPageConfig: AppConfig<ProductsState> = {
                       },
                       item: "@item",
                     },
-                    modifiers: [
-                      {
-                        conditions: [
-                          {
-                            path: "item.id",
-                            operator: "equals",
-                            value: "@store.state.editingId",
-                          },
-                        ],
-                        props: {
-                          style: {
-                            backgroundColor: "#eff6ff",
-                          },
-                        },
-                      },
-                      {
-                        conditions: [
-                          {
-                            path: "item.tmp",
-                            operator: "equals",
-                            value: true,
-                          },
-                        ],
-                        props: {
-                          style: {
-                            opacity: "0.2",
-                          },
-                          inert: true,
-                        },
-                      },
-                    ],
+                    modifiers: ["@shared/modifiers/highlightEditing", "@shared/modifiers/fadeTemp"],
                     children: [
                       {
                         type: "div",
@@ -788,22 +819,7 @@ export const productsPageConfig: AppConfig<ProductsState> = {
                                 args: ["@item.id"],
                               },
                             },
-                            modifiers: [
-                              {
-                                conditions: [
-                                  {
-                                    value: "@item.id",
-                                    operator: "notEquals",
-                                    path: "@store.state.editingId",
-                                  },
-                                ],
-                                props: {
-                                  style: {
-                                    display: "none",
-                                  },
-                                },
-                              },
-                            ],
+                            modifiers: "@shared/modifiers/hideWhenNotEditing",
                           },
                           {
                             type: "span",
@@ -811,22 +827,7 @@ export const productsPageConfig: AppConfig<ProductsState> = {
                             props: {
                               item: "@item",
                             },
-                            modifiers: [
-                              {
-                                conditions: [
-                                  {
-                                    path: "item.id",
-                                    operator: "equals",
-                                    value: "@store.state.editingId",
-                                  },
-                                ],
-                                props: {
-                                  style: {
-                                    display: "none",
-                                  },
-                                },
-                              },
-                            ],
+                            modifiers: "@modifiers/hideWhenEditing",
                           },
                         ],
                       },
@@ -866,22 +867,7 @@ export const productsPageConfig: AppConfig<ProductsState> = {
                             props: {
                               item: "@item",
                             },
-                            modifiers: [
-                              {
-                                conditions: [
-                                  {
-                                    path: "item.id",
-                                    operator: "equals",
-                                    value: "@store.state.editingId",
-                                  },
-                                ],
-                                props: {
-                                  style: {
-                                    display: "none",
-                                  },
-                                },
-                              },
-                            ],
+                            modifiers: "@modifiers/hideWhenEditing",
                           },
                         ],
                       },
@@ -922,22 +908,7 @@ export const productsPageConfig: AppConfig<ProductsState> = {
                             props: {
                               item: "@item",
                             },
-                            modifiers: [
-                              {
-                                conditions: [
-                                  {
-                                    path: "item.id",
-                                    operator: "equals",
-                                    value: "@store.state.editingId",
-                                  },
-                                ],
-                                props: {
-                                  style: {
-                                    display: "none",
-                                  },
-                                },
-                              },
-                            ],
+                            modifiers: "@modifiers/hideWhenEditing",
                           },
                         ],
                       },

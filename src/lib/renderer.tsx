@@ -51,7 +51,13 @@ export function JsonRendererRoot({
   }
   return (
     <StoreProvider store={store}>
-      <JsonRenderer config={config.ui} context={context} />
+      <JsonRenderer
+        config={config.ui}
+        context={{
+          ...context,
+          appConfig: config, // Pass entire AppConfig
+        }}
+      />
     </StoreProvider>
   );
 }
@@ -142,6 +148,7 @@ function renderComponent(
   const finalProps1 = applyModifiers(
     modifiedConfig,
     store as unknown as StoreInstance,
+    context.appConfig, // Pass appConfig for shared resolver
   );
 
   const finalProps = applyModifiers2(
