@@ -31,7 +31,7 @@ interface JsonRendererRootProps extends JsonRendererProps {
 
 const emptyProxy = proxy({});
 
-export function JsonRendererRoot({
+function JsonRendererRoot({
   config,
   context = {},
 }: JsonRendererRootProps): ReactElement | null {

@@ -13,13 +13,15 @@
  */
 export function resolveItemReferences(config: unknown, item: unknown): unknown {
   if (typeof config === "string") {
-    // Replace @item.* references
-    if (config.startsWith("@item.")) {
-      const path = config.substring(6); // Remove '@item.'
-      return getNestedValue(item, path.split("."));
-    }
-    // Support string interpolation
     if (config.includes("@item.")) {
+      const isMoreThanOne = (config.match(/@item\b/g) || []).length > 1;
+      // Replace @item.* references
+      if (!isMoreThanOne && config.startsWith("@item.")) {
+        const path = config.substring(6); // Remove '@item.'
+        return getNestedValue(item, path.split("."));
+      }
+      // Support string interpolation
+      // Replace @item.* some text and @item.*
       return config.replace(/@item\.([\w.]+)/g, (_match, path) => {
         const value = getNestedValue(item, path.split("."));
         return String(value ?? "");

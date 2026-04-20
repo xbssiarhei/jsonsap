@@ -6,10 +6,11 @@ import { KanbanPageView } from "./pages/kanban/KanbanPageView";
 import { MapPageView } from "./pages/map/MapPageView";
 import { ApiPageView } from "./pages/api/ApiPageView";
 import { FormPageView } from "./pages/form/FormPageView";
-import { DashboardPageView } from "./pages/dashboard/DashboardPageView";
+import DashboardPageView from "./pages/dashboard";
 import { JsonataPageView } from "./pages/jsonata/JsonataPageView";
 import { ProductsPageView } from "./pages/products/ProductsPageView";
 import ValtioTestPageView from "./pages/valtio-test/ValtioTestPageView";
+import StorePageView from "./pages/store";
 import HomePage from "./pages/home/";
 import Layout from "./Layout";
 
@@ -33,6 +34,7 @@ function App() {
           <Route path="api" element={<ApiPageView />} />
           <Route path="form" element={<FormPageView />} />
           <Route path="dashboard" element={<DashboardPageView />} />
+          <Route path="store" element={<StorePageView />} />
           <Route path="jsonata" element={<JsonataPageView />} />
           <Route path="products" element={<ProductsPageView />} />
           <Route path="valtio-test" element={<ValtioTestPageView />} />

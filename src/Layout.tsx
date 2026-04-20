@@ -15,6 +15,7 @@ const menuItems = [
   { path: "/jsonata", label: "JSONata" },
   { path: "/products", label: "Products" },
   { path: "/valtio-test", label: "Valtio Test" },
+  { path: "/store", label: "Store" },
 ];
 
 const Layout = () => {

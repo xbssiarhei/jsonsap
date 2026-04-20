@@ -28,16 +28,6 @@ function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
   }, obj);
 }
 
-/**
- * Parse source path to get the state key to watch
- * "@store.state.products" -> "products"
- * "@store.state.user.orders" -> "user"
- */
-function getSourceRootKey(source: string): string {
-  const path = source.replace("@store.state.", "").replace("@store.state", "");
-  return path.split(".")[0] || "";
-}
-
 export async function createStore(config: StoreConfig): Promise<StoreInstance> {
   // Create reactive state with Valtio proxy
   const state = config.state._isProxy ? config.state : proxy(config.state);
@@ -97,32 +87,28 @@ export async function createStore(config: StoreConfig): Promise<StoreInstance> {
 
     // Subscribe to state changes and recalculate JSONata computed
     Object.entries(jsonataComputed).forEach(([name, computeValue]) => {
-      const sourceRootKey = getSourceRootKey(computeValue.source);
+      // Subscribe to entire state to catch all changes
+      subscribe(state, () => {
+        const sourcePath = computeValue.source
+          .replace("@store.state.", "")
+          .replace("@store.state", "");
 
-      if (sourceRootKey) {
-        // Subscribe to changes in the source data
-        subscribe(state, () => {
-          const sourcePath = computeValue.source
-            .replace("@store.state.", "")
-            .replace("@store.state", "");
+        const sourceData = sourcePath
+          ? getNestedValue(state, sourcePath)
+          : state;
 
-          const sourceData = sourcePath
-            ? getNestedValue(state, sourcePath)
-            : state;
-
-          // Recalculate JSONata expression
-          const expression = jsonata(computeValue.$jsonata);
-          expression
-            .evaluate(sourceData)
-            .then((result) => {
-              jsonataResults[name] = result;
-            })
-            .catch((error) => {
-              console.error(`JSONata error in computed.${name}:`, error);
-              jsonataResults[name] = null;
-            });
-        });
-      }
+        // Recalculate JSONata expression
+        const expression = jsonata(computeValue.$jsonata);
+        expression
+          .evaluate(sourceData)
+          .then((result) => {
+            jsonataResults[name] = result;
+          })
+          .catch((error) => {
+            console.error(`JSONata error in computed.${name}:`, error);
+            jsonataResults[name] = null;
+          });
+      });
     });
 
     // Create computed getters combining function and JSONata computed

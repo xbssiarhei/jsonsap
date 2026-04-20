@@ -36,7 +36,11 @@ function checkModifier(
 
     // Resolve the expected value
     let expectedValue;
-    if (typeof condition.value === "object" && condition.value !== null && "store" in condition.value) {
+    if (
+      typeof condition.value === "object" &&
+      condition.value !== null &&
+      "store" in condition.value
+    ) {
       // Value is a StoreRef - get from reactive snapshot
       const valueStoreRef = condition.value as StoreRef;
       const valueSnapshot = reactiveSnapshots?.[valueStoreRef.store];
@@ -77,10 +81,6 @@ function checkModifier(
  */
 function getNestedValue(obj: unknown, path: string[]): unknown {
   const result = path.reduce((current, key) => {
-    // Handle regular objects
-    if (current && typeof current === "object" && key in current) {
-      return (current as Record<string, unknown>)[key];
-    }
     // Handle Map instances (try both string and numeric keys)
     if (
       current instanceof Map &&
@@ -91,6 +91,11 @@ function getNestedValue(obj: unknown, path: string[]): unknown {
     if (Array.isArray(current)) {
       return current.slice().find((item) => String(item.id) === String(key));
     }
+    // Handle regular objects
+    if (current && typeof current === "object" && key in current) {
+      return (current as Record<string, unknown>)[key];
+    }
+
     return undefined;
   }, obj);
 
@@ -145,7 +150,11 @@ export function applyModifiers2(
       }
 
       // Handle condition.value reference (if it's a StoreRef)
-      if (typeof condition.value === "object" && condition.value !== null && "store" in condition.value) {
+      if (
+        typeof condition.value === "object" &&
+        condition.value !== null &&
+        "store" in condition.value
+      ) {
         const valueStoreRef = condition.value as StoreRef;
         const rootPath = valueStoreRef.store;
         if (!snapshots[rootPath]) {

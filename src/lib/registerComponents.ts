@@ -1,6 +1,7 @@
 import { Button } from "../components/ui/button";
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -34,6 +35,7 @@ import {
   LineChart,
   Line,
 } from "recharts";
+import { Badge } from "@/components/ui/badge";
 
 // Register all common components
 export function registerCommonComponents() {
@@ -44,12 +46,14 @@ export function registerCommonComponents() {
   componentRegistry.register("CardTitle", CardTitle);
   componentRegistry.register("CardDescription", CardDescription);
   componentRegistry.register("CardContent", CardContent);
+  componentRegistry.register("CardAction", CardAction);
   componentRegistry.register("Popover", Popover);
   componentRegistry.register("PopoverTrigger", PopoverTrigger);
   componentRegistry.register("PopoverContent", PopoverContent);
   componentRegistry.register("Input", Input);
   componentRegistry.register("ControlledInput", ControlledInput);
   componentRegistry.register("Checkbox", Checkbox);
+  componentRegistry.register("Badge", Badge);
 
   // Chart Components
   componentRegistry.register("ChartContainer", ChartContainer);
@@ -69,7 +73,7 @@ export function registerCommonComponents() {
   // Library Components
   componentRegistry.register("Repeater", Repeater);
   componentRegistry.register("Repeater2", Repeater2, {
-    requiredPlugins: ["repeater"]
+    requiredPlugins: ["repeater"],
   });
 
   // HTML Elements
