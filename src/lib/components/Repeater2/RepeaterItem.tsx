@@ -4,6 +4,7 @@ import { resolveItemReferences } from "../repeaterUtils";
 
 interface RepeaterItemProps {
   store: any;
+  getId: (item: any) => unknown;
   id: string;
   template: ComponentConfig;
 }
@@ -14,9 +15,14 @@ interface RepeaterItemProps {
  * Uses useSnapshot on the found item for selective re-rendering.
  * Only this component re-renders when the item changes.
  */
-export function RepeaterItemArray({ store, id, template }: RepeaterItemProps) {
+export function RepeaterItemArray({
+  store,
+  id,
+  template,
+  getId,
+}: RepeaterItemProps) {
   // Find item and create reactive snapshot
-  const item = useSnapshot(store.find((item) => item.id === id));
+  const item = useSnapshot(store.find((item) => getId(item) === id));
 
   // Resolve @item.* references in template
   const resolvedConfig = resolveItemReferences(template, item);

@@ -18,6 +18,10 @@ type StoreState = {
   selectedCategory: string;
   searchQuery: string;
   sortBy: string;
+  categories: {
+    id: string;
+    label: string;
+  }[];
 };
 
 const config: AppConfig<StoreState> = {
@@ -25,9 +29,10 @@ const config: AppConfig<StoreState> = {
     state: {
       products: mock.products,
       cart: [],
-      selectedCategory: "All",
+      selectedCategory: "all",
       searchQuery: "",
       sortBy: "name",
+      categories: mock.categories,
     },
     actions: {
       addToCart: (state, _e, productId: number) => {
@@ -70,7 +75,7 @@ const config: AppConfig<StoreState> = {
   $root := $;
 
   $filtered := $root.products[
-    ($root.selectedCategory = "All" or category = $root.selectedCategory) and
+    ($root.selectedCategory = "all" or category = $root.selectedCategory) and
     ($root.searchQuery = "" or $contains($lowercase(name), $lowercase($root.searchQuery)))
   ];
 
@@ -92,6 +97,15 @@ const config: AppConfig<StoreState> = {
       },
       cartItemCount: (state) => {
         return state.cart.reduce((total, item) => total + item.quantity, 0);
+      },
+      cartItems: (state) => {
+        return state.cart.map((item) => {
+          const product = state.products.find((p) => p.id === item.productId);
+          return {
+            ...item,
+            product,
+          };
+        });
       },
     },
   },
@@ -115,24 +129,141 @@ const config: AppConfig<StoreState> = {
             children: "Store",
           },
           {
-            type: "div",
-            props: {
-              className: "flex items-center gap-4",
-            },
+            type: "Popover",
             children: [
               {
-                type: "div",
-                props: {
-                  className: "text-lg font-semibold",
-                },
-                children: "Cart: @store.computed.cartItemCount items",
+                type: "PopoverTrigger",
+                children: [
+                  {
+                    type: "div",
+                    props: {
+                      className: "flex items-center gap-4 cursor-pointer",
+                    },
+                    children: [
+                      {
+                        type: "div",
+                        props: {
+                          className: "text-lg font-semibold",
+                        },
+                        children: "Cart: @store.computed.cartItemCount items",
+                      },
+                      {
+                        type: "div",
+                        props: {
+                          className: "text-lg font-bold text-primary",
+                        },
+                        children: "$@store.computed.cartTotal",
+                      },
+                    ],
+                  },
+                ],
               },
               {
-                type: "div",
+                type: "PopoverContent",
                 props: {
-                  className: "text-lg font-bold text-primary",
+                  className: "w-80",
                 },
-                children: "$@store.computed.cartTotal",
+                children: [
+                  {
+                    type: "div",
+                    props: {
+                      className: "space-y-4",
+                    },
+                    children: [
+                      {
+                        type: "h3",
+                        props: {
+                          className: "font-semibold text-lg",
+                        },
+                        children: "Shopping Cart",
+                      },
+                      {
+                        type: "div",
+                        props: {
+                          className: "space-y-2 max-h-96 overflow-auto",
+                        },
+                        children: [
+                          {
+                            type: "Repeater2",
+                            store: "@store.computed.cartItems",
+                            props: {
+                              keyIdPath: "productId",
+                            },
+                            template: {
+                              type: "div",
+                              props: {
+                                className:
+                                  "flex items-center gap-3 py-2 border-b",
+                              },
+                              children: [
+                                {
+                                  type: "div",
+                                  props: {
+                                    className: "text-3xl",
+                                  },
+                                  children: "@item.product.image",
+                                },
+                                {
+                                  type: "div",
+                                  props: {
+                                    className: "flex-1",
+                                  },
+                                  children: [
+                                    {
+                                      type: "div",
+                                      props: {
+                                        className: "font-medium text-sm",
+                                      },
+                                      children: "@item.product.name",
+                                    },
+                                    {
+                                      type: "div",
+                                      props: {
+                                        className:
+                                          "text-xs text-muted-foreground",
+                                      },
+                                      children: "Qty: @item.quantity",
+                                    },
+                                  ],
+                                },
+                                {
+                                  type: "div",
+                                  props: {
+                                    className: "font-semibold",
+                                  },
+                                  children: "$@item.product.price",
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                      {
+                        type: "div",
+                        props: {
+                          className:
+                            "flex justify-between items-center pt-2 border-t",
+                        },
+                        children: [
+                          {
+                            type: "span",
+                            props: {
+                              className: "font-semibold",
+                            },
+                            children: "Total:",
+                          },
+                          {
+                            type: "span",
+                            props: {
+                              className: "font-bold text-lg text-primary",
+                            },
+                            children: "$@store.computed.cartTotal",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
               },
             ],
           },
@@ -170,71 +301,61 @@ const config: AppConfig<StoreState> = {
             },
             children: [
               {
-                type: "Button",
-                props: {
-                  variant: "outline",
-                  onClick: {
-                    $action: "set",
-                    path: "selectedCategory",
-                    value: "All",
+                type: "Repeater2",
+                store: "@store.state.categories",
+                template: {
+                  type: "Button",
+                  props: {
+                    variant: "outline",
+                    onClick: {
+                      $action: "set",
+                      path: "selectedCategory",
+                      value: "@item.id",
+                    },
                   },
+                  children: "@item.label",
+                  modifiers2: [
+                    {
+                      conditions: [
+                        {
+                          store: {
+                            store: "@store/state",
+                            path: "selectedCategory",
+                          },
+                          operator: "equals",
+                          value: "@item.id",
+                        },
+                      ],
+                      props: {
+                        variant: "default",
+                      },
+                    },
+                  ],
                 },
-                children: "All",
-              },
-              {
-                type: "Button",
-                props: {
-                  variant: "outline",
-                  onClick: {
-                    $action: "set",
-                    path: "selectedCategory",
-                    value: "Electronics",
-                  },
-                },
-                children: "Electronics",
-              },
-              {
-                type: "Button",
-                props: {
-                  variant: "outline",
-                  onClick: {
-                    $action: "set",
-                    path: "selectedCategory",
-                    value: "Sports",
-                  },
-                },
-                children: "Sports",
-              },
-              {
-                type: "Button",
-                props: {
-                  variant: "outline",
-                  // onClick: {
-                  //   $action: "set",
-                  //   path: "selectedCategory",
-                  //   value: "Home",
-                  // },
-                  onClick: {
-                    $action: "call",
-                    name: "setCategory",
-                    args: ["Home"],
-                  },
-                },
-                children: "Home",
-              },
-              {
-                type: "Button",
-                props: {
-                  variant: "outline",
-                  onClick: {
-                    $action: "set",
-                    path: "selectedCategory",
-                    value: "Accessories",
-                  },
-                },
-                children: "Accessories",
               },
             ],
+          },
+          {
+            type: "Select",
+            props: {
+              options: [
+                { value: "name", label: "Sort by Name" },
+                { value: "price-asc", label: "Price: Low to High" },
+                { value: "price-desc", label: "Price: High to Low" },
+                { value: "rating", label: "Highest Rated" },
+              ],
+              value: "@store.state.sortBy",
+              onChange: {
+                $action: "set",
+                path: "sortBy",
+              },
+              // onChange: {
+              //   $action: "call",
+              //   name: "addToCart",
+              //   args: ["@item.id"],
+              // },
+              placeholder: "Select option",
+            },
           },
           {
             type: "select",

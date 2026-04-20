@@ -4,6 +4,11 @@ import { getNestedValue } from "../repeaterUtils";
 import { RepeaterItemArray, RepeaterItem } from "./RepeaterItem";
 
 const emptyProxy = proxy({});
+
+type Repeater2Props = {
+  keyIdPath: string | string[];
+};
+
 /**
  * Repeater2 - Optimized repeater component with selective re-rendering
  *
@@ -20,8 +25,7 @@ const emptyProxy = proxy({});
  * 4. Each item component calls useSnapshot on individual item
  * 5. When item changes, only that item's component re-renders
  */
-
-export function Repeater2() {
+export function Repeater2({ keyIdPath }: Repeater2Props) {
   let snap = null;
   const { store, template, context } = useRepeaterContext();
   let proxyStore = emptyProxy;
@@ -36,6 +40,12 @@ export function Repeater2() {
       proxyStore = context.store[section];
     }
   }
+
+  const keyPath = keyIdPath
+    ? Array.isArray(keyIdPath)
+      ? keyIdPath
+      : [keyIdPath]
+    : ["id"];
   // subscribe to update custom store
   useSnapshot(proxyStore);
 
@@ -55,12 +65,20 @@ export function Repeater2() {
 
   // Choose appropriate item component based on data structure
   const Item = isArray ? RepeaterItemArray : RepeaterItem;
+  const getId = (item: any) => getNestedValue(item, keyPath);
 
   return (
     <>
-      {items.map((item) => {
+      {items.map((item, index) => {
+        const id = getId(item) as string;
         return (
-          <Item key={item.id} template={template} store={snap} id={item.id} />
+          <Item
+            key={id ?? index}
+            template={template}
+            store={snap}
+            getId={getId}
+            id={id}
+          />
         );
       })}
     </>

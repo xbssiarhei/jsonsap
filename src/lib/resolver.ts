@@ -268,7 +268,9 @@ function createSetActionHandler(
 
     // Get the value - either from explicit value prop or from event
     let value: unknown;
-    if (action.value !== undefined) {
+    if (typeof e === "string") {
+      value = e;
+    } else if (action.value !== undefined) {
       // If value is explicitly provided, use it (can be @item.* reference)
       value = action.value;
     } else if (e?.target) {

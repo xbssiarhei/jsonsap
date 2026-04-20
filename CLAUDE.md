@@ -300,6 +300,32 @@ The library uses a two-part configuration model:
 }
 ```
 
+**Select Component:**
+
+- Wrapper around shadcn/ui Select with array-based options
+- Pass options as array of `{ value, label }` objects
+- Supports value binding and onChange handlers
+- Example:
+
+```json
+{
+  "type": "Select",
+  "props": {
+    "options": [
+      { "value": "name", "label": "Sort by Name" },
+      { "value": "price-asc", "label": "Price: Low to High" },
+      { "value": "price-desc", "label": "Price: High to Low" }
+    ],
+    "value": "@store.state.sortBy",
+    "onChange": {
+      "$action": "set",
+      "path": "sortBy"
+    },
+    "placeholder": "Select option"
+  }
+}
+```
+
 **Shared Library System:**
 
 - Define reusable modifiers once in `shared` section of AppConfig

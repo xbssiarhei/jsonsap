@@ -36,6 +36,7 @@ import {
   Line,
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
+import { SelectWrapper } from "./components/SelectWrapper";
 
 // Register all common components
 export function registerCommonComponents() {
@@ -54,6 +55,7 @@ export function registerCommonComponents() {
   componentRegistry.register("ControlledInput", ControlledInput);
   componentRegistry.register("Checkbox", Checkbox);
   componentRegistry.register("Badge", Badge);
+  componentRegistry.register("Select", SelectWrapper);
 
   // Chart Components
   componentRegistry.register("ChartContainer", ChartContainer);
