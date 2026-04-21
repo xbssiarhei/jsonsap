@@ -202,9 +202,7 @@ export const productsPageConfig: AppConfig<ProductsState> = {
             value: "@store.state.editingId",
           },
         ],
-        props: {
-          hide: true,
-        },
+        hide: true,
       },
       hideWhenNotEditing: {
         conditions: [
@@ -214,9 +212,7 @@ export const productsPageConfig: AppConfig<ProductsState> = {
             value: "@store.state.editingId",
           },
         ],
-        props: {
-          hide: true,
-        },
+        hide: true,
       },
       highlightEditing: {
         conditions: [

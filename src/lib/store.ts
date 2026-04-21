@@ -41,10 +41,11 @@ export async function createStore(config: StoreConfig): Promise<StoreInstance> {
       };
     });
   }
-
-  // Create computed properties using derive-valtio
-  let computed: Record<string, unknown> = {};
+  // TODO: should to analysis
+  let computed: Record<string, unknown> | undefined = undefined;
   if (config.computed) {
+    // Create computed properties using derive-valtio
+    computed = {};
     // Separate JSONata and function computed
     const functionComputed: Record<
       string,

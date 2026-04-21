@@ -6,10 +6,13 @@ export interface ModifierCondition {
   value: unknown;
 }
 
-export interface Modifier {
-  conditions: ModifierCondition[];
-  props: Record<string, unknown>; // Props to merge when conditions match
+interface ModifierBase {
+  props?: Record<string, unknown>; // Props to merge when conditions match
   matchAll?: boolean; // true = AND logic, false = OR logic (default: true)
+  hide?: boolean; // true = Skip rendering of that component
+}
+export interface Modifier extends ModifierBase {
+  conditions: ModifierCondition[];
 }
 
 // Store reference for modifiers2 reactive subscriptions
@@ -25,10 +28,8 @@ export interface ModifierCondition2 {
   value: StoreRef | unknown; // Can be StoreRef or primitive value
 }
 
-export interface Modifier2 {
+export interface Modifier2 extends ModifierBase {
   conditions: ModifierCondition2[];
-  props: Record<string, unknown>; // Props to merge when conditions match
-  matchAll?: boolean; // true = AND logic, false = OR logic (default: true)
 }
 
 export interface SetAction {

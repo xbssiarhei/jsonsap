@@ -61,6 +61,8 @@ function checkModifier(
   }
 }
 
+// const emptyProxy = proxy({});
+
 /**
  * Applies modifiers to component config and returns modified props
  */
@@ -88,6 +90,7 @@ export function applyModifiers(
 
   // Get snapshots for reactivity
 
+  // TODO: use emptyProxy
   const stateSnapshot = store
     ? (useSnapshot(store.state) as Record<string, unknown>)
     : null;
@@ -119,10 +122,10 @@ export function applyModifiers(
             computedSnapshot,
           )
         ) {
-          modifiedProps = mergeProps(modifiedProps, modifier.props);
-          if (modifier.props.hide) {
-            break;
+          if (modifier.hide) {
+            return;
           }
+          modifiedProps = mergeProps(modifiedProps, modifier.props);
         }
       }
       // Skip Modifier2 - they should use modifiers2 field instead

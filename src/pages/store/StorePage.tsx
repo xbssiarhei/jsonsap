@@ -450,9 +450,7 @@ const config: AppConfig<StoreState> = {
                                   value: 0,
                                 },
                               ],
-                              props: {
-                                variant: "ghost",
-                              },
+                              hide: true,
                             },
                           ],
                         },

@@ -193,6 +193,9 @@ export function applyModifiers2(
   // Phase 4: Check each modifier and merge props if conditions match
   for (const modifier of config.modifiers2) {
     if (checkModifier(modifier, baseProps, reactiveSnapshots)) {
+      if (modifier.hide) {
+        return;
+      }
       // Merge with accumulated props (not baseProps) to chain modifiers
       modifiedProps = mergeProps(modifiedProps, modifier.props);
     }

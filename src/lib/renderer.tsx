@@ -177,7 +177,7 @@ function renderComponent(
   );
 
   // should hide element
-  if (finalProps1.hide) {
+  if (!finalProps1) {
     return null;
   }
 
@@ -188,6 +188,11 @@ function renderComponent(
     },
     store as unknown as StoreInstance,
   );
+
+  // should hide element
+  if (!finalProps) {
+    return null;
+  }
 
   // Create element
   let element = createElement(Component, finalProps, renderedChildren);
