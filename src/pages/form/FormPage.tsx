@@ -56,12 +56,11 @@ const store: StoreConfig<FormState> = {
 export const formPageConfig: AppConfig<FormState> = {
   store: store,
   ui: {
-    type: "div",
+    type: "PageRoot",
     props: {
+      className: "max-w-4xl",
       style: {
-        padding: "40px",
         maxWidth: "800px",
-        margin: "0 auto",
       },
     },
     children: [

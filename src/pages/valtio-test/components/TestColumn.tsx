@@ -44,7 +44,7 @@ export function TestColumn({
           <p className="mb-4" style={{ fontSize: "14px" }}>
             {description}
           </p>
-          <div className="flex justify-between">
+          <div className="flex justify-between my-2">
             <Button
               onClick={onToggle}
               variant={isRunning ? "destructive" : "default"}

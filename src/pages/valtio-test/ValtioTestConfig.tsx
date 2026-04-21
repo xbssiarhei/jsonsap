@@ -1,4 +1,4 @@
-import { type AppConfig } from "@/lib";
+import { type AppConfig, type ComponentConfig } from "@/lib";
 import { storeWithArray, storeWithMap, type Item } from "./store";
 import modifiers from "@/modifiers";
 
@@ -13,7 +13,7 @@ type ValtioTestState = {
   threshold: number;
 };
 
-const column = (state: string) => {
+const column = (state: string): ComponentConfig => {
   return {
     type: "div",
     children: [

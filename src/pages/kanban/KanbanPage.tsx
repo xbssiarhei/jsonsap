@@ -252,9 +252,9 @@ const createColumn = (
 export const kanbanPageConfig: AppConfig<KanbanState> = {
   store,
   ui: {
-    type: "div",
+    type: "PageRoot",
     props: {
-      className: "p-4 md:p-8 max-w-[1400px] mx-auto",
+      className: "p-4 md:p-10",
     },
     children: [
       // Page header

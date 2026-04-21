@@ -25,13 +25,13 @@ export function PageView({ config: initialConfig }: PageViewProps) {
   const [config, setConfig] = useState(initialConfig);
 
   return (
-    <div>
+    <>
       <div
         style={{ position: "fixed", top: "80px", right: "24px", zIndex: 1000 }}
       >
         <ConfigEditor config={config} onConfigChange={setConfig} />
       </div>
       <JsonRenderer.Root config={config} />
-    </div>
+    </>
   );
 }

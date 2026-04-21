@@ -89,14 +89,7 @@ const store: StoreConfig<ApiState> = {
 export const apiPageConfig: AppConfig<ApiState> = {
   store: store,
   ui: {
-    type: "div",
-    props: {
-      style: {
-        padding: "40px",
-        maxWidth: "1400px",
-        margin: "0 auto",
-      },
-    },
+    type: "PageRoot",
     children: [
       {
         type: "div",

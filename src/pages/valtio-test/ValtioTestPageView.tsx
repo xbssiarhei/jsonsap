@@ -76,6 +76,10 @@ export function ValtioTestPageView() {
         Testing selective re-rendering with Map and Array. Yellow background =
         component re-rendered.
       </p>
+      <p className="text-muted-foreground">
+        Threshold for red highlight:{" "}
+        <span className="text-primary text-2xl">50</span>
+      </p>
 
       <div className="flex py-2">
         <Select

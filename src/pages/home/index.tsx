@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../../components/ui/card";
+import { PageRoot } from "@/components/PageRoot";
 
 const features = [
   {
@@ -133,7 +134,7 @@ const features = [
 
 export default function HomePage() {
   return (
-    <div style={{ padding: "40px", maxWidth: "1200px", margin: "0 auto" }}>
+    <PageRoot>
       <div style={{ marginBottom: "40px", textAlign: "center" }}>
         <h1
           style={{ fontSize: "48px", fontWeight: "bold", marginBottom: "16px" }}
@@ -168,6 +169,6 @@ export default function HomePage() {
           </Card>
         ))}
       </div>
-    </div>
+    </PageRoot>
   );
 }

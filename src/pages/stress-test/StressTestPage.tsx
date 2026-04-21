@@ -135,14 +135,7 @@ const store: StoreConfig<StressState> = {
 export const stressTestPageConfig: AppConfig<StressState> = {
   store: store,
   ui: {
-    type: "div",
-    props: {
-      style: {
-        padding: "40px",
-        maxWidth: "1200px",
-        margin: "0 auto",
-      },
-    },
+    type: "PageRoot",
     children: [
       {
         type: "h1",
@@ -162,7 +155,7 @@ export const stressTestPageConfig: AppConfig<StressState> = {
       {
         type: "Card",
         props: {
-          style: { marginBottom: "24px" },
+          className: "mb-4 sm:sticky top-2",
         },
         children: [
           {

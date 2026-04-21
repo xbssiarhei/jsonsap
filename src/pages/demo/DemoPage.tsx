@@ -85,14 +85,7 @@ const store: StoreConfig<DemoState> = {
 export const demoPageConfig: AppConfig<DemoState> = {
   store: store,
   ui: {
-    type: "div",
-    props: {
-      style: {
-        padding: "40px",
-        maxWidth: "1200px",
-        margin: "0 auto",
-      },
-    },
+    type: "PageRoot",
     children: [
       {
         type: "h1",
@@ -153,7 +146,7 @@ export const demoPageConfig: AppConfig<DemoState> = {
                             marginBottom: "8px",
                           },
                         },
-                        children: "@store.state.count",
+                        children: " @store.state.count",
                       },
                       {
                         type: "p",

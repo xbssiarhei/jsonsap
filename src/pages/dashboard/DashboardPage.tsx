@@ -80,9 +80,9 @@ const config: AppConfig<DashboardState> = {
     },
   },
   ui: {
-    type: "div",
+    type: "PageRoot",
     props: {
-      className: "flex flex-col gap-4 p-8",
+      className: "flex flex-col gap-4",
     },
     children: [
       {
@@ -112,7 +112,8 @@ const config: AppConfig<DashboardState> = {
               {
                 type: "CardHeader",
                 props: {
-                  className: "flex flex-row items-center justify-between space-y-0 pb-2",
+                  className:
+                    "flex flex-row items-center justify-between space-y-0 pb-2",
                 },
                 children: [
                   {
@@ -151,7 +152,8 @@ const config: AppConfig<DashboardState> = {
               {
                 type: "CardHeader",
                 props: {
-                  className: "flex flex-row items-center justify-between space-y-0 pb-2",
+                  className:
+                    "flex flex-row items-center justify-between space-y-0 pb-2",
                 },
                 children: [
                   {
@@ -190,7 +192,8 @@ const config: AppConfig<DashboardState> = {
               {
                 type: "CardHeader",
                 props: {
-                  className: "flex flex-row items-center justify-between space-y-0 pb-2",
+                  className:
+                    "flex flex-row items-center justify-between space-y-0 pb-2",
                 },
                 children: [
                   {
@@ -229,7 +232,8 @@ const config: AppConfig<DashboardState> = {
               {
                 type: "CardHeader",
                 props: {
-                  className: "flex flex-row items-center justify-between space-y-0 pb-2",
+                  className:
+                    "flex flex-row items-center justify-between space-y-0 pb-2",
                 },
                 children: [
                   {
@@ -398,7 +402,8 @@ const config: AppConfig<DashboardState> = {
                                 {
                                   type: "p",
                                   props: {
-                                    className: "text-sm font-medium leading-none",
+                                    className:
+                                      "text-sm font-medium leading-none",
                                   },
                                   children: "@item.name",
                                 },

@@ -247,14 +247,7 @@ export const productsPageConfig: AppConfig<ProductsState> = {
   },
   store: store,
   ui: {
-    type: "div",
-    props: {
-      style: {
-        padding: "40px",
-        maxWidth: "1400px",
-        margin: "0 auto",
-      },
-    },
+    type: "PageRoot",
     children: [
       // Header
       {

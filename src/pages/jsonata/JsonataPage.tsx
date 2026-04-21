@@ -118,14 +118,7 @@ const presetQueries = [
 export const jsonataPageConfig: AppConfig<JsonataState> = {
   store: store,
   ui: {
-    type: "div",
-    props: {
-      style: {
-        padding: "40px",
-        maxWidth: "1400px",
-        margin: "0 auto",
-      },
-    },
+    type: "PageRoot",
     children: [
       {
         type: "div",
