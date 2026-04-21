@@ -37,6 +37,15 @@ import {
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { SelectWrapper } from "./components/SelectWrapper";
+import {
+  StoreCollection,
+  CollectionRepeater,
+} from "./components/StoreCollection";
+import {
+  ButtonGroup,
+  ButtonGroupSeparator,
+  ButtonGroupText,
+} from "@/components/ui/button-group";
 
 // Register all common components
 export function registerCommonComponents() {
@@ -56,6 +65,9 @@ export function registerCommonComponents() {
   componentRegistry.register("Checkbox", Checkbox);
   componentRegistry.register("Badge", Badge);
   componentRegistry.register("Select", SelectWrapper);
+  componentRegistry.register("ButtonGroup", ButtonGroup);
+  componentRegistry.register("ButtonGroup.Separator", ButtonGroupSeparator);
+  componentRegistry.register("ButtonGroup.Text", ButtonGroupText);
 
   // Chart Components
   componentRegistry.register("ChartContainer", ChartContainer);
@@ -77,6 +89,8 @@ export function registerCommonComponents() {
   componentRegistry.register("Repeater2", Repeater2, {
     requiredPlugins: ["repeater"],
   });
+  componentRegistry.register("StoreCollection", StoreCollection);
+  componentRegistry.register("CollectionRepeater", CollectionRepeater);
 
   // HTML Elements
   componentRegistry.register("div", "div");

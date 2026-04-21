@@ -11,6 +11,7 @@ import { JsonataPageView } from "./pages/jsonata/JsonataPageView";
 import { ProductsPageView } from "./pages/products/ProductsPageView";
 import ValtioTestPageView from "./pages/valtio-test/ValtioTestPageView";
 import StorePageView from "./pages/store";
+import TestPageView from "./pages/test";
 import HomePage from "./pages/home/";
 import Layout from "./Layout";
 
@@ -35,6 +36,7 @@ function App() {
           <Route path="form" element={<FormPageView />} />
           <Route path="dashboard" element={<DashboardPageView />} />
           <Route path="store" element={<StorePageView />} />
+          <Route path="test" element={<TestPageView />} />
           <Route path="jsonata" element={<JsonataPageView />} />
           <Route path="products" element={<ProductsPageView />} />
           <Route path="valtio-test" element={<ValtioTestPageView />} />
