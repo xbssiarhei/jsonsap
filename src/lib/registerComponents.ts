@@ -46,6 +46,7 @@ import {
   ButtonGroupSeparator,
   ButtonGroupText,
 } from "@/components/ui/button-group";
+import { Label } from "@/components/ui/label";
 
 // Register all common components
 export function registerCommonComponents() {
@@ -68,6 +69,7 @@ export function registerCommonComponents() {
   componentRegistry.register("ButtonGroup", ButtonGroup);
   componentRegistry.register("ButtonGroup.Separator", ButtonGroupSeparator);
   componentRegistry.register("ButtonGroup.Text", ButtonGroupText);
+  componentRegistry.register("Label", Label);
 
   // Chart Components
   componentRegistry.register("ChartContainer", ChartContainer);
@@ -101,4 +103,59 @@ export function registerCommonComponents() {
   componentRegistry.register("span", "span");
   componentRegistry.register("label", "label");
   componentRegistry.register("pre", "pre");
+}
+
+declare module "@/lib/types" {
+  export interface ComponentConfigType {
+    Button: string;
+    Card: string;
+    CardHeader: string;
+    CardTitle: string;
+    CardDescription: string;
+    CardContent: string;
+    CardAction: string;
+    Popover: string;
+    PopoverTrigger: string;
+    PopoverContent: string;
+    Input: string;
+    ControlledInput: string;
+    Checkbox: string;
+    Badge: string;
+    Select: string;
+    ButtonGroup: string;
+    "ButtonGroup.Separator": string;
+    "ButtonGroup.Text": string;
+    Label: string;
+
+    // Chart Components
+    ChartContainer: string;
+    ChartTooltip: string;
+    ChartTooltipContent: string;
+    PieChart: string;
+    Pie: string;
+    Cell: string;
+    BarChart: string;
+    Bar: string;
+    XAxis: string;
+    YAxis: string;
+    CartesianGrid: string;
+    LineChart: string;
+    Line: string;
+
+    // Library Components
+    Repeater: string;
+    Repeater2: string;
+    StoreCollection: string;
+    CollectionRepeater: string;
+
+    // HTML Elements
+    div: string;
+    h1: string;
+    h2: string;
+    h3: string;
+    p: string;
+    span: string;
+    label: string;
+    pre: string;
+  }
 }

@@ -48,8 +48,13 @@ export interface CallAction {
 
 export type ActionConfig = SetAction | CallAction | string;
 
+export interface ComponentConfigType {
+  div: string;
+  // [key: string]: string;
+}
+
 export interface ComponentConfig {
-  type: string;
+  type: keyof ComponentConfigType;
   props?: Record<string, unknown>;
   children?: ComponentConfig[] | ComponentConfig | string | number;
   plugins?: string[];
