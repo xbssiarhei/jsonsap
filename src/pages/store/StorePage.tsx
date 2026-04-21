@@ -364,39 +364,6 @@ const config: AppConfig<StoreState> = {
                   placeholder: "Select option",
                 },
               },
-              {
-                type: "select",
-                props: {
-                  className: "border rounded px-3 py-2",
-                  value: "@store.state.sortBy",
-                  onChange: {
-                    $action: "set",
-                    path: "sortBy",
-                  },
-                },
-                children: [
-                  {
-                    type: "option",
-                    props: { value: "name" },
-                    children: "Sort by Name",
-                  },
-                  {
-                    type: "option",
-                    props: { value: "price-asc" },
-                    children: "Price: Low to High",
-                  },
-                  {
-                    type: "option",
-                    props: { value: "price-desc" },
-                    children: "Price: High to Low",
-                  },
-                  {
-                    type: "option",
-                    props: { value: "rating" },
-                    children: "Highest Rated",
-                  },
-                ],
-              },
             ],
           },
         ],

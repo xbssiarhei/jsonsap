@@ -479,6 +479,7 @@ export const jsonataPageConfig: AppConfig<JsonataState> = {
                                         backgroundColor: "#d1fae5",
                                         color: "#065f46",
                                       },
+                                      // children: "In Stock",
                                     },
                                   },
                                   {
@@ -494,11 +495,11 @@ export const jsonataPageConfig: AppConfig<JsonataState> = {
                                         backgroundColor: "#fee2e2",
                                         color: "#991b1b",
                                       },
+                                      // children: "Out of Stock",
                                     },
                                   },
                                 ],
-                                children:
-                                  "@item.inStock ? 'In Stock' : 'Out of Stock'",
+                                children: "In Stock: @item.inStock",
                               },
                             ],
                           },
