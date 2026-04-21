@@ -2,8 +2,8 @@ import { JsonRenderer } from "@/lib/renderer";
 import { useCollectionContext } from "./StoreCollectionContext";
 import { resolveItemReferences } from "../repeaterUtils";
 
-export function CollectionRepeater() {
-  const { collection, getId, template } = useCollectionContext();
+export function CollectionRepeater({ template }) {
+  const { collection, getId } = useCollectionContext();
 
   if (!template) {
     console.warn("CollectionRepeater: template is required");
@@ -15,7 +15,7 @@ export function CollectionRepeater() {
       {collection.map((item, index) => {
         const id = getId(item);
         const resolvedConfig = resolveItemReferences(template, item);
-        
+
         return (
           <JsonRenderer
             key={id ?? index}

@@ -7,7 +7,7 @@ import type { ComponentConfig } from "@/lib/types";
 const emptyProxy = proxy({});
 
 type StoreCollectionProps = {
-  store: string;
+  collectionPath: string;
   keyIdPath?: string | string[];
   template?: ComponentConfig;
   children?: React.ReactNode;
@@ -18,7 +18,7 @@ type StoreCollectionProps = {
 };
 
 export function StoreCollection({
-  store,
+  collectionPath = "@store/state/items",
   keyIdPath = "id",
   template,
   children,
@@ -31,9 +31,9 @@ export function StoreCollection({
   const storeInstance = useStore();
 
   // Resolve @store.* path to get the actual data
-  if (store?.startsWith("@store.") && storeInstance) {
-    const path = store.substring(7); // Remove "@store." prefix
-    const parts = path.split(".");
+  if (collectionPath?.startsWith("@store") && storeInstance) {
+    const path = collectionPath.substring(7); // Remove "@store." prefix
+    const parts = path.split("/");
     const [section] = parts;
     snap = getNestedValue(storeInstance, parts);
     if (section !== "state") {
@@ -63,7 +63,8 @@ export function StoreCollection({
 
   // getId function
   const keyPath = Array.isArray(keyIdPath) ? keyIdPath : [keyIdPath];
-  const getId = (item: unknown) => getNestedValue(item, keyPath) as string | number;
+  const getId = (item: unknown) =>
+    getNestedValue(item, keyPath) as string | number;
 
   return (
     <CollectionProvider value={{ collection, getId, template }}>
