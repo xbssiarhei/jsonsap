@@ -8,6 +8,13 @@ import { loggerPlugin } from "../../lib/plugins/logger";
 import { wrapperPlugin } from "../../lib/plugins/wrapper";
 import { TodoItem, TodoList } from "../../components/TodoComponents";
 
+declare module "@/lib/types" {
+  export interface ComponentConfigType {
+    TodoItem: string;
+    TodoList: string;
+  }
+}
+
 // Register page-specific components
 componentRegistry.register("TodoItem", TodoItem);
 componentRegistry.register("TodoList", TodoList);

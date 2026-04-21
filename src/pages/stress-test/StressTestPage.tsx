@@ -11,6 +11,13 @@ import { NumericRoller } from "../../components/roller";
 import modifiers from "@/modifiers";
 import { proxy } from "valtio";
 
+declare module "@/lib/types" {
+  export interface ComponentConfigType {
+    StressTestItem: string;
+    NumericRoller: string;
+  }
+}
+
 // Register page-specific components
 componentRegistry.register("StressTestItem", StressTestItem);
 componentRegistry.register("NumericRoller", NumericRoller);

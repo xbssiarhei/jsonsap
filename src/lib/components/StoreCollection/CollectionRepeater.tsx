@@ -1,6 +1,7 @@
 import { JsonRenderer } from "@/lib/renderer";
 import { useCollectionContext } from "./StoreCollectionContext";
 import { resolveItemReferences } from "../repeaterUtils";
+import type { ComponentConfig } from "@/lib/types";
 
 export function CollectionRepeater({ template }) {
   const { collection, getId } = useCollectionContext();
@@ -14,7 +15,10 @@ export function CollectionRepeater({ template }) {
     <>
       {collection.map((item, index) => {
         const id = getId(item);
-        const resolvedConfig = resolveItemReferences(template, item);
+        const resolvedConfig = resolveItemReferences(
+          template,
+          item,
+        ) as ComponentConfig;
 
         return (
           <JsonRenderer

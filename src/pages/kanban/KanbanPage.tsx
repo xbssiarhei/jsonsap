@@ -1,4 +1,4 @@
-import { type AppConfig, type StoreConfig } from "../../lib";
+import { type AppConfig, type ComponentConfig, type StoreConfig } from "@/lib";
 
 // Kanban task type
 type Task = {
@@ -91,7 +91,7 @@ const createColumn = (
   status: string,
   tasksPath: string,
   bgColor: string,
-) => ({
+): ComponentConfig => ({
   type: "div",
   props: {
     className:

@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useState, cloneElement, isValidElement } from "react";
 import type { Plugin } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -51,7 +52,7 @@ export const paginationPlugin: Plugin = {
  */
 function PaginationControls({
   page,
-  pageSize,
+  // pageSize,
   onPageChange,
 }: {
   page: number;

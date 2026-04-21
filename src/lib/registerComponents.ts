@@ -103,6 +103,8 @@ export function registerCommonComponents() {
   componentRegistry.register("span", "span");
   componentRegistry.register("label", "label");
   componentRegistry.register("pre", "pre");
+  componentRegistry.register("select", "select");
+  componentRegistry.register("option", "option");
 }
 
 declare module "@/lib/types" {
@@ -157,5 +159,7 @@ declare module "@/lib/types" {
     span: string;
     label: string;
     pre: string;
+    select: string;
+    option: string;
   }
 }
