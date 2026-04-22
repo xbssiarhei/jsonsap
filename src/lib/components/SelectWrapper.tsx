@@ -2,9 +2,11 @@ import {
   Select,
   SelectContent,
   SelectItem,
+  // SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 type SelectOption = {
   value: string;
@@ -17,6 +19,7 @@ type SelectWrapperProps = {
   onChange?: (value: string) => void;
   placeholder?: string;
   className?: string;
+  label?: string;
 };
 
 export function SelectWrapper({
@@ -25,19 +28,23 @@ export function SelectWrapper({
   onChange,
   placeholder,
   className,
+  label,
 }: SelectWrapperProps) {
   return (
-    <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className={className}>
-        <SelectValue placeholder={placeholder} />
-      </SelectTrigger>
-      <SelectContent>
-        {options.map((option) => (
-          <SelectItem key={option.value} value={option.value}>
-            {option.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <div className="w-full flex flex-col gap-2">
+      {label && <Label>{label}</Label>}
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger className={className}>
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   );
 }

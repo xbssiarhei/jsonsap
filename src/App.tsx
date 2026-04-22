@@ -14,6 +14,7 @@ import StorePageView from "./pages/store";
 import PaginationPageView from "./pages/pagination";
 import HomePage from "./pages/home/";
 import Layout from "./Layout";
+import { ThemeProvider } from "./components/theme-provider";
 
 function App() {
   const pathname = window.location.pathname;
@@ -24,25 +25,27 @@ function App() {
         : pathname
       : "/";
   return (
-    <BrowserRouter basename={basename}>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<HomePage />} />
-          <Route path="demo" element={<DemoPageView />} />
-          <Route path="stress-test" element={<StressTestPageView />} />
-          <Route path="kanban" element={<KanbanPageView />} />
-          <Route path="map" element={<MapPageView />} />
-          <Route path="api" element={<ApiPageView />} />
-          <Route path="form" element={<FormPageView />} />
-          <Route path="dashboard" element={<DashboardPageView />} />
-          <Route path="store" element={<StorePageView />} />
-          <Route path="pagination" element={<PaginationPageView />} />
-          <Route path="jsonata" element={<JsonataPageView />} />
-          <Route path="products" element={<ProductsPageView />} />
-          <Route path="valtio-test" element={<ValtioTestPageView />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <BrowserRouter basename={basename}>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<HomePage />} />
+            <Route path="demo" element={<DemoPageView />} />
+            <Route path="stress-test" element={<StressTestPageView />} />
+            <Route path="kanban" element={<KanbanPageView />} />
+            <Route path="map" element={<MapPageView />} />
+            <Route path="api" element={<ApiPageView />} />
+            <Route path="form" element={<FormPageView />} />
+            <Route path="dashboard" element={<DashboardPageView />} />
+            <Route path="store" element={<StorePageView />} />
+            <Route path="pagination" element={<PaginationPageView />} />
+            <Route path="jsonata" element={<JsonataPageView />} />
+            <Route path="products" element={<ProductsPageView />} />
+            <Route path="valtio-test" element={<ValtioTestPageView />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 
