@@ -1,7 +1,7 @@
 import { registerCommonComponents } from "./registerComponents";
 import { registerCommonPlugins } from "./registerPlugins";
 
-export { JsonRenderer } from "./renderer";
+export { JsonRenderer } from "./renderer/";
 export { componentRegistry } from "./registry";
 export { pluginRegistry } from "./plugins";
 export { createStore, subscribeToStore } from "./store";
