@@ -58,14 +58,11 @@ export function ThemeProvider({
       setTheme(systemTheme);
       return;
     }
-    console.log("sss", theme);
 
     root.classList.add(theme);
   }, [theme, storageKey, document]);
 
   useEffect(() => {
-    // setTheme(defaultTheme);
-    console.log(defaultTheme);
     if (defaultTheme !== "system") {
       setTheme(defaultTheme);
     }

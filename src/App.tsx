@@ -25,7 +25,7 @@ function App() {
         : pathname
       : "/";
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
       <BrowserRouter basename={basename}>
         <Routes>
           <Route path="/" element={<Layout />}>
