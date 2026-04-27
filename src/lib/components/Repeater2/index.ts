@@ -1,2 +1,6 @@
 export { Repeater2 } from "./Repeater2";
-export { RepeaterItem, RepeaterItemArray } from "./RepeaterItem";
+export {
+  RepeaterItemMap,
+  RepeaterItemArray,
+  RepeaterItem,
+} from "./RepeaterItem";

@@ -1,9 +1,10 @@
-import { type ReactElement } from "react";
+import { type ComponentType, type ReactElement } from "react";
 import type {
   Plugin,
   ComponentConfig,
   PluginContext,
   PluginRegistry,
+  LibComponent,
 } from "./types";
 
 class PluginManager {
@@ -40,6 +41,27 @@ class PluginManager {
     }
 
     return modifiedConfig;
+  }
+
+  executeWrapComponent(
+    Component: LibComponent<any>,
+    config: ComponentConfig,
+    pluginNames: string[],
+    context: PluginContext,
+  ) {
+    let _Component = Component;
+    for (const pluginName of pluginNames) {
+      const plugin = this.plugins.get(pluginName);
+      if (plugin?.wrapComponent) {
+        _Component = plugin.wrapComponent(
+          _Component,
+          config,
+          context,
+        ) as unknown as ComponentType<any>;
+      }
+    }
+
+    return _Component;
   }
 
   executeAfterRender(

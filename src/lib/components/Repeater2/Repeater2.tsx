@@ -1,7 +1,7 @@
 import { proxy, useSnapshot } from "valtio";
 import { useRepeaterContext } from "../../plugins/repeater";
 import { getNestedValue } from "../repeaterUtils";
-import { RepeaterItemArray, RepeaterItem } from "./RepeaterItem";
+import { RepeaterItemArray, RepeaterItemMap } from "./RepeaterItem";
 
 const emptyProxy = proxy({});
 
@@ -64,7 +64,7 @@ export function Repeater2({ keyIdPath }: Repeater2Props) {
   }
 
   // Choose appropriate item component based on data structure
-  const Item = isArray ? RepeaterItemArray : RepeaterItem;
+  const Item = isArray ? RepeaterItemArray : RepeaterItemMap;
   const getId = (item: any) => getNestedValue(item, keyPath);
 
   return (

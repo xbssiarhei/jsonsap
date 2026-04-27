@@ -1,10 +1,4 @@
-import {
-  createElement,
-  Fragment,
-  type ReactElement,
-  useState,
-  useEffect,
-} from "react";
+import { createElement, type ReactElement, useState, useEffect } from "react";
 import type { ComponentConfig, PluginContext, AppConfig } from "./types";
 import { componentRegistry } from "./registry";
 import { pluginRegistry } from "./plugins";
@@ -17,6 +11,8 @@ import type { StoreInstance } from "./types";
 import { Spinner } from "@/components/ui/spinner";
 import { proxy, useSnapshot } from "valtio";
 import { resolveSharedReferences } from "./sharedResolver";
+import { renderChildren } from "./rendererChildren";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 interface JsonRendererProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -54,11 +50,13 @@ function JsonRendererRoot({
   // resolve all shared references
   const resolvedConfig = resolveSharedReferences(config, config.shared);
   return (
-    <SharedProvider shared={resolvedConfig.shared}>
-      <StoreProvider store={store}>
-        <JsonRenderer config={resolvedConfig.ui} context={context} />
-      </StoreProvider>
-    </SharedProvider>
+    <ErrorBoundary>
+      <SharedProvider shared={resolvedConfig.shared}>
+        <StoreProvider store={store}>
+          <JsonRenderer config={resolvedConfig.ui} context={context} />
+        </StoreProvider>
+      </SharedProvider>
+    </ErrorBoundary>
   );
 }
 
@@ -83,7 +81,7 @@ interface JsonRendererInternalProps {
   context?: Partial<PluginContext>;
 }
 
-function JsonRendererInternal({
+export function JsonRendererInternal({
   config,
   context = {},
 }: JsonRendererInternalProps): ReactElement | null {
@@ -150,7 +148,7 @@ function renderComponent(
   }
 
   // Get component from metadata (already validated above)
-  const Component = metadata.component;
+  let Component = metadata.component;
 
   if (
     modifiedConfig.children &&
@@ -194,6 +192,22 @@ function renderComponent(
     return null;
   }
 
+  // Execute wrapper (HOC) plugins
+  if (modifiedConfig.plugins && modifiedConfig.plugins.length > 0) {
+    Component = pluginRegistry.executeWrapComponent(
+      Component,
+      modifiedConfig,
+      modifiedConfig.plugins,
+      context,
+    );
+
+    if (!Component) {
+      throw new Error(
+        `Component is not defined for "${config.type}" after applying plugins`,
+      );
+    }
+  }
+
   // Create element
   let element = createElement(Component, finalProps, renderedChildren);
 
@@ -208,39 +222,4 @@ function renderComponent(
   }
 
   return element;
-}
-
-function renderChildren(
-  children: ComponentConfig["children"],
-  context: PluginContext,
-): React.ReactNode {
-  if (!children) {
-    return null;
-  }
-
-  // Handle primitive children (string, number)
-  if (typeof children === "string" || typeof children === "number") {
-    return children;
-  }
-
-  // Handle array of children
-  if (Array.isArray(children)) {
-    return createElement(
-      Fragment,
-      null,
-      ...children.map((child, index) => {
-        if (typeof child === "string" || typeof child === "number") {
-          return child;
-        }
-        return createElement(JsonRendererInternal, {
-          key: index,
-          config: child,
-          context,
-        });
-      }),
-    );
-  }
-
-  // Handle single component child
-  return createElement(JsonRendererInternal, { config: children, context });
 }

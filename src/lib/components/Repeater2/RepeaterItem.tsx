@@ -25,20 +25,23 @@ export function RepeaterItemArray({
   const item = useSnapshot(store.find((item) => getId(item) === id));
 
   // Resolve @item.* references in template
-  const resolvedConfig = resolveItemReferences(template, item);
-  return <JsonRenderer config={resolvedConfig as ComponentConfig} />;
+  return <RepeaterItem template={template} item={item} />;
 }
 
 /**
- * RepeaterItem - Renders a single item from a Map
+ * RepeaterItemMap - Renders a single item from a Map
  *
  * Uses useSnapshot on the Map.get(id) result for selective re-rendering.
  * Only this component re-renders when the item changes.
  */
-export function RepeaterItem({ store, id, template }: RepeaterItemProps) {
+export function RepeaterItemMap({ store, id, template }: RepeaterItemProps) {
   // Get item from Map and create reactive snapshot
   const item = useSnapshot(store.get(id));
 
+  return <RepeaterItem template={template} item={item} />;
+}
+
+export function RepeaterItem({ item, template }) {
   // Resolve @item.* references in template
   const resolvedConfig = resolveItemReferences(template, item);
   return <JsonRenderer config={resolvedConfig as ComponentConfig} />;

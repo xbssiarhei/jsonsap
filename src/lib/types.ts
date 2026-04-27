@@ -83,6 +83,12 @@ export interface Plugin<T = object> {
     config: ComponentConfig & T,
     context: PluginContext,
   ) => ReactElement;
+
+  wrapComponent?: (
+    component: LibComponent<any>,
+    config: ComponentConfig & T,
+    context: PluginContext,
+  ) => ComponentType<any>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
