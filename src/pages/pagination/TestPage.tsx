@@ -1,19 +1,131 @@
-import type { AppConfig } from "@/lib";
+import { type AppConfig, type StoreConfig } from "@/lib";
+import "./components";
+import { proxy } from "valtio";
 
 type TestState = {
   items: Array<{ id: number; name: string; value: number }>;
   viewMode: "list" | "cards" | "table";
 };
 
+const store: StoreConfig<TestState> = {
+  state: proxy({
+    items: Array.from({ length: 50 }, (_, i) => ({
+      id: i + 1,
+      name: `Item store ${i + 1}`,
+      value: Math.floor(Math.random() * 100),
+    })),
+    viewMode: "cards",
+  }),
+};
+
+setInterval(() => {
+  store.state.items.forEach((item) => {
+    item.value = Math.floor(Math.random() * 100);
+  });
+}, 1000);
+
 const config: AppConfig<TestState> = {
-  store: {
-    state: {
-      items: Array.from({ length: 50 }, (_, i) => ({
-        id: i + 1,
-        name: `Item ${i + 1}`,
-        value: Math.floor(Math.random() * 100),
-      })),
-      viewMode: "cards",
+  store: store,
+  shared: {
+    components: {
+      card: {
+        type: "Card",
+        props: {
+          className: "p-4",
+        },
+        children: [
+          {
+            type: "div",
+            props: {
+              className: "flex justify-between items-center",
+            },
+            children: [
+              {
+                type: "span",
+                props: {
+                  className: "font-semibolds",
+                },
+                children: [
+                  {
+                    type: "span",
+                    props: {
+                      className: "font-semibold",
+                    },
+                    children: "Name: ",
+                  },
+                  { type: "span", children: "@item.name" },
+                ],
+              },
+              {
+                type: "Badge",
+                children: " @item.value",
+              },
+            ],
+          },
+        ],
+      },
+      viewModeButton: {
+        type: "Button",
+        children: "@item.label",
+        props: {
+          variant: "outline",
+          onClick: {
+            $action: "set",
+            path: "viewMode",
+            value: "@item.view",
+          },
+        },
+        modifiers: [
+          {
+            conditions: [
+              {
+                path: "@store.state.viewMode",
+                operator: "equals",
+                value: "@item.view",
+              },
+            ],
+            props: {
+              variant: "default",
+            },
+          },
+        ],
+      },
+      viewModeText: [
+        {
+          type: "span",
+          children: "Selected view: ",
+        },
+        {
+          type: "Badge",
+          props: {
+            variant: "secondary",
+          },
+          children: "@store.state.viewMode",
+        },
+      ],
+      searchInput: {
+        type: "ButtonGroup",
+        children: [
+          {
+            type: "ButtonGroup.Text",
+            props: { asChild: false },
+            children: [
+              {
+                type: "label",
+                props: { htmlFor: "search" },
+                children: "Search",
+              },
+            ],
+          },
+          {
+            type: "Input",
+            props: {
+              id: "search",
+              placeholder: "Type something here...",
+            },
+          },
+        ],
+      },
     },
   },
   ui: {
@@ -52,69 +164,176 @@ const config: AppConfig<TestState> = {
                         { view: "list", label: "List" },
                         { view: "table", label: "Table" },
                       ],
-                      template: {
-                        type: "Button",
-                        children: "@item.label",
-                        props: {
-                          variant: "outline",
-                          onClick: {
-                            $action: "set",
-                            path: "viewMode",
-                            value: "@item.view",
-                          },
-                        },
-                        modifiers: [
-                          {
-                            conditions: [
-                              {
-                                path: "@store.state.viewMode",
-                                operator: "equals",
-                                value: "@item.view",
-                              },
-                            ],
-                            props: {
-                              variant: "default",
-                            },
-                          },
-                        ],
-                      },
+                      template: "@shared/components/viewModeButton",
                     },
                   },
                 ],
               },
               {
                 type: "span",
-                children: "Selected view: @store.state.viewMode",
+                children: "@shared/components/viewModeText",
               },
             ],
           },
           {
-            type: "ButtonGroup",
+            type: "Fragment",
+            children: "@shared/components/searchInput",
+          },
+        ],
+      },
+      {
+        type: "div",
+        props: {
+          className: "flex flex-col gap-4 py-4",
+        },
+        children: [
+          {
+            type: "div",
+            props: {
+              className: "flex flex-col gap-4",
+            },
             children: [
               {
-                type: "ButtonGroup.Text",
-                props: { asChild: false },
+                type: "div",
+                children: "Example views",
+              },
+              {
+                type: "Store",
+                plugins: ["pagination2"],
+                collectionPath: "@store/state/items",
                 children: [
                   {
-                    type: "label",
-                    props: { htmlFor: "search" },
-                    children: "Search",
+                    type: "Views",
+                    props: {
+                      view: "@store.state.viewMode",
+                      views: {
+                        cards: {
+                          type: "Items",
+                          props: {
+                            className:
+                              "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4",
+                            template: "@shared/components/card",
+                          },
+                        },
+                        list: {
+                          type: "div",
+                          children: "List",
+                        },
+                        table: {
+                          type: "TableView",
+                          props: {
+                            items: "@store.state.items",
+                          },
+                        },
+                      },
+                    },
+                  },
+                  {
+                    type: "PaginationControl",
                   },
                 ],
               },
-              {
-                type: "Input",
-                props: {
-                  id: "search",
-                  placeholder: "Type something here...",
+            ],
+          },
+          {
+            type: "Views_",
+            plugins: ["pagination2"],
+            props: {
+              view: "@store.state.viewMode",
+              views: {
+                cards: {
+                  type: "Items",
+                  props: {
+                    template: {
+                      type: "div",
+                      children: "@item.name",
+                    },
+                  },
                 },
+                table: {
+                  type: "TableView",
+                },
+              },
+              items: "@store.state.items",
+              // items: Array.from(new Array(10)).map((_v, index) => ({
+              //   id: index + 1,
+              //   name: `Item ${index + 1}`,
+              //   value: Math.floor(Math.random() * 100),
+              // })),
+            },
+            children: [
+              {
+                type: "PaginationControl",
+              },
+            ],
+          },
+          {
+            type: "div",
+            props: {
+              className: "flex flex-col gap-4",
+            },
+            children: [
+              { type: "div", children: "Example static items" },
+              {
+                type: "Items",
+                plugins: ["pagination2"],
+                props: {
+                  items: Array.from(new Array(10)).map((_v, index) => ({
+                    id: index + 1,
+                    name: `Item ${index + 1}`,
+                    value: Math.floor(Math.random() * 100),
+                  })),
+                  className: "flex flex-col gap-4",
+                  template: "@shared/components/card",
+                },
+                children: [
+                  {
+                    type: "PaginationControl",
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: "div",
+            props: {
+              className: "flex flex-col gap-4",
+            },
+            children: [
+              { type: "div", children: "Example store items" },
+              {
+                type: "Store",
+                // plugins: ["pagination2"],
+                collectionPath: "@store/state/items",
+                subscribe: true,
+                children: [
+                  {
+                    type: "Items",
+                    plugins: ["pagination2"],
+                    props: {
+                      className:
+                        "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4",
+                      template1: {
+                        type: "div",
+                        children: "@item.name",
+                      },
+                      template: "@shared/components/card",
+                    },
+                    children: [
+                      {
+                        type: "PaginationControl",
+                      },
+                    ],
+                  },
+                ],
               },
             ],
           },
         ],
       },
+
       {
-        type: "StoreCollection",
+        type: "StoreCollection_",
         // collection: "@store.state.items",
         plugins: ["pagination"],
         props: {
@@ -131,33 +350,7 @@ const config: AppConfig<TestState> = {
               {
                 type: "CollectionRepeater",
                 props: {
-                  template: {
-                    type: "Card",
-                    props: {
-                      className: "p-4",
-                    },
-                    children: [
-                      {
-                        type: "div",
-                        props: {
-                          className: "flex justify-between items-center",
-                        },
-                        children: [
-                          {
-                            type: "span",
-                            props: {
-                              className: "font-semibold",
-                            },
-                            children: "@item.name",
-                          },
-                          {
-                            type: "Badge",
-                            children: " @item.value",
-                          },
-                        ],
-                      },
-                    ],
-                  },
+                  template: "@shared/components/card",
                 },
               },
             ],
@@ -168,4 +361,4 @@ const config: AppConfig<TestState> = {
   },
 };
 
-export default config;
+export { config };

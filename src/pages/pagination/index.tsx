@@ -1,10 +1,10 @@
-import { JsonRenderer } from "@/lib";
-import config from "./TestPage";
+import { config } from "./TestPage";
+import { PageView } from "@/components/PageView";
 
 export default function TestPageView() {
   return (
     <>
-      <JsonRenderer.Root config={config} />
+      <PageView key={String(Date.now())} config={config} />
     </>
   );
 }
