@@ -47,6 +47,7 @@ import {
   ButtonGroupText,
 } from "@/components/ui/button-group";
 import { Label } from "@/components/ui/label";
+import { Fragment } from "react/jsx-runtime";
 
 // Register all common components
 export function registerCommonComponents() {
@@ -93,6 +94,8 @@ export function registerCommonComponents() {
   });
   componentRegistry.register("StoreCollection", StoreCollection);
   componentRegistry.register("CollectionRepeater", CollectionRepeater);
+
+  componentRegistry.register("Fragment", Fragment);
 
   // HTML Elements
   componentRegistry.register("div", "div");
@@ -150,6 +153,7 @@ declare module "@/lib/types" {
     StoreCollection: string;
     CollectionRepeater: string;
 
+    Fragment: string;
     // HTML Elements
     div: string;
     h1: string;

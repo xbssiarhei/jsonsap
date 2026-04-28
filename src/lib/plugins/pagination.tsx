@@ -32,14 +32,14 @@ export const paginationPlugin: Plugin = {
         : children;
 
       return (
-        <div>
+        <>
           {elementWithPagination}
           <PaginationControls
             page={page}
             pageSize={pageSize as number}
             onPageChange={setPage}
           />
-        </div>
+        </>
       );
     }
 

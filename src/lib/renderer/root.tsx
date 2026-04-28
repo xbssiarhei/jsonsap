@@ -36,8 +36,10 @@ export function JsonRendererRoot({
   if (!store) {
     return <Spinner />;
   }
+  // resolve complex shared references
+  const resolvedShared = resolveSharedReferences(config.shared, config.shared);
   // resolve all shared references
-  const resolvedConfig = resolveSharedReferences(config, config.shared);
+  const resolvedConfig = resolveSharedReferences(config, resolvedShared);
   return (
     <ErrorBoundary>
       <SharedProvider shared={resolvedConfig.shared}>

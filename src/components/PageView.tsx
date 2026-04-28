@@ -22,7 +22,7 @@ interface PageViewProps {
  * ```
  */
 export function PageView({ config: initialConfig }: PageViewProps) {
-  const [config, setConfig] = useState(initialConfig);
+  const [config, setConfig] = useState(() => initialConfig);
 
   return (
     <>

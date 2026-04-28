@@ -38,9 +38,23 @@ export function resolveSharedReference(
       return { ...modifier };
     }
     // Future categories can be added here
-    default:
-      console.warn(`Unknown shared category: ${category}`);
-      return null;
+    default: {
+      if (!shared[category]) {
+        console.warn(`Unknown shared category: ${category}`);
+        return null;
+      }
+      const sharedItem = shared[category][name];
+
+      if (!sharedItem) {
+        console.warn(`Unknown shared path: ${category} / ${name}`);
+        return null;
+      }
+      if (Array.isArray(sharedItem)) {
+        return sharedItem;
+      }
+      return { ...shared[category as keyof AppConfig<any>["shared"]][name] };
+      // return { ...shared[name] };
+    }
   }
 }
 
@@ -68,11 +82,19 @@ export function resolveSharedReferences<T>(
     const result: any = {};
 
     for (const [key, value] of Object.entries(config)) {
+      if (key === "store") {
+        result[key] = value;
+        continue;
+      }
       // Special handling for modifiers field
       if (key === "modifiers" && value) {
         result[key] = resolveModifiers(
-          value as (Modifier | Modifier2 | string)[] | Modifier | Modifier2 | string,
-          shared
+          value as
+            | (Modifier | Modifier2 | string)[]
+            | Modifier
+            | Modifier2
+            | string,
+          shared,
         );
       }
       // Handle string references in any field
@@ -90,6 +112,10 @@ export function resolveSharedReferences<T>(
     }
 
     return result as T;
+  }
+
+  if (typeof config === "string" && config.startsWith("@shared/")) {
+    return resolveSharedReference(config, shared) as T;
   }
 
   // Return primitives as-is

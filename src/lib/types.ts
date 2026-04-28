@@ -127,6 +127,7 @@ export interface AppConfig<State extends DefaultState> {
   shared?: {
     modifiers?: Record<string, Modifier | Modifier2>;
     // Future: styles, components, validators, etc.
+    components?: Record<string, ComponentConfig | ComponentConfig[]>;
   };
   store?: StoreConfig<State>;
   ui: ComponentConfig;
