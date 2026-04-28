@@ -216,8 +216,11 @@ const config: AppConfig<TestState> = {
                           },
                         },
                         list: {
-                          type: "div",
-                          children: "List",
+                          type: "Items",
+                          props: {
+                            className: "flex flex-col gap-4",
+                            template: "@shared/components/card",
+                          },
                         },
                         table: {
                           type: "TableView",
