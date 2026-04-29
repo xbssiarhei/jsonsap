@@ -17,6 +17,7 @@ const apps = [
   { path: "/valtio-test", label: "Valtio Test" },
   { path: "/store", label: "Store" },
   { path: "/web", label: "Web" },
+  { path: "/router", label: "Router" },
 ];
 
 const menuItems = [

@@ -15,6 +15,7 @@ import PaginationPageView from "./pages/pagination";
 import HomePage from "./pages/home/";
 import Layout from "./Layout";
 import { ThemeProvider } from "./components/theme-provider";
+import RouterPageView from "./pages/router";
 
 function App() {
   const pathname = window.location.pathname;
@@ -42,6 +43,7 @@ function App() {
             <Route path="jsonata" element={<JsonataPageView />} />
             <Route path="products" element={<ProductsPageView />} />
             <Route path="valtio-test" element={<ValtioTestPageView />} />
+            <Route path="router/*" element={<RouterPageView />} />
           </Route>
         </Routes>
       </BrowserRouter>

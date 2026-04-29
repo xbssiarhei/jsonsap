@@ -130,6 +130,12 @@ const features = [
     content:
       "Complete TypeScript support with type inference. Catch errors early and enjoy better IDE autocomplete.",
   },
+  {
+    title: "JSON Router",
+    description: "Multi-page apps from JSON config",
+    content:
+      "Define routes and layouts declaratively in JSON. Single global store, nested layouts with Outlet, and react-router components (Link, NavLink) available in config.",
+  },
 ];
 
 export default function HomePage() {
