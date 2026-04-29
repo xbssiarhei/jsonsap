@@ -5,4 +5,5 @@ export { JsonRenderer } from "./main";
 export { JsonRendererRoot } from "./root";
 export type { JsonRendererProps, JsonRendererInternalProps } from "./types";
 
+// @ts-expect-error skip
 JsonRenderer.Root = JsonRendererRoot;

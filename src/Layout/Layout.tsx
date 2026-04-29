@@ -16,6 +16,7 @@ const apps = [
   { path: "/pagination", label: "Pagination" },
   { path: "/valtio-test", label: "Valtio Test" },
   { path: "/store", label: "Store" },
+  { path: "/web", label: "Web" },
 ];
 
 const menuItems = [
@@ -143,7 +144,7 @@ export const Layout = () => {
       </header>
 
       {/* <NavigationMenuDemo items={navMenuItems} className="m-2 flex gap-2" /> */}
-      <main className="overflow-auto">
+      <main className="overflow-auto flex-1">
         <Outlet />
       </main>
     </>

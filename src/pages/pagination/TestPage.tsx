@@ -239,6 +239,7 @@ const config: AppConfig<TestState> = {
             ],
           },
           {
+            // @ts-expect-error skip
             type: "Views_",
             plugins: ["pagination2"],
             props: {
@@ -336,6 +337,7 @@ const config: AppConfig<TestState> = {
       },
 
       {
+        // @ts-expect-error skip
         type: "StoreCollection_",
         // collection: "@store.state.items",
         plugins: ["pagination"],

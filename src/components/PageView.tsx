@@ -4,6 +4,7 @@ import { ConfigEditor } from "./ConfigEditor";
 
 interface PageViewProps {
   config: AppConfig<any>;
+  edit?: boolean;
 }
 
 /**
@@ -21,16 +22,26 @@ interface PageViewProps {
  * }
  * ```
  */
-export function PageView({ config: initialConfig }: PageViewProps) {
+export function PageView({
+  config: initialConfig,
+  edit = true,
+}: PageViewProps) {
   const [config, setConfig] = useState(() => initialConfig);
 
   return (
     <>
-      <div
-        style={{ position: "fixed", top: "80px", right: "24px", zIndex: 1000 }}
-      >
-        <ConfigEditor config={config} onConfigChange={setConfig} />
-      </div>
+      {edit && (
+        <div
+          style={{
+            position: "fixed",
+            top: "80px",
+            right: "24px",
+            zIndex: 1000,
+          }}
+        >
+          <ConfigEditor config={config} onConfigChange={setConfig} />
+        </div>
+      )}
       <JsonRenderer.Root config={config} />
     </>
   );

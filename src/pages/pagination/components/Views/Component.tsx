@@ -1,5 +1,4 @@
 import { JsonRenderer, type ComponentConfig } from "@/lib";
-import { RepeaterItem } from "@/lib/components/Repeater2";
 
 declare module "@/lib/types" {
   export interface ComponentConfigType {

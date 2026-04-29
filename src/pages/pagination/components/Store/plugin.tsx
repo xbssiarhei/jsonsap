@@ -1,10 +1,6 @@
-import { useStore, type Plugin } from "@/lib";
-import { getNestedValue } from "@/lib/components/repeaterUtils";
-import { proxy, useSnapshot } from "valtio";
+import { type Plugin } from "@/lib";
 import { StoreProvider } from "./Context";
 import { useProxyStore } from "../useProxyStore";
-
-const emptyProxy = proxy({});
 
 export const storePlugin: Plugin<{
   collectionPath: string;
@@ -17,9 +13,9 @@ export const storePlugin: Plugin<{
   //   return config;
   // },
   wrapComponent: (Component, config) => {
-    const { collectionPath, subscribe } = config;
+    const { collectionPath } = config;
 
-    return ({ children, ...props }) => {
+    return ({ children }) => {
       const { storeItem } = useProxyStore(collectionPath);
 
       // Convert to array

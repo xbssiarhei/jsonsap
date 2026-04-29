@@ -5,6 +5,7 @@ declare module "@/lib/types" {
 
   export interface ComponentConfig {
     collectionPath?: string;
+    subscribe?: boolean;
   }
 }
 

@@ -1,5 +1,5 @@
 import type { ComponentProps } from "react";
-import { Label } from "./ui/label";
+// import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 

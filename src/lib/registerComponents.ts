@@ -17,6 +17,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "../components/ui/chart";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "../components/ui/input";
 import { Checkbox } from "../components/ui/checkbox";
 import { Repeater } from "./components/Repeater";
@@ -71,6 +72,10 @@ export function registerCommonComponents() {
   componentRegistry.register("ButtonGroup.Separator", ButtonGroupSeparator);
   componentRegistry.register("ButtonGroup.Text", ButtonGroupText);
   componentRegistry.register("Label", Label);
+
+  componentRegistry.register("Avatar", Avatar);
+  componentRegistry.register("Avatar.AvatarFallback", AvatarFallback);
+  componentRegistry.register("Avatar.AvatarImage", AvatarImage);
 
   // Chart Components
   componentRegistry.register("ChartContainer", ChartContainer);
@@ -131,6 +136,9 @@ declare module "@/lib/types" {
     "ButtonGroup.Separator": string;
     "ButtonGroup.Text": string;
     Label: string;
+    Avatar: string;
+    "Avatar.AvatarFallback": string;
+    "Avatar.AvatarImage": string;
 
     // Chart Components
     ChartContainer: string;

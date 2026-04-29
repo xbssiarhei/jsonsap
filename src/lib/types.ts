@@ -1,4 +1,4 @@
-import type { ReactElement, ComponentType } from "react";
+import type { ReactElement, ComponentType, ComponentProps } from "react";
 
 export interface ModifierCondition {
   path: string; // e.g., "status", "item.status", "@store.state.theme"
@@ -56,7 +56,11 @@ export interface ComponentConfigType {
 
 export interface ComponentConfig {
   type: keyof ComponentConfigType;
-  props?: Record<string, unknown>;
+  props?: {
+    className?: ComponentProps<"div">["className"];
+    style?: ComponentProps<"div">["style"];
+    [key: string]: unknown;
+  };
   children?: ComponentConfig[] | ComponentConfig | string | number;
   plugins?: string[];
   modifiers?: Modifier[] | Modifier | string | string[]; // Can be inline, reference, or array

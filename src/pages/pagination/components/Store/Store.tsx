@@ -1,4 +1,4 @@
-import { Children, cloneElement } from "react";
+import { Children, cloneElement, type ReactElement } from "react";
 
 type StoreProps = {
   className?: string;
@@ -22,7 +22,7 @@ export const Store = ({ children, ...props }: StoreProps) => {
   //   },
   // });
 
-  return Children.map(children, (child) => {
+  return Children.map(children, (child: ReactElement<{ config: any }>) => {
     const config = child.props.config;
     return cloneElement(child, {
       ...child.props,
