@@ -25,6 +25,8 @@ export type {
   StoreInstance,
   Modifier,
   ModifierCondition,
+  Slots,
+  WithSlots,
 } from "./types";
 
 registerCommonComponents();

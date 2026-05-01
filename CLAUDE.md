@@ -381,7 +381,8 @@ import { Editor } from './components/Editor';
   height="400px"
 />
 ```
-```
+
+````
 
 **Popover Component:**
 
@@ -405,7 +406,7 @@ import { Editor } from './components/Editor';
     }
   ]
 }
-```
+````
 
 **JSONata Integration:**
 
@@ -419,7 +420,7 @@ actions: {
     const expression = jsonata(state.query);
     const result = await expression.evaluate(state.products);
     state.filteredProducts = Array.isArray(result) ? result : [result];
-  }
+  };
 }
 ```
 
@@ -508,6 +509,139 @@ pluginRegistry.register(somePlugin);
 - `source`: Path to data source (e.g., "@store.state.products")
 - Can mix function and JSONata computed in same store
 - JSONata computed are reactive and memoized automatically
+
+**JSON Router (`RouterAppConfig`):**
+
+- Multi-page apps defined fully in JSON with routes and layouts
+- Implemented in `src/lib/router/` — `RouterRenderer`, `types`
+- Use `RouterRenderer` component instead of `JsonRenderer.Root` for routed apps
+- `layouts` — named layout configs with `Outlet` as placeholder for page content
+- `routes` — array of route configs; routes with `layout` + `children` become parent routes
+- Leaf routes have `ui` field; layout routes have `layout` + `children`
+- Global store shared across all pages
+- `Link`, `NavLink`, `Outlet` registered automatically when importing `RouterRenderer`
+- Example:
+
+```json
+{
+  "store": {
+    "state": { "user": null }
+  },
+  "layouts": {
+    "main": {
+      "type": "div",
+      "children": [
+        { "type": "NavLink", "props": { "to": "/" }, "children": "Home" },
+        { "type": "Outlet" }
+      ]
+    }
+  },
+  "routes": [
+    { "path": "/login", "ui": { "type": "LoginPage" } },
+    {
+      "path": "/",
+      "layout": "main",
+      "children": [
+        { "index": true, "ui": { "type": "HomePage" } },
+        { "path": "users", "ui": { "type": "UsersPage" } }
+      ]
+    }
+  ]
+}
+```
+
+```typescript
+import { RouterRenderer } from "@/lib/router";
+import type { RouterAppConfig } from "@/lib/router";
+
+<RouterRenderer config={config} />
+```
+
+**Slots System:**
+
+- Components can receive named content areas via `slots` field in `ComponentConfig`
+- Renderer renders each slot config into `ReactNode` and passes as `slots` prop object
+- Component uses slots like regular children: `{slots?.header}`, `{slots?.body}`
+- Slots are optional — use optional chaining in component
+- Example:
+
+```json
+{
+  "type": "Panel",
+  "slots": {
+    "header": { "type": "h1", "children": "Title" },
+    "body": { "type": "div", "children": "Content" },
+    "footer": { "type": "Button", "children": "Save" }
+  }
+}
+```
+
+```typescript
+function Panel({ slots }: { slots?: Record<string, ReactNode> }) {
+  return (
+    <div>
+      {slots?.header}
+      {slots?.body}
+      {slots?.footer}
+    </div>
+  );
+}
+```
+
+**`@shared/components/` as `type`:**
+
+- Use shared component references directly as `type` in any `ComponentConfig`
+- Supports both `@shared/components/name` and shorthand `@components/name`
+- Resolved once in `resolveSharedReferences` before rendering — no runtime overhead
+- Example:
+
+```json
+{
+  "shared": {
+    "components": {
+      "userCard": {
+        "type": "Card",
+        "children": [
+          { "type": "CardContent", "children": "@store.state.user.name" }
+        ]
+      }
+    }
+  },
+  "ui": {
+    "type": "div",
+    "children": [
+      { "type": "@shared/components/userCard" },
+      { "type": "@components/userCard" }
+    ]
+  }
+}
+```
+
+**JSX → Config Pragma Tool (`src/pages/router/tools/`):**
+
+- `jsxConfig` — JSX pragma function, converts JSX syntax to `ComponentConfig` objects
+- Use with `/** @jsxRuntime classic */ /** @jsx jsxConfig */` file-level comments
+- Compound component names (`Item.Item`) resolve to dotted strings automatically
+- `JsxToConfigDialog` — dev tool dialog: paste JSX, get JSON config output
+- Uses `sucrase` for runtime JSX transform + `with(Proxy)` for identifier resolution
+- Unknown identifiers auto-resolve to their string name (`Panel` → `"Panel"`)
+- Example:
+
+```tsx
+/** @jsxRuntime classic */
+/** @jsx jsxConfig */
+import { jsxConfig } from "@/pages/router/tools/jsxConfig";
+
+export const myConfig: ComponentConfig = (
+  <Panel
+    slots={{
+      header: <h1 className="text-xl">Title</h1>,
+    }}
+  >
+    <div className="p-4">Content</div>
+  </Panel>
+);
+```
 
 ### Component Styling
 

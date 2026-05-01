@@ -23,6 +23,7 @@ export function jsxConfig(
         ? rawChildren[0]
         : rawChildren;
 
+  // @ts-expect-error function has name (constructor)
   const t = typeof type === "function" ? type.name : String(type);
   const resolvedRestProps = {};
   for (const key in restProps) {

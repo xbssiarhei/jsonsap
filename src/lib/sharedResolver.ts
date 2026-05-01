@@ -79,6 +79,22 @@ export function resolveSharedReferences<T>(
 
   // Handle objects
   if (typeof config === "object") {
+    // If ComponentConfig with @shared/components/ type — replace entire object
+    if ("type" in config && typeof (config as any).type === "string") {
+      const match = ((config as any).type as string).match(
+        /^@(?:shared\/)?components\/(.+)$/,
+      );
+      if (match) {
+        const sharedComponent = shared?.components?.[match[1]];
+        if (sharedComponent) {
+          const resolved = Array.isArray(sharedComponent)
+            ? sharedComponent[0]
+            : sharedComponent;
+          return resolveSharedReferences(resolved, shared) as T;
+        }
+      }
+    }
+
     const result: any = {};
 
     for (const [key, value] of Object.entries(config)) {

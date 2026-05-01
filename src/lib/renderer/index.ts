@@ -1,9 +1,9 @@
 import { JsonRendererRoot } from "./root";
-import { JsonRenderer } from "./main";
+import { JsonRenderer as JsonRendererBase } from "./main";
 
-export { JsonRenderer } from "./main";
 export { JsonRendererRoot } from "./root";
 export type { JsonRendererProps, JsonRendererInternalProps } from "./types";
 
-// @ts-expect-error skip
-JsonRenderer.Root = JsonRendererRoot;
+export const JsonRenderer = Object.assign(JsonRendererBase, {
+  Root: JsonRendererRoot,
+});

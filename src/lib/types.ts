@@ -1,4 +1,12 @@
-import type { ReactElement, ComponentType, ComponentProps } from "react";
+import type { ReactElement, ReactNode, ComponentType, ComponentProps } from "react";
+
+/** Named slots passed to a component as rendered ReactNodes */
+export type Slots<T extends Record<string, ReactNode> = Record<string, ReactNode>> = T;
+
+/** Props helper — adds optional typed `slots` to a component's props */
+export type WithSlots<T extends Record<string, ReactNode> = Record<string, ReactNode>> = {
+  slots?: Slots<T>;
+};
 
 export interface ModifierCondition {
   path: string; // e.g., "status", "item.status", "@store.state.theme"
@@ -55,7 +63,7 @@ export interface ComponentConfigType {
 }
 
 export interface ComponentConfig {
-  type: keyof ComponentConfigType;
+  type: keyof ComponentConfigType | `@shared/components/${string}` | `@components/${string}`;
   props?: {
     className?: ComponentProps<"div">["className"];
     style?: ComponentProps<"div">["style"];
