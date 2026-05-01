@@ -120,8 +120,25 @@ export function renderComponent(
     }
   }
 
+  // Render slots
+  const renderedSlots = modifiedConfig.slots
+    ? Object.fromEntries(
+        Object.entries(modifiedConfig.slots).map(([name, slotConfig]) => [
+          name,
+          renderChildren(slotConfig, {
+            ...context,
+            depth: context.depth + 1,
+            parentType: modifiedConfig.type,
+          }),
+        ]),
+      )
+    : undefined;
+
   // Create element
-  let element = createElement(Component, finalProps, renderedChildren);
+  const propsWithSlots = renderedSlots
+    ? { ...finalProps, slots: renderedSlots }
+    : finalProps;
+  let element = createElement(Component, propsWithSlots, renderedChildren);
 
   // Execute afterRender plugins
   if (modifiedConfig.plugins && modifiedConfig.plugins.length > 0) {

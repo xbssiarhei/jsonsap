@@ -17,7 +17,7 @@ export function renderChildren(
 
   // Handle array of children
   if (Array.isArray(children)) {
-    return children.map((child, index) => {
+    const childrenElements = children.map((child, index) => {
       if (typeof child === "string" || typeof child === "number") {
         return child;
       }
@@ -27,6 +27,12 @@ export function renderChildren(
         context,
       });
     });
+
+    return childrenElements.length
+      ? childrenElements.length > 1
+        ? childrenElements
+        : childrenElements[0]
+      : null;
   }
 
   // Handle single component child

@@ -62,6 +62,7 @@ export interface ComponentConfig {
     [key: string]: unknown;
   };
   children?: ComponentConfig[] | ComponentConfig | string | number;
+  slots?: Record<string, ComponentConfig | ComponentConfig[]>;
   plugins?: string[];
   modifiers?: Modifier[] | Modifier | string | string[]; // Can be inline, reference, or array
   modifiers2?: Modifier2[]; // Conditional prop modifications (new reactive format)
