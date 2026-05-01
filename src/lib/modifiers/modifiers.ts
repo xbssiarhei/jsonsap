@@ -1,7 +1,7 @@
 import { applyModifier, evaluateCondition, resolveValue } from "./utils";
 import type { Modifier, ComponentConfig } from "../types";
 import type { StoreInstance } from "../types";
-import { useSnapshot } from "valtio";
+import { proxy, useSnapshot } from "valtio";
 
 /**
  * Checks if a modifier's conditions are met
@@ -60,6 +60,7 @@ function checkModifier(
 }
 
 export const applyModifiers = useModifiers;
+const emptyProxy = proxy({});
 
 /**
  * Applies modifiers to component config and returns modified props
@@ -72,8 +73,10 @@ export function useModifiers(
 
   // Get snapshots for reactivity
   // TODO: use emptyProxy
-  const stateSnapshot = useSnapshot(store?.state ? store.state : null);
-  const computedSnapshot = useSnapshot(store.computed ? store.computed : null);
+  const stateSnapshot = useSnapshot(store?.state ? store.state : emptyProxy);
+  const computedSnapshot = useSnapshot(
+    store.computed ? store.computed : emptyProxy,
+  );
 
   if (!config.modifiers) {
     return baseProps;

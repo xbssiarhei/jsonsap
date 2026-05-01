@@ -9,7 +9,7 @@ import { pluginRegistry } from "../plugins";
 import { resolveChildren } from "../resolver";
 import { renderChildren } from "./children";
 import type { createStore } from "../store";
-import { applyModifiers, applyModifiers2 } from "../modifiers";
+import { applyConfigModifiers } from "../modifiers";
 
 export function renderComponent(
   config: ComponentConfig,
@@ -81,21 +81,8 @@ export function renderComponent(
 
   // Apply modifiers to get final props
   const store = context.store as ReturnType<typeof createStore> | null;
-  const finalProps1 = applyModifiers(
+  const finalProps = applyConfigModifiers(
     modifiedConfig,
-    store as unknown as StoreInstance,
-  );
-
-  // should hide element
-  if (!finalProps1) {
-    return null;
-  }
-
-  const finalProps = applyModifiers2(
-    {
-      ...modifiedConfig,
-      props: finalProps1,
-    },
     store as unknown as StoreInstance,
   );
 
