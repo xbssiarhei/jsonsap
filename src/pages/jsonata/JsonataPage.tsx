@@ -224,12 +224,25 @@ export const jsonataPageConfig: AppConfig<JsonataState> = {
                   style: {
                     display: "@store.computed.hasError ? 'block' : 'none'",
                     padding: "12px",
-                    backgroundColor: "#fee",
+                    backgroundColor:
+                      "color-mix(in srgb, var(--destructive) 10%, transparent)",
                     borderRadius: "6px",
                     color: "#c00",
                     marginBottom: "16px",
                   },
                 },
+                modifiers: [
+                  {
+                    conditions: [
+                      {
+                        path: "@store.computed.hasError",
+                        operator: "equals",
+                        value: false,
+                      },
+                    ],
+                    hide: true,
+                  },
+                ],
                 children: "@store.state.error",
               },
               {

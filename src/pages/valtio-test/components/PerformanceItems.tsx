@@ -19,7 +19,7 @@ export function MapItem({ id, store }: { id: number; store: any }) {
   return (
     <Card
       style={{
-        backgroundColor: renderCount > 1 ? "#fef3c7" : "#f3f4f6",
+        backgroundColor: renderCount > 1 ? "var(--accent)" : "var(--card)",
         transition: "background-color 0.3s",
       }}
     >
@@ -53,7 +53,7 @@ export function ArrayItem({ id, store }: { id: number; store: any }) {
   return (
     <Card
       style={{
-        backgroundColor: renderCount > 1 ? "#fef3c7" : "#f3f4f6",
+        backgroundColor: renderCount > 1 ? "var(--accent)" : "var(--card)",
         transition: "background-color 0.3s",
       }}
     >

@@ -355,7 +355,7 @@ export const productsPageConfig: AppConfig<ProductsState> = {
                               style: {
                                 padding: "8px",
                                 borderRadius: "4px",
-                                backgroundColor: "#f9fafb",
+                                backgroundColor: "var(--accent)",
                                 display: "flex",
                                 justifyContent: "space-between",
                               },
@@ -430,7 +430,7 @@ export const productsPageConfig: AppConfig<ProductsState> = {
                               style: {
                                 padding: "8px",
                                 borderRadius: "4px",
-                                backgroundColor: "#f9fafb",
+                                backgroundColor: "var(--accent)",
                                 display: "flex",
                                 justifyContent: "space-between",
                               },
@@ -507,7 +507,7 @@ export const productsPageConfig: AppConfig<ProductsState> = {
                               style: {
                                 padding: "8px",
                                 borderRadius: "4px",
-                                backgroundColor: "#f9fafb",
+                                backgroundColor: "var(--accent)",
                                 display: "flex",
                                 justifyContent: "space-between",
                               },
@@ -584,7 +584,7 @@ export const productsPageConfig: AppConfig<ProductsState> = {
                               style: {
                                 padding: "8px",
                                 borderRadius: "4px",
-                                backgroundColor: "#f9fafb",
+                                backgroundColor: "var(--accent)",
                                 display: "flex",
                                 justifyContent: "space-between",
                               },

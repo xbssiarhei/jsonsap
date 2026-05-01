@@ -436,7 +436,7 @@ export const formPageConfig: AppConfig<FormState> = {
                 props: {
                   className: "text-justify overflow-auto",
                   style: {
-                    backgroundColor: "#f3f4f6",
+                    backgroundColor: "var(--accent)",
                     padding: "16px",
                     borderRadius: "8px",
                     fontSize: "12px",

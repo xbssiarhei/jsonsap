@@ -57,6 +57,7 @@ export function TestColumn({
       </Card>
 
       <div
+        className="p-2"
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))",

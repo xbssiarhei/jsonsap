@@ -33,7 +33,7 @@ const modifiers: ModifiersDict = {
       },
     ],
     props: {
-      className: "bg-green-100",
+      className: "bg-accent",
     },
   }),
   byValue: (

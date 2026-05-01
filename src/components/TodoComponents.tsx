@@ -19,7 +19,7 @@ export function TodoItem({ todo, onToggle, onRemove }: TodoItemProps) {
     <Card
       style={{
         padding: "12px 16px",
-        backgroundColor: todo.done ? "#f0fdf4" : "white",
+        backgroundColor: todo.done ? "var(--accent)" : "var(--card)",
       }}
     >
       <div
@@ -37,7 +37,7 @@ export function TodoItem({ todo, onToggle, onRemove }: TodoItemProps) {
           style={{
             flex: 1,
             textDecoration: todo.done ? "line-through" : "none",
-            color: todo.done ? "#6b7280" : "#000",
+            // color: todo.done ? "#6b7280" : "#000",
           }}
         >
           {todo.text}
