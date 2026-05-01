@@ -1,17 +1,16 @@
 import { proxy, useSnapshot } from "valtio";
 import type { JsonRendererProps } from "./types";
-import type { AppConfig, StoreInstance } from "@/lib/types";
+import type { Any, AppConfig, StoreInstance } from "../types";
 import { useEffect, useState, type ReactElement } from "react";
 import { createStore } from "../store";
 import { Spinner } from "@/components/ui/spinner";
-import { resolveSharedReferences } from "../sharedResolver";
 import { ErrorBoundary } from "../components/ErrorBoundary";
-import { SharedProvider } from "../SharedContext";
+import { SharedProvider, resolveSharedReferences } from "../resolvers/shared";
 import { StoreProvider } from "../StoreProvider";
 import { JsonRenderer } from "./main";
 
 interface JsonRendererRootProps extends JsonRendererProps {
-  config: AppConfig<any>;
+  config: AppConfig<Any>;
 }
 
 const emptyProxy = proxy({});
@@ -22,7 +21,7 @@ export function JsonRendererRoot({
 }: JsonRendererRootProps): ReactElement | null {
   const [store, setStore] = useState<StoreInstance | null>(null);
   const state = useSnapshot(store ? store.state : emptyProxy);
-  const mapVersion = (state as any)?.mapVersion;
+  const mapVersion = (state as Any)?.mapVersion;
 
   useEffect(() => {
     const appConfig = config as AppConfig<Record<string, unknown>>;

@@ -1,4 +1,6 @@
-import type { AppConfig, Modifier, Modifier2 } from "./types";
+import { merge } from "lodash-es";
+import type { AppConfig, Modifier, Modifier2, Any } from "../../types";
+import { resolveModifiers } from "../modifiers";
 
 /**
  * Resolves @shared/* references from shared data
@@ -14,8 +16,8 @@ import type { AppConfig, Modifier, Modifier2 } from "./types";
  */
 export function resolveSharedReference(
   reference: string,
-  shared?: AppConfig<any>["shared"],
-): any {
+  shared?: AppConfig<Any>["shared"],
+): Any {
   if (!reference.startsWith("@")) {
     return reference;
   }
@@ -34,6 +36,7 @@ export function resolveSharedReference(
       const modifier = shared?.modifiers?.[name];
       if (!modifier) {
         console.warn(`Modifier "${name}" not found in shared.modifiers`);
+        return null;
       }
       return { ...modifier };
     }
@@ -52,7 +55,7 @@ export function resolveSharedReference(
       if (Array.isArray(sharedItem)) {
         return sharedItem;
       }
-      return { ...shared[category as keyof AppConfig<any>["shared"]][name] };
+      return { ...shared[category as keyof AppConfig<Any>["shared"]][name] };
       // return { ...shared[name] };
     }
   }
@@ -68,7 +71,7 @@ export function resolveSharedReference(
  */
 export function resolveSharedReferences<T>(
   config: T,
-  shared?: AppConfig<any>["shared"],
+  shared?: AppConfig<Any>["shared"],
 ): T {
   if (!config || !shared) return config;
 
@@ -79,23 +82,26 @@ export function resolveSharedReferences<T>(
 
   // Handle objects
   if (typeof config === "object") {
-    // If ComponentConfig with @shared/components/ type — replace entire object
-    if ("type" in config && typeof (config as any).type === "string") {
-      const match = ((config as any).type as string).match(
+    // If ComponentConfig with @shared/components/ type — merge current config on top
+    if ("type" in config && typeof (config as Any).type === "string") {
+      const match = ((config as Any).type as string).match(
         /^@(?:shared\/)?components\/(.+)$/,
       );
       if (match) {
         const sharedComponent = shared?.components?.[match[1]];
         if (sharedComponent) {
-          const resolved = Array.isArray(sharedComponent)
+          const base: Any = Array.isArray(sharedComponent)
             ? sharedComponent[0]
             : sharedComponent;
-          return resolveSharedReferences(resolved, shared) as T;
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { type: _, ...overrides } = config as Any;
+          const merged = merge({}, base, overrides);
+          return resolveSharedReferences(merged, shared) as T;
         }
       }
     }
 
-    const result: any = {};
+    const result: Any = {};
 
     for (const [key, value] of Object.entries(config)) {
       if (key === "store") {
@@ -136,41 +142,4 @@ export function resolveSharedReferences<T>(
 
   // Return primitives as-is
   return config;
-}
-
-/**
- * Resolves modifiers array, handling both objects and @shared/* references
- *
- * @param modifiers - Can be:
- *   - Single Modifier object
- *   - Array of Modifier objects
- *   - Single string reference (@shared/modifiers/name)
- *   - Array of string references or mixed
- * @param shared - Shared data for resolving references
- * @returns Array of resolved Modifier objects
- */
-export function resolveModifiers(
-  modifiers:
-    | (Modifier | Modifier2 | string)[]
-    | Modifier
-    | Modifier2
-    | string
-    | undefined,
-  shared?: AppConfig<any>["shared"],
-): (Modifier | Modifier2)[] {
-  if (!modifiers) return [];
-
-  // Normalize to array
-  const modifiersArray = Array.isArray(modifiers) ? modifiers : [modifiers];
-
-  return modifiersArray
-    .map((modifier) => {
-      // If it's a string reference, resolve it
-      if (typeof modifier === "string") {
-        return resolveSharedReference(modifier, shared) as Modifier | Modifier2;
-      }
-      // Already a Modifier object
-      return modifier;
-    })
-    .filter((m): m is Modifier | Modifier2 => m !== null);
 }

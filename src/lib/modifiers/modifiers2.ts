@@ -1,24 +1,25 @@
 import { useSnapshot } from "valtio";
-import { evaluateCondition, mergeProps } from "./utils";
+import { applyModifier, evaluateCondition } from "./utils";
 import type {
   ComponentConfig,
   Modifier2,
   ModifierCondition2,
   StoreRef,
   StoreInstance,
+  Any,
 } from "../types";
 
 /**
  * Checks if a modifier's conditions are met
  * @param modifier - The modifier configuration with conditions and props
  * @param props - Component props (currently unused but kept for API consistency)
- * @param reactiveSnapshots - Pre-collected reactive snapshots from useSnapshot
+ * @param reactiveSnapshots - Pre-collected reactive snapshots
  * @returns true if conditions match, false otherwise
  */
 function checkModifier(
   modifier: Modifier2,
   _props: Record<string, unknown>,
-  reactiveSnapshots: Record<string, any> | null,
+  reactiveSnapshots: Record<string, Any> | null,
 ): boolean {
   const { conditions, matchAll = true } = modifier;
 
@@ -103,35 +104,10 @@ function getNestedValue(obj: unknown, path: string[]): unknown {
   return Array.isArray(result) ? result.slice() : result;
 }
 
-/**
- * Applies conditional prop modifications based on store state
- * This is the main entry point for the modifiers2 system
- *
- * Architecture:
- * 1. Collect all unique store ROOT paths referenced in conditions
- * 2. Take reactive snapshots ONCE for each ROOT path using useSnapshot
- * 3. Check each modifier's conditions against the snapshots
- * 4. Merge props from matching modifiers
- *
- * @param config - Component configuration with modifiers2 array
- * @param store - Store instance containing state, actions, computed
- * @returns Modified props object with all matching modifiers applied
- */
-export function applyModifiers2(
-  config: ComponentConfig,
-  store: StoreInstance | null,
-): Record<string, unknown> {
-  const baseProps = config.props || {};
-
-  // Early return if no modifiers defined
-  if (!config.modifiers2 || config.modifiers2.length === 0) {
-    return baseProps;
-  }
-
-  // Phase 1: Collect all unique ROOT store paths and get proxy objects
-  // We collect roots (e.g., "@store/state") not leaf values (e.g., "@store/state/threshold")
-  // This ensures we subscribe to proxy objects, not primitives
-  const snapshots: Record<string, any> = {};
+// Phase 1: Collect all unique ROOT store paths and get proxy objects
+// We collect roots (e.g., "@store/state") not leaf values (e.g., "@store/state/threshold")
+function prepareSnapshots(config: ComponentConfig, store: StoreInstance) {
+  const snapshots: Record<string, Any> = {};
 
   config.modifiers2.forEach((modifier) => {
     const { conditions } = modifier;
@@ -169,13 +145,46 @@ export function applyModifiers2(
     });
   });
 
+  return snapshots;
+}
+
+/**
+ * Applies conditional prop modifications based on store state
+ * This is the main entry point for the modifiers2 system
+ *
+ * Architecture:
+ * 1. Collect all unique store ROOT paths referenced in conditions
+ * 2. Take reactive snapshots ONCE for each ROOT path using snapshot
+ * 3. Check each modifier's conditions against the snapshots
+ * 4. Merge props from matching modifiers
+ *
+ * @param config - Component configuration with modifiers2 array
+ * @param store - Store instance containing state, actions, computed
+ * @returns Modified props object with all matching modifiers applied
+ */
+export function applyModifiers2(
+  config: ComponentConfig,
+  store: StoreInstance | null,
+): Record<string, unknown> {
+  const baseProps = config.props || {};
+
+  // Early return if no modifiers defined
+  if (!config.modifiers2 || config.modifiers2.length === 0) {
+    return baseProps;
+  }
+
+  // Phase 1: Collect all unique ROOT store paths and get proxy objects
+  // We collect roots (e.g., "@store/state") not leaf values (e.g., "@store/state/threshold")
+  // This ensures we subscribe to proxy objects, not primitives
+  const snapshots = prepareSnapshots(config, store);
+
   // Phase 2: Convert proxy objects to reactive snapshots
-  // This is where useSnapshot is called - outside any loops/conditions
-  // Only call useSnapshot on proxy objects, not primitives
+  // This is where snapshot is called - outside any loops/conditions
+  // Only call snapshot on proxy objects, not primitives
   const reactiveSnapshots = Object.keys(snapshots).reduce(
     (acc, key) => {
       const value = snapshots[key];
-      // useSnapshot only works with proxy objects, not primitives
+      // snapshot only works with proxy objects, not primitives
       if (value && typeof value === "object") {
         acc[key] = useSnapshot(value);
       } else {
@@ -184,7 +193,7 @@ export function applyModifiers2(
       }
       return acc;
     },
-    {} as Record<string, any>,
+    {} as Record<string, Any>,
   );
 
   // Phase 3: Start with base props and apply modifiers sequentially
@@ -193,11 +202,11 @@ export function applyModifiers2(
   // Phase 4: Check each modifier and merge props if conditions match
   for (const modifier of config.modifiers2) {
     if (checkModifier(modifier, baseProps, reactiveSnapshots)) {
-      if (modifier.hide) {
+      const newProps = applyModifier(modifier, modifiedProps);
+      if (!newProps) {
         return;
       }
-      // Merge with accumulated props (not baseProps) to chain modifiers
-      modifiedProps = mergeProps(modifiedProps, modifier.props);
+      modifiedProps = newProps;
     }
   }
 

@@ -1,5 +1,6 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, type ReactNode } from "react";
-import type { AppConfig } from "./types";
+import type { AppConfig } from "../../types";
 
 /**
  * Context for shared resources (modifiers, styles, etc.)

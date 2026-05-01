@@ -1,10 +1,22 @@
-import type { ReactElement, ReactNode, ComponentType, ComponentProps } from "react";
+import type {
+  ReactElement,
+  ReactNode,
+  ComponentType,
+  ComponentProps,
+} from "react";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Any = any;
 
 /** Named slots passed to a component as rendered ReactNodes */
-export type Slots<T extends Record<string, ReactNode> = Record<string, ReactNode>> = T;
+export type Slots<
+  T extends Record<string, ReactNode> = Record<string, ReactNode>,
+> = T;
 
 /** Props helper — adds optional typed `slots` to a component's props */
-export type WithSlots<T extends Record<string, ReactNode> = Record<string, ReactNode>> = {
+export type WithSlots<
+  T extends Record<string, ReactNode> = Record<string, ReactNode>,
+> = {
   slots?: Slots<T>;
 };
 
@@ -63,7 +75,10 @@ export interface ComponentConfigType {
 }
 
 export interface ComponentConfig {
-  type: keyof ComponentConfigType | `@shared/components/${string}` | `@components/${string}`;
+  type:
+    | keyof ComponentConfigType
+    | `@shared/components/${string}`
+    | `@components/${string}`;
   props?: {
     className?: ComponentProps<"div">["className"];
     style?: ComponentProps<"div">["style"];
@@ -81,7 +96,7 @@ export interface ComponentConfig {
 export interface PluginContext {
   depth: number;
   parentType?: string;
-  appConfig?: AppConfig<any>; // Full app config for accessing shared resources
+  appConfig?: AppConfig<Any>; // Full app config for accessing shared resources
   [key: string]: unknown;
 }
 
@@ -98,14 +113,13 @@ export interface Plugin<T = object> {
   ) => ReactElement;
 
   wrapComponent?: (
-    component: LibComponent<any>,
+    component: LibComponent<Any>,
     config: ComponentConfig & T,
     context: PluginContext,
-  ) => ComponentType<any>;
+  ) => ComponentType<Any>;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type LibComponent<P = any> = ComponentType<P> | string | undefined;
+export type LibComponent<P = Any> = ComponentType<P> | string | undefined;
 
 export interface ComponentMetadata {
   component: LibComponent;
@@ -131,8 +145,7 @@ export type ComputedValue<State> =
 // Store types
 export interface StoreConfig<State = DefaultState> {
   state: State;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  actions?: Record<string, (state: State, ...args: any[]) => void>;
+  actions?: Record<string, (state: State, ...args: Any[]) => void>;
   computed?: Record<string, ComputedValue<State>>;
 }
 

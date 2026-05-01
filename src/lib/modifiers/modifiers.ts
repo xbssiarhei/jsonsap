@@ -1,9 +1,7 @@
-import { evaluateCondition, mergeProps, resolveValue } from "./utils";
+import { applyModifier, evaluateCondition, resolveValue } from "./utils";
 import type { Modifier, ComponentConfig } from "../types";
 import type { StoreInstance } from "../types";
 import { useSnapshot } from "valtio";
-// import { resolveModifiers } from "../sharedResolver";
-// import { useShared } from "../SharedContext";
 
 /**
  * Checks if a modifier's conditions are met
@@ -61,27 +59,26 @@ function checkModifier(
   }
 }
 
-// const emptyProxy = proxy({});
+export const applyModifiers = useModifiers;
 
 /**
  * Applies modifiers to component config and returns modified props
  */
-export function applyModifiers(
+export function useModifiers(
   config: ComponentConfig,
   store: StoreInstance | null,
 ): Record<string, unknown> {
   const baseProps = config.props || {};
 
+  // Get snapshots for reactivity
+  // TODO: use emptyProxy
+  const stateSnapshot = useSnapshot(store?.state ? store.state : null);
+  const computedSnapshot = useSnapshot(store.computed ? store.computed : null);
+
   if (!config.modifiers) {
     return baseProps;
   }
 
-  // Get shared data from context
-  // const shared = useShared();
-
-  // Resolve modifier references using shared resolver
-  // const resolvedModifiers = resolveModifiers(config.modifiers, shared);
-  // const resolvedModifiers = resolveModifiers(config.modifiers);
   const resolvedModifiers = config.modifiers as Modifier[] | undefined;
 
   if (!resolvedModifiers || resolvedModifiers.length === 0) {
@@ -91,13 +88,13 @@ export function applyModifiers(
   // Get snapshots for reactivity
 
   // TODO: use emptyProxy
-  const stateSnapshot = store
-    ? (useSnapshot(store.state) as Record<string, unknown>)
-    : null;
+  // const stateSnapshot = store
+  //   ? (useSnapshot(store.state) as Record<string, unknown>)
+  //   : null;
 
-  const computedSnapshot = store.computed
-    ? (useSnapshot(store.computed) as Record<string, unknown>)
-    : null;
+  // const computedSnapshot = store.computed
+  //   ? (useSnapshot(store.computed) as Record<string, unknown>)
+  //   : null;
 
   // Start with base props
   let modifiedProps = { ...baseProps };
@@ -122,13 +119,13 @@ export function applyModifiers(
             computedSnapshot,
           )
         ) {
-          if (modifier.hide) {
+          const newProps = applyModifier(modifier, modifiedProps);
+          if (!newProps) {
             return;
           }
-          modifiedProps = mergeProps(modifiedProps, modifier.props);
+          modifiedProps = newProps;
         }
       }
-      // Skip Modifier2 - they should use modifiers2 field instead
     }
   }
 

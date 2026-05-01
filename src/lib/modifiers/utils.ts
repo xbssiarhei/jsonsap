@@ -1,4 +1,4 @@
-import type { ModifierCondition } from "../types";
+import type { Modifier, Modifier2, ModifierCondition } from "../types";
 
 /**
  * Evaluates a single condition against a value
@@ -111,4 +111,15 @@ export function mergeProps(
   }
 
   return result;
+}
+
+export function applyModifier(
+  modifier: Modifier | Modifier2,
+  modifiedProps: Record<string, unknown>,
+) {
+  if (modifier.hide) {
+    return;
+  }
+  // Merge with accumulated props (not baseProps) to chain modifiers
+  return mergeProps(modifiedProps, modifier.props);
 }
